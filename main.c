@@ -23,11 +23,17 @@ struct Token
 };
 
 Token *token;
+char *user_input;
 
-void error(char *fmt, ...)
+void error_at(char *loc, char *fmt, ...)
 {
   va_list ap;
   va_start(ap, fmt);
+
+  int pos = loc - user_input;
+  fprintf(stderr, "%s\n", user_input);
+  fprintf(stderr, "%*s", pos, " ");
+  fprintf(stderr, "^ ");
   vfprintf(stderr, fmt, ap);
   fprintf(stderr, "\n");
   exit(1);
@@ -45,7 +51,7 @@ bool consume(char op)
 void expect(char op)
 {
   if (token->kind != TK_RESERVED || token->str[0] != op)
-    error("token mismatch: expected %c", op);
+    error_at(token->str, "token mismatch: expected %c", op);
 
   token = token->next;
 }
@@ -53,7 +59,7 @@ void expect(char op)
 int expect_number()
 {
   if (token->kind != TK_NUM)
-    error("token mismatch: expected number");
+    error_at(token->str, "token mismatch: expected number");
 
   int val = token->val;
   token = token->next;
@@ -80,24 +86,28 @@ Token *tokenize(char *p)
   head.next = NULL;
   Token *cur = &head;
 
-  while (*p) {
-    if (isspace(*p)) {
+  while (*p)
+  {
+    if (isspace(*p))
+    {
       p++;
       continue;
     }
 
-    if (*p == '+' || *p == '-') {
+    if (*p == '+' || *p == '-')
+    {
       cur = new_token(TK_RESERVED, cur, p++);
       continue;
     }
 
-    if (isdigit(*p)) {
+    if (isdigit(*p))
+    {
       cur = new_token(TK_NUM, cur, p);
       cur->val = strtol(p, &p, 10);
       continue;
     }
 
-    error("tokenize failed");
+    error_at(p, "tokenize failed");
   }
 
   new_token(TK_EOF, cur, p);
@@ -112,7 +122,8 @@ int main(int argc, char **argv)
     return 1;
   }
 
-  token = tokenize(argv[1]);
+  user_input = argv[1];
+  token = tokenize(user_input);
 
   printf(".intel_syntax noprefix\n");
   printf(".globl main\n");
@@ -121,7 +132,8 @@ int main(int argc, char **argv)
 
   while (!at_eof())
   {
-    if (consume('+')) {
+    if (consume('+'))
+    {
       printf("  add rax, %d\n", expect_number());
       continue;
     }
