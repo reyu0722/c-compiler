@@ -2,4 +2,4 @@
 *.o
 tmp*
 a.out
-main
+mycc
