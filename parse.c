@@ -121,7 +121,7 @@ Token *tokenize(char *p)
     if ('a' <= *p && *p <= 'z')
     {
       char *q;
-      for (q = p++; 'a' <= *q && *q <= 'z'; q++)
+      for (q = p; 'a' <= *q && *q <= 'z'; q++)
         ;
 
       cur = new_token(TK_IDENT, cur, p);
