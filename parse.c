@@ -1,6 +1,26 @@
 #include "mycc.h"
 
+typedef struct LVar LVar;
+
+struct LVar
+{
+  LVar *next;
+  char *name;
+  int len;
+  int offset;
+};
+
+LVar *locals;
 Token *token;
+
+LVar *find_lvar(Token *tok)
+{
+  for (LVar *var = locals; var; var = var->next)
+    if (var->len == tok->len && !memcmp(tok->str, var->name, var->len))
+      return var;
+
+  return NULL;
+}
 
 Token *new_token(TokenKind kind, Token *cur, char *str)
 {
@@ -24,7 +44,7 @@ Token *consume_ident()
 {
   if (token->kind != TK_IDENT)
     return NULL;
-  
+
   Token *res = token;
   token = token->next;
   return res;
@@ -98,9 +118,15 @@ Token *tokenize(char *p)
       continue;
     }
 
-    if ('a' <= *p && *p <= 'z') {
-      cur = new_token(TK_IDENT, cur, p++);
-      cur->len = 1;
+    if ('a' <= *p && *p <= 'z')
+    {
+      char *q;
+      for (q = p++; 'a' <= *q && *q <= 'z'; q++)
+        ;
+
+      cur = new_token(TK_IDENT, cur, p);
+      cur->len = q - p;
+      p = q;
       continue;
     }
 
@@ -138,7 +164,8 @@ Node *mul();
 Node *unary();
 Node *primary();
 
-Node *stmt(){
+Node *stmt()
+{
   Node *node = expr();
   expect(';');
   return node;
@@ -152,7 +179,8 @@ Node *expr()
 Node *assign()
 {
   Node *node = equality();
-  if (consume("=")) {
+  if (consume("="))
+  {
     node = new_node(ND_ASSIGN, node, assign());
   }
   return node;
@@ -242,10 +270,31 @@ Node *primary()
   }
 
   Token *tok = consume_ident();
-  if (tok) {
+  if (tok)
+  {
     Node *node = calloc(1, sizeof(Node));
     node->kind = ND_LVAR;
-    node->offset = (tok->str[0] - 'a' + 1) * 8;
+
+    LVar *lvar = find_lvar(tok);
+    if (lvar)
+    {
+      node->offset = lvar->offset;
+    }
+    else
+    {
+      lvar = calloc(1, sizeof(LVar));
+      lvar->next = locals;
+      lvar->name = tok->str;
+      lvar->len = tok->len;
+      if (locals)
+        lvar->offset = locals->offset + 8;
+      else
+        lvar->offset = 0;
+
+      node->offset = lvar->offset;
+      locals = lvar;
+    }
+
     return node;
   }
 
@@ -254,9 +303,10 @@ Node *primary()
 
 Node *code[100];
 
-void program() {
+void program()
+{
   int i = 0;
-  while(!at_eof())
+  while (!at_eof())
     code[i++] = stmt();
   code[i] = NULL;
 }
