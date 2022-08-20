@@ -10,6 +10,7 @@ typedef enum
   TK_RESERVED,
   TK_IDENT,
   TK_NUM,
+  TK_RETURN,
   TK_EOF,
 } TokenKind;
 
@@ -35,6 +36,7 @@ typedef enum
   ND_NE,     // !=
   ND_LT,     // <
   ND_LE,     // <=
+  ND_RETURN, // return
   ND_LVAR,   // Local Variable
   ND_NUM,    // Integer
 } NodeKind;
