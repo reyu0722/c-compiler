@@ -61,6 +61,8 @@ extern Node *code[100];
 void gen(Node *node);
 
 // parse.c
+void program();
+
+// tokenize.c
 extern Token *token;
 Token *tokenize(char *p);
-void program();
