@@ -161,6 +161,19 @@ Node *stmt()
     return node;
   }
 
+  if (consume("{"))
+  {
+    node = new_node(ND_BLOCK, NULL, NULL);
+    Node *last = node;
+    while (!consume("}"))
+    {
+      last->rhs = new_node(ND_UNNAMED, stmt(), NULL);
+      last = last->rhs;
+    }
+
+    return node;
+  }
+
   if (consume_kind(TK_RETURN))
   {
     node = new_node(ND_RETURN, expr(), NULL);

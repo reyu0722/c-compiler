@@ -45,6 +45,7 @@ typedef enum
   ND_IFELSE, // if ... else ...
   ND_WHILE,  // while
   ND_FOR,    // for
+  ND_BLOCK,  // { ... }
   ND_LVAR,   // Local Variable
   ND_NUM,    // Integer
   ND_UNNAMED

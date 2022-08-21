@@ -15,6 +15,7 @@ void gen_lval(Node *node)
 void gen(Node *node)
 {
 	int l;
+	Node *n;
 
 	switch (node->kind)
 	{
@@ -87,6 +88,14 @@ void gen(Node *node)
 		gen(node->rhs->lhs);
 		printf("	jmp .Lbegin%d\n", l);
 		printf(".Lend%d:\n", l);
+		return;
+	case ND_BLOCK:
+		n = node->rhs;
+		while (n)
+		{
+			gen(n->lhs);
+			n = n->rhs;
+		}
 		return;
 	}
 
