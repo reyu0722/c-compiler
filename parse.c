@@ -124,6 +124,15 @@ Node *stmt()
     return node;
   }
 
+  if (consume_kind(TK_WHILE))
+  {
+    expect('(');
+    Node *lhs = expr();
+    expect(')');
+    node = new_node(ND_WHILE, lhs, stmt());
+    return node;
+  }
+
   if (consume_kind(TK_RETURN))
   {
     node = new_node(ND_RETURN, expr(), NULL);

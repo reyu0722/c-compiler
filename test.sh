@@ -42,5 +42,6 @@ assert 10 'a = 10; if (1 == 2) a = 2; return a;'
 assert 4 'if (1 == 1) return 4; else return 5;'
 assert 5 'if (1 == 2) return 4; else return 5;'
 assert 6 'if (1 == 2) return 4; else if (2 == 3) return 5; else return 6;'
+assert 10 'i = 0; while (i < 10) i = i + 1; return i;'
 
 echo OK

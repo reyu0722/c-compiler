@@ -13,6 +13,7 @@ typedef enum
   TK_RETURN,
   TK_IF,
   TK_ELSE,
+  TK_WHILE,
   TK_EOF,
 } TokenKind;
 
@@ -41,6 +42,7 @@ typedef enum
   ND_RETURN, // return
   ND_IF,     // if
   ND_IFELSE, // if ... else ...
+  ND_WHILE,  // while
   ND_LVAR,   // Local Variable
   ND_NUM,    // Integer
   ND_UNNAMED
