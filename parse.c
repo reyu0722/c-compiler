@@ -21,7 +21,6 @@ LVar *find_lvar(Token *tok)
   return NULL;
 }
 
-
 bool consume(char *op)
 {
   if (token->kind != TK_RESERVED || strlen(op) != token->len || memcmp(token->str, op, token->len))
@@ -74,8 +73,6 @@ bool at_eof()
   return token->kind == TK_EOF;
 }
 
-
-
 Node *new_node(NodeKind kind, Node *lhs, Node *rhs)
 {
   Node *node = calloc(1, sizeof(Node));
@@ -106,6 +103,15 @@ Node *primary();
 Node *stmt()
 {
   Node *node;
+
+  if (consume_kind(TK_IF))
+  {
+    expect('(');
+    Node *lhs = expr();
+    expect(')');
+    node = new_node(ND_IF, lhs, stmt());
+    return node;
+  }
 
   if (consume_kind(TK_RETURN))
   {

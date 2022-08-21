@@ -11,6 +11,7 @@ typedef enum
   TK_IDENT,
   TK_NUM,
   TK_RETURN,
+  TK_IF,
   TK_EOF,
 } TokenKind;
 
@@ -37,6 +38,7 @@ typedef enum
   ND_LT,     // <
   ND_LE,     // <=
   ND_RETURN, // return
+  ND_IF,     // if
   ND_LVAR,   // Local Variable
   ND_NUM,    // Integer
 } NodeKind;

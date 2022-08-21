@@ -68,7 +68,14 @@ Token *tokenize(char *p)
       continue;
     }
 
-    if ('a' <= *p && *p <= 'z')
+		if (strncmp(p, "if", 2) == 0 && !is_alnum(p[2]))
+		{
+			cur = new_token(TK_IF, cur, p);
+			p += 2;
+			continue;
+		}
+
+		if ('a' <= *p && *p <= 'z')
     {
       char *q;
       for (q = p; 'a' <= *q && *q <= 'z'; q++)
