@@ -14,6 +14,7 @@ typedef enum
   TK_IF,
   TK_ELSE,
   TK_WHILE,
+  TK_FOR,
   TK_EOF,
 } TokenKind;
 
@@ -43,6 +44,7 @@ typedef enum
   ND_IF,     // if
   ND_IFELSE, // if ... else ...
   ND_WHILE,  // while
+  ND_FOR,    // for
   ND_LVAR,   // Local Variable
   ND_NUM,    // Integer
   ND_UNNAMED

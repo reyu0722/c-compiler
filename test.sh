@@ -43,5 +43,7 @@ assert 4 'if (1 == 1) return 4; else return 5;'
 assert 5 'if (1 == 2) return 4; else return 5;'
 assert 6 'if (1 == 2) return 4; else if (2 == 3) return 5; else return 6;'
 assert 10 'i = 0; while (i < 10) i = i + 1; return i;'
+assert 3 'i = 0; for (i = 0; i < 3; i = i + 1) i = i; return i;'
+assert 45 'i = 0; a = 0; for(i = 0; i < 10; i = i + 1) a = a + i; return a;'
 
 echo OK

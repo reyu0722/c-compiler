@@ -133,6 +133,34 @@ Node *stmt()
     return node;
   }
 
+  if (consume_kind(TK_FOR))
+  {
+    Node *a, *b, *c, *d;
+    expect('(');
+    if (!consume(";"))
+    {
+      a = expr();
+      expect(';');
+    }
+    if (!consume(";"))
+    {
+      b = expr();
+      expect(';');
+    }
+    if (!consume(")"))
+    {
+      c = expr();
+      expect(')');
+    }
+    d = stmt();
+
+    Node *lhs = new_node(ND_UNNAMED, a, b);
+    Node *rhs = new_node(ND_UNNAMED, c, d);
+
+    node = new_node(ND_FOR, lhs, rhs);
+    return node;
+  }
+
   if (consume_kind(TK_RETURN))
   {
     node = new_node(ND_RETURN, expr(), NULL);
