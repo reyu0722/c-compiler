@@ -39,5 +39,8 @@ assert 10 'return 10;'
 assert 3 'a = 1; b = 2; return a + b;'
 assert 4 'a = 1; if (a == 1) a = a + 3; return a;'
 assert 10 'a = 10; if (1 == 2) a = 2; return a;'
+assert 4 'if (1 == 1) return 4; else return 5;'
+assert 5 'if (1 == 2) return 4; else return 5;'
+assert 6 'if (1 == 2) return 4; else if (2 == 3) return 5; else return 6;'
 
 echo OK

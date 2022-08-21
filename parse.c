@@ -109,7 +109,18 @@ Node *stmt()
     expect('(');
     Node *lhs = expr();
     expect(')');
-    node = new_node(ND_IF, lhs, stmt());
+    Node *rhs = stmt();
+
+    if (consume_kind(TK_ELSE))
+    {
+      rhs = new_node(ND_UNNAMED, rhs, stmt());
+      node = new_node(ND_IFELSE, lhs, rhs);
+    }
+    else
+    {
+      node = new_node(ND_IF, lhs, rhs);
+    }
+
     return node;
   }
 
