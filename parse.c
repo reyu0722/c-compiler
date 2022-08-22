@@ -331,7 +331,7 @@ Node *primary()
       if (locals)
         lvar->offset = locals->offset + 8;
       else
-        lvar->offset = 0;
+        lvar->offset = 8;
 
       node->offset = lvar->offset;
       locals = lvar;

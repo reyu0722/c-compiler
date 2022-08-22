@@ -48,5 +48,6 @@ assert 45 "main() {i = 0; a = 0; for(i = 0; i < 10; i = i + 1) a = a + i; return
 assert 10 "main() {{return 10;}}"
 assert 55 "main() {a = 0; i = 0; while (i <= 10) {a = a + i; i = i + 1;} return a;}"
 assert 10 "foo() {return 10;} main() {return foo();}"
+assert 2 "foo() {a = 1; return 0;} main() {a = 2; b = foo(); return a;}"
 
 echo OK
