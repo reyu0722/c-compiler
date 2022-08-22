@@ -50,10 +50,10 @@ Token *consume_ident()
   return res;
 }
 
-void expect(char op)
+void expect(char *op)
 {
-  if (token->kind != TK_RESERVED || token->str[0] != op)
-    error_at(token->str, "token mismatch: expected %c", op);
+  if (token->kind != TK_RESERVED || strlen(op) != token->len || memcmp(token->str, op, token->len))
+    error_at(token->str, "token mismatch: expected %s", op);
 
   token = token->next;
 }
@@ -106,9 +106,9 @@ Node *stmt()
 
   if (consume_kind(TK_IF))
   {
-    expect('(');
+    expect("(");
     Node *lhs = expr();
-    expect(')');
+    expect(")");
     Node *rhs = stmt();
 
     if (consume_kind(TK_ELSE))
@@ -126,9 +126,9 @@ Node *stmt()
 
   if (consume_kind(TK_WHILE))
   {
-    expect('(');
+    expect("(");
     Node *lhs = expr();
-    expect(')');
+    expect(")");
     node = new_node(ND_WHILE, lhs, stmt());
     return node;
   }
@@ -136,21 +136,21 @@ Node *stmt()
   if (consume_kind(TK_FOR))
   {
     Node *a, *b, *c, *d;
-    expect('(');
+    expect("(");
     if (!consume(";"))
     {
       a = expr();
-      expect(';');
+      expect(";");
     }
     if (!consume(";"))
     {
       b = expr();
-      expect(';');
+      expect(";");
     }
     if (!consume(")"))
     {
       c = expr();
-      expect(')');
+      expect(")");
     }
     d = stmt();
 
@@ -183,7 +183,7 @@ Node *stmt()
     node = expr();
   }
 
-  expect(';');
+  expect(";");
   return node;
 }
 
@@ -281,7 +281,7 @@ Node *primary()
   if (consume("("))
   {
     Node *node = expr();
-    expect(')');
+    expect(")");
     return node;
   }
 
@@ -305,7 +305,7 @@ Node *primary()
         if (consume(")"))
           break;
         else
-          expect(',');
+          expect(",");
       }
 
       return node;
