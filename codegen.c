@@ -14,7 +14,7 @@ void gen_lval(Node *node)
 
 void gen(Node *node)
 {
-	int l;
+	int l, i;
 	Node *n;
 
 	switch (node->kind)
@@ -98,6 +98,24 @@ void gen(Node *node)
 		}
 		return;
 	case ND_CALL:
+		n = node->rhs;
+		i = 0;
+		while (n)
+		{
+			gen(n->lhs);
+			n = n->rhs;
+			i++;
+		}
+		if (i > 6)
+			error_at(node->lhs->name, "too many arguments");
+
+		char *regs[6] = {"rdi", "rsi", "rdx", "rcx", "r8", "r9"};
+
+		for (int j = i - 1; j >= 0; j--)
+		{
+			printf("	pop %s\n", regs[j]);
+		}
+
 		printf("	call %.*s\n", node->lhs->len, node->lhs->name);
 		return;
 	}

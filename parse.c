@@ -290,13 +290,24 @@ Node *primary()
   {
     if (consume("("))
     {
-      expect(')');
-
       Node *func = calloc(1, sizeof(Node));
       func->name = tok->str;
       func->len = tok->len;
 
       Node *node = new_node(ND_CALL, func, NULL);
+
+      Node *last = node;
+      while (true)
+      {
+        last->rhs = new_node(ND_UNNAMED, expr(), NULL);
+        last = last->rhs;
+
+        if (consume(")"))
+          break;
+        else
+          expect(',');
+      }
+
       return node;
     }
 
