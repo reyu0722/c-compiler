@@ -117,6 +117,7 @@ void gen(Node *node)
 		}
 
 		printf("	call %.*s\n", node->lhs->len, node->lhs->name);
+		printf("	push rax\n");
 		return;
 	}
 

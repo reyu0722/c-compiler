@@ -65,16 +65,25 @@ struct Node
   int len;    // ND_CALL
 };
 
+typedef struct Function Function;
+struct Function
+{
+  char *name;
+  int len;
+  Node *code[100];
+};
+
 // main.c
 void error(char *fmt, ...);
 void error_at(char *loc, char *fmt, ...);
 
 // codegen.c
-extern Node *code[100];
 void gen(Node *node);
 
 // parse.c
-void program();
+extern Function function;
+bool at_eof();
+void parse_function();
 
 // tokenize.c
 extern Token *token;

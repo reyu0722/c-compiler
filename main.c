@@ -2,7 +2,8 @@
 
 char *user_input;
 
-void error(char *fmt, ...) {
+void error(char *fmt, ...)
+{
   va_list ap;
   va_start(ap, fmt);
 
@@ -35,23 +36,29 @@ int main(int argc, char **argv)
 
   user_input = argv[1];
   token = tokenize(user_input);
-  program();
 
   printf(".intel_syntax noprefix\n");
   printf(".globl main\n");
-  printf("main:\n");
 
-  printf("  push rbp\n");
-  printf("  mov rbp, rsp\n");
-  printf("  sub rsp, 208\n");
+  while (!at_eof())
+  {
+    parse_function();
 
-  for (int i = 0; code[i]; i++) {
-    gen(code[i]);
-    printf("  pop rax\n");
+    printf("%.*s:\n", function.len, function.name);
+
+    printf("  push rbp\n");
+    printf("  mov rbp, rsp\n");
+    printf("  sub rsp, 208\n");
+    for (int i = 0; function.code[i]; i++)
+    {
+      gen(function.code[i]);
+      printf("  pop rax\n");
+    }
+
+    printf("  mov rsp, rbp\n");
+    printf("  pop rbp\n");
+    printf("  ret\n");
   }
 
-  printf("  mov rsp, rbp\n");
-  printf("  pop rbp\n");
-  printf("  ret\n");
   return 0;
 }

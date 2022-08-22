@@ -100,6 +100,24 @@ Node *mul();
 Node *unary();
 Node *primary();
 
+Function function;
+
+void parse_function()
+{
+  int i = 0;
+
+  Token *tok = consume_ident();
+  function.name = tok->str;
+  function.len = tok->len;
+  expect("(");
+  expect(")");
+  expect("{");
+
+  while (!consume("}"))
+    function.code[i++] = stmt();
+  function.code[i] = NULL;
+}
+
 Node *stmt()
 {
   Node *node;
@@ -280,6 +298,8 @@ Node *primary()
       Node *node = new_node(ND_CALL, func, NULL);
 
       Node *last = node;
+      if (consume(")"))
+        return node;
       while (true)
       {
         last->rhs = new_node(ND_UNNAMED, expr(), NULL);
@@ -321,14 +341,4 @@ Node *primary()
   }
 
   return new_node_num(expect_number());
-}
-
-Node *code[100];
-
-void program()
-{
-  int i = 0;
-  while (!at_eof())
-    code[i++] = stmt();
-  code[i] = NULL;
 }
