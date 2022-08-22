@@ -330,18 +330,20 @@ Node *primary()
   Token *tok = consume_ident();
   if (tok)
   {
+    Node *node;
+
     if (consume("("))
     {
       Node *func = calloc(1, sizeof(Node));
       func->name = tok->str;
       func->len = tok->len;
 
-      Node *node = new_node(ND_CALL, func, NULL);
+      node = new_node(ND_CALL, func, NULL);
 
       Node *last = node;
       if (consume(")"))
         return node;
-      while (true)
+      for (;;)
       {
         last->rhs = new_node(ND_UNNAMED, expr(), NULL);
         last = last->rhs;
@@ -351,21 +353,14 @@ Node *primary()
         else
           expect(",");
       }
-
-      return node;
-    }
-
-    Node *node = calloc(1, sizeof(Node));
-    node->kind = ND_LVAR;
-
-    LVar *lvar = find_lvar(tok);
-    if (lvar)
-    {
-      node->offset = lvar->offset;
     }
     else
     {
-      lvar = new_lvar(tok->str, tok->len);
+      node = new_node(ND_LVAR, NULL, NULL);
+
+      LVar *lvar = find_lvar(tok);
+      if (!lvar)
+        lvar = new_lvar(tok->str, tok->len);
 
       node->offset = lvar->offset;
     }
