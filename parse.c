@@ -112,28 +112,18 @@ Node *stmt()
     Node *rhs = stmt();
 
     if (consume_kind(TK_ELSE))
-    {
-      rhs = new_node(ND_UNNAMED, rhs, stmt());
-      node = new_node(ND_IFELSE, lhs, rhs);
-    }
+      node = new_node(ND_IFELSE, lhs, new_node(ND_UNNAMED, rhs, stmt()));
     else
-    {
       node = new_node(ND_IF, lhs, rhs);
-    }
-
-    return node;
   }
-
-  if (consume_kind(TK_WHILE))
+  else if (consume_kind(TK_WHILE))
   {
     expect("(");
     Node *lhs = expr();
     expect(")");
     node = new_node(ND_WHILE, lhs, stmt());
-    return node;
   }
-
-  if (consume_kind(TK_FOR))
+  else if (consume_kind(TK_FOR))
   {
     Node *a, *b, *c, *d;
     expect("(");
@@ -158,32 +148,25 @@ Node *stmt()
     Node *rhs = new_node(ND_UNNAMED, c, d);
 
     node = new_node(ND_FOR, lhs, rhs);
-    return node;
   }
-
-  if (consume("{"))
+  else if (consume("{"))
   {
     node = new_node(ND_BLOCK, NULL, NULL);
-    Node *last = node;
-    while (!consume("}"))
-    {
+
+    for (Node *last = node; !consume("}"); last = last->rhs)
       last->rhs = new_node(ND_UNNAMED, stmt(), NULL);
-      last = last->rhs;
-    }
-
-    return node;
   }
-
-  if (consume_kind(TK_RETURN))
+  else if (consume_kind(TK_RETURN))
   {
     node = new_node(ND_RETURN, expr(), NULL);
+    expect(";");
   }
   else
   {
     node = expr();
+    expect(";");
   }
 
-  expect(";");
   return node;
 }
 
