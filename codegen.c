@@ -97,6 +97,9 @@ void gen(Node *node)
 			n = n->rhs;
 		}
 		return;
+	case ND_CALL:
+		printf("	call %.*s\n", node->lhs->len, node->lhs->name);
+		return;
 	}
 
 	gen(node->lhs);

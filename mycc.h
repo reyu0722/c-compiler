@@ -47,6 +47,7 @@ typedef enum
   ND_FOR,    // for
   ND_BLOCK,  // { ... }
   ND_LVAR,   // Local Variable
+  ND_CALL,   // Function Call
   ND_NUM,    // Integer
   ND_UNNAMED
 } NodeKind;
@@ -58,8 +59,10 @@ struct Node
   NodeKind kind;
   Node *lhs;
   Node *rhs;
-  int val;    // only use when kind == ND_NUM
-  int offset; // only use when kind == ND_LVAR
+  int val;    // ND_NUM
+  int offset; // ND_LVAR
+  char *name; // ND_CALL
+  int len;    // ND_CALL
 };
 
 // main.c
