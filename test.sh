@@ -49,5 +49,8 @@ assert 10 "main() {{return 10;}}"
 assert 55 "main() {a = 0; i = 0; while (i <= 10) {a = a + i; i = i + 1;} return a;}"
 assert 10 "foo() {return 10;} main() {return foo();}"
 assert 2 "foo() {a = 1; return 0;} main() {a = 2; b = foo(); return a;}"
+assert 5 "foo(a, b) {return a+b;} main() {return foo(2, 3);}"
+assert 55 "fib(i) {if (i == 1) return 1; if (i == 2) return 1; return fib(i - 1) + fib(i - 2);} main() {return fib(10);}"
+assert 21 "bar(a, b, c, d, e, f) {return a + b + c + d + e + f;} main() {return bar(1, 2, 3, 4, 5, 6);}"
 
 echo OK

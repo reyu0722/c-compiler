@@ -21,6 +21,22 @@ LVar *find_lvar(Token *tok)
   return NULL;
 }
 
+LVar *new_lvar(char *name, int len)
+{
+  LVar *lvar = calloc(1, sizeof(LVar));
+  lvar->next = locals;
+  lvar->name = name;
+  lvar->len = len;
+
+  if (locals)
+    lvar->offset = locals->offset + 8;
+  else
+    lvar->offset = 8;
+
+  locals = lvar;
+  return lvar;
+}
+
 bool consume(char *op)
 {
   if (token->kind != TK_RESERVED || strlen(op) != token->len || memcmp(token->str, op, token->len))
@@ -110,8 +126,33 @@ void parse_function()
   function.name = tok->str;
   function.len = tok->len;
   expect("(");
-  expect(")");
+
+  if (!consume(")"))
+  {
+    for (;;)
+    {
+      Token *arg = consume_ident();
+      if (!arg)
+        error_at(tok->str, "failed to parse argument");
+
+      LVar *lvar = find_lvar(arg);
+
+      if (!lvar)
+        lvar = new_lvar(arg->str, arg->len);
+
+      function.offsets[i] = lvar->offset;
+      i++;
+
+      if (!consume(","))
+        break;
+    }
+
+    expect(")");
+  }
+
   expect("{");
+
+  i = 0;
 
   while (!consume("}"))
     function.code[i++] = stmt();
@@ -324,17 +365,9 @@ Node *primary()
     }
     else
     {
-      lvar = calloc(1, sizeof(LVar));
-      lvar->next = locals;
-      lvar->name = tok->str;
-      lvar->len = tok->len;
-      if (locals)
-        lvar->offset = locals->offset + 8;
-      else
-        lvar->offset = 8;
+      lvar = new_lvar(tok->str, tok->len);
 
       node->offset = lvar->offset;
-      locals = lvar;
     }
 
     return node;

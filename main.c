@@ -1,6 +1,7 @@
 #include "mycc.h"
 
 char *user_input;
+char *regs[6] = {"rdi", "rsi", "rdx", "rcx", "r8", "r9"};
 
 void error(char *fmt, ...)
 {
@@ -49,6 +50,10 @@ int main(int argc, char **argv)
     printf("  push rbp\n");
     printf("  mov rbp, rsp\n");
     printf("  sub rsp, 208\n");
+
+    for (int i = 0; function.offsets[i]; i++)
+      printf("  mov [rbp - %d], %s\n", function.offsets[i], regs[i]);
+
     for (int i = 0; function.code[i]; i++)
     {
       gen(function.code[i]);

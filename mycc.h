@@ -71,6 +71,7 @@ struct Function
   char *name;
   int len;
   Node *code[100];
+  int offsets[6];
 };
 
 // main.c
