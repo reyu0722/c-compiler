@@ -40,6 +40,8 @@ typedef enum
   ND_NE,     // !=
   ND_LT,     // <
   ND_LE,     // <=
+  ND_ADDR,   // *
+  ND_DEREF,  // &
   ND_RETURN, // return
   ND_IF,     // if
   ND_IFELSE, // if ... else ...
