@@ -8,6 +8,7 @@ struct LVar
   char *name;
   int len;
   int offset;
+  Type *type;
 };
 
 LVar *locals;
@@ -21,12 +22,13 @@ LVar *find_lvar(Token *tok)
   return NULL;
 }
 
-LVar *new_lvar(char *name, int len)
+LVar *new_lvar(char *name, int len, Type *type)
 {
   LVar *lvar = calloc(1, sizeof(LVar));
   lvar->next = locals;
   lvar->name = name;
   lvar->len = len;
+  lvar->type = type;
 
   if (locals)
     lvar->offset = locals->offset + 8;
@@ -148,7 +150,7 @@ void parse_function()
       LVar *lvar = find_lvar(arg);
 
       if (!lvar)
-        lvar = new_lvar(arg->str, arg->len);
+        lvar = new_lvar(arg->str, arg->len, INT);
 
       function.offsets[i] = lvar->offset;
       i++;
@@ -343,6 +345,17 @@ Node *primary()
 
   if (consume_kind(TK_INT))
   {
+    Type *type = calloc(1, sizeof(Type));
+    type->ty = INT;
+
+    while (consume("*"))
+    {
+      Type *new_type = calloc(1, sizeof(Type));
+      new_type->ty = PTR;
+      new_type->ptr_to = type;
+      type = new_type;
+    }
+
     Token *tok = consume_ident();
 
     if (!tok)
@@ -350,10 +363,11 @@ Node *primary()
 
     LVar *lvar = find_lvar(tok);
     if (!lvar)
-      lvar = new_lvar(tok->str, tok->len);
+      lvar = new_lvar(tok->str, tok->len, type);
 
     Node *node = new_node(ND_LVAR, NULL, NULL);
     node->offset = lvar->offset;
+    node->type = lvar->type;
     return node;
   }
 
@@ -393,6 +407,7 @@ Node *primary()
         error_at(tok->str, "%.*s is not defined", tok->len, tok->str);
 
       node->offset = lvar->offset;
+      node->type = lvar->type;
     }
 
     return node;

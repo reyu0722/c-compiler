@@ -4,12 +4,16 @@ int label_count = 0;
 
 void gen_lval(Node *node)
 {
-  if (node->kind != ND_LVAR)
+  if (node->kind == ND_DEREF)
+    printf("  push rax\n");
+  else if (node->kind == ND_LVAR)
+  {
+    printf("  mov rax, rbp\n");
+    printf("  sub rax, %d\n", node->offset);
+    printf("  push rax\n");
+  }
+  else
     error("left value of assignment must be variable");
-
-  printf("  mov rax, rbp\n");
-  printf("  sub rax, %d\n", node->offset);
-  printf("  push rax\n");
 }
 
 void gen(Node *node)
