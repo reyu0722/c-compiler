@@ -74,6 +74,14 @@ void expect(char *op)
   token = token->next;
 }
 
+void expect_kind(TokenKind kind)
+{
+  if (token->kind != kind)
+    error_at(token->str, "token mismatch");
+
+  token = token->next;
+}
+
 int expect_number()
 {
   if (token->kind != TK_NUM)
@@ -122,6 +130,7 @@ void parse_function()
 {
   int i = 0;
 
+  expect_kind(TK_INT);
   Token *tok = consume_ident();
   function.name = tok->str;
   function.len = tok->len;
@@ -131,6 +140,7 @@ void parse_function()
   {
     for (;;)
     {
+      expect_kind(TK_INT);
       Token *arg = consume_ident();
       if (!arg)
         error_at(tok->str, "failed to parse argument");
@@ -331,6 +341,22 @@ Node *primary()
     return node;
   }
 
+  if (consume_kind(TK_INT))
+  {
+    Token *tok = consume_ident();
+
+    if (!tok)
+      error_at(token->str, "parse failed");
+
+    LVar *lvar = find_lvar(tok);
+    if (!lvar)
+      lvar = new_lvar(tok->str, tok->len);
+
+    Node *node = new_node(ND_LVAR, NULL, NULL);
+    node->offset = lvar->offset;
+    return node;
+  }
+
   Token *tok = consume_ident();
   if (tok)
   {
@@ -364,7 +390,7 @@ Node *primary()
 
       LVar *lvar = find_lvar(tok);
       if (!lvar)
-        lvar = new_lvar(tok->str, tok->len);
+        error_at(tok->str, "%.*s is not defined", tok->len, tok->str);
 
       node->offset = lvar->offset;
     }
