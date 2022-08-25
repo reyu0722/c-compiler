@@ -382,6 +382,15 @@ Node *unary()
       error_at(token->str, "dereference failed: not a pointer");
     return new_typed_node(ND_DEREF, l, NULL, l->type->ptr_to);
   }
+  else if (consume_kind(TK_SIZEOF))
+  {
+    Node *n = unary();
+
+    if (n->type->ty == INT)
+      return new_node_num(4);
+    else
+      return new_node_num(8);
+  }
   else
     return primary();
 }

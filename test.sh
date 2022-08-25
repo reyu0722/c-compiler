@@ -54,5 +54,9 @@ assert 55 "int fib(int i) {if (i == 1) return 1; if (i == 2) return 1; return fi
 assert 21 "int bar(int a, int b, int c, int d, int e, int f) {return a + b + c + d + e + f;} int main() {return bar(1, 2, 3, 4, 5, 6);}"
 assert 8 "int main() { int a; int *b; a = 8; b = &a; return *b;}"
 assert 10 "int main() {int x; int *y; x = 8; y = &x; *y = *y + 2; return x;}"
+assert 4 "int main() {return sizeof(0);}"
+assert 8 "int main() {int *a; return sizeof a;}"
+assert 4 "int main() {int a; return sizeof(a + 1);}"
+
 
 echo OK
