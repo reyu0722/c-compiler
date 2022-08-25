@@ -54,7 +54,6 @@ Token *tokenize(char *p)
 		{
 			char *newp;
 			int val = strtol(p, &newp, 10);
-			int digit = (newp - p) / sizeof(char);
 			p = newp;
 			cur = new_token(TK_NUM, cur, p);
 			cur->val = val;
