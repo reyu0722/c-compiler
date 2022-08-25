@@ -53,6 +53,6 @@ assert 5 "int foo(int a, int b) {return a+b;} int main() {return foo(2, 3);}"
 assert 55 "int fib(int i) {if (i == 1) return 1; if (i == 2) return 1; return fib(i - 1) + fib(i - 2);} int main() {return fib(10);}"
 assert 21 "int bar(int a, int b, int c, int d, int e, int f) {return a + b + c + d + e + f;} int main() {return bar(1, 2, 3, 4, 5, 6);}"
 assert 8 "int main() { int a; int b; a = 8; b = &a; return *b;}"
-assert 10 "int main() {int x; int y; int x = 8; int y = &x; *y = *y + 2; return x;}"
+assert 10 "int main() {int x; int y; x = 8; y = &x; *y = *y + 2; return x;}"
 
 echo OK
