@@ -4,4 +4,4 @@ tmp*
 a.out
 mycc
 .gdb_history
-peda-session-tmp.txt
+peda-session-*

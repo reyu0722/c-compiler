@@ -148,9 +148,11 @@ void parse_function()
         error_at(tok->str, "failed to parse argument");
 
       LVar *lvar = find_lvar(arg);
+      Type *type = calloc(1, sizeof(Type));
+      type->ty = INT;
 
       if (!lvar)
-        lvar = new_lvar(arg->str, arg->len, INT);
+        lvar = new_lvar(arg->str, arg->len, type);
 
       function.offsets[i] = lvar->offset;
       i++;
@@ -296,6 +298,21 @@ Node *add()
 
   for (;;)
   {
+    if (node->kind == ND_LVAR && node->type->ty == PTR)
+    {
+      int size;
+      if (node->type->ptr_to->ty == INT)
+        size = 4;
+      else
+        size = 8;
+
+      if (consume("+"))
+        node = new_node(ND_ADD, node, new_node(ND_MUL, mul(), new_node_num(size)));
+      else if (consume("-"))
+        node = new_node(ND_SUB, node, new_node(ND_MUL, mul(), new_node_num(size)));
+      else
+        return node;
+    }
     if (consume("+"))
       node = new_node(ND_ADD, node, mul());
     else if (consume("-"))
