@@ -56,14 +56,16 @@ typedef enum
   ND_UNNAMED
 } NodeKind;
 
+typedef enum
+{
+  INT,
+  PTR
+} TypeKind;
+
 typedef struct Type Type;
 struct Type
 {
-  enum
-  {
-    INT,
-    PTR
-  } ty;
+  TypeKind ty;
   Type *ptr_to;
 };
 

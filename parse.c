@@ -126,6 +126,15 @@ Node *new_node_num(int val)
   return node;
 }
 
+Type *new_type(TypeKind ty, Type *ptr_to)
+{
+  Type *type = calloc(1, sizeof(Type));
+  type->ty = ty;
+  type->ptr_to = ptr_to;
+
+  return type;
+}
+
 Node *stmt();
 Node *expr();
 Node *assign();
@@ -158,11 +167,8 @@ void parse_function()
         error_at(tok->str, "failed to parse argument");
 
       LVar *lvar = find_lvar(arg);
-      Type *type = calloc(1, sizeof(Type));
-      type->ty = INT;
-
       if (!lvar)
-        lvar = new_lvar(arg->str, arg->len, type);
+        lvar = new_lvar(arg->str, arg->len, new_type(INT, NULL));
 
       function.offsets[i] = lvar->offset;
       i++;
@@ -273,15 +279,12 @@ Node *equality()
 {
   Node *node = relational();
 
-  Type *type = calloc(1, sizeof(Type));
-  type->ty = INT;
-
   for (;;)
   {
     if (consume("=="))
-      node = new_typed_node(ND_EQ, node, relational(), type);
+      node = new_typed_node(ND_EQ, node, relational(), new_type(INT, NULL));
     else if (consume("!="))
-      node = new_typed_node(ND_NE, node, relational(), type);
+      node = new_typed_node(ND_NE, node, relational(), new_type(INT, NULL));
     else
       return node;
   }
@@ -291,19 +294,16 @@ Node *relational()
 {
   Node *node = add();
 
-  Type *type = calloc(1, sizeof(Type));
-  type->ty = INT;
-
   for (;;)
   {
     if (consume("<="))
-      node = new_typed_node(ND_LE, node, add(), type);
+      node = new_typed_node(ND_LE, node, add(), new_type(INT, NULL));
     else if (consume("<"))
-      node = new_typed_node(ND_LT, node, add(), type);
+      node = new_typed_node(ND_LT, node, add(), new_type(INT, NULL));
     else if (consume(">="))
-      node = new_typed_node(ND_LE, add(), node, type);
+      node = new_typed_node(ND_LE, add(), node, new_type(INT, NULL));
     else if (consume(">"))
-      node = new_typed_node(ND_LT, add(), node, type);
+      node = new_typed_node(ND_LT, add(), node, new_type(INT, NULL));
     else
       return node;
   }
@@ -360,20 +360,12 @@ Node *unary()
   if (consume("+"))
     return primary();
   else if (consume("-"))
-  {
-    Type *type = calloc(1, sizeof(Type));
-    type->ty = INT;
-    return new_typed_node(ND_SUB, new_node_num(0), primary(), type);
-  }
+    return new_typed_node(ND_SUB, new_node_num(0), primary(), new_type(INT, NULL));
+
   else if (consume("&"))
   {
     Node *l = primary();
-
-    Type *type = calloc(1, sizeof(Type));
-    type->ty = PTR;
-    type->ptr_to = l->type;
-
-    return new_typed_node(ND_ADDR, l, NULL, type);
+    return new_typed_node(ND_ADDR, l, NULL, new_type(PTR, l->type));
   }
   else if (consume("*"))
   {
@@ -406,16 +398,10 @@ Node *primary()
 
   if (consume_kind(TK_INT))
   {
-    Type *type = calloc(1, sizeof(Type));
-    type->ty = INT;
+    Type *type = new_type(INT, NULL);
 
     while (consume("*"))
-    {
-      Type *new_type = calloc(1, sizeof(Type));
-      new_type->ty = PTR;
-      new_type->ptr_to = type;
-      type = new_type;
-    }
+      type = new_type(PTR, type);
 
     Token *tok = consume_ident();
 
@@ -442,9 +428,7 @@ Node *primary()
       func->name = tok->str;
       func->len = tok->len;
 
-      Type *type = calloc(1, sizeof(Type));
-      type->ty = INT;
-      node = new_typed_node(ND_CALL, func, NULL, type);
+      node = new_typed_node(ND_CALL, func, NULL, new_type(INT, NULL));
 
       Node *last = node;
       if (consume(")"))
