@@ -75,7 +75,7 @@ struct Node
   Node *rhs;
   int val;    // ND_NUM
   int offset; // ND_LVAR
-  Type *type;  // ND_LVAR
+  Type *type; // expr
   char *name; // ND_CALL
   int len;    // ND_CALL
 };
@@ -90,8 +90,7 @@ struct Function
 };
 
 // main.c
-void
-error(char *fmt, ...);
+void error(char *fmt, ...);
 void error_at(char *loc, char *fmt, ...);
 
 // codegen.c
