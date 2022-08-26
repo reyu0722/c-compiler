@@ -315,13 +315,18 @@ Node *add()
 
   for (;;)
   {
-    if (node->kind == ND_LVAR && node->type->ty == PTR)
+    if (node->type->ty == PTR)
     {
       int size;
-      if (node->type->ptr_to->ty == INT)
+      switch (node->type->ptr_to->ty)
+      {
+      case INT:
         size = 4;
-      else
+        break;
+      case PTR:
         size = 8;
+        break;
+      }
 
       if (consume("+"))
         node = new_typed_node(ND_ADD, node, new_node(ND_MUL, mul(), new_node_num(size)), node->type);
@@ -378,13 +383,16 @@ Node *unary()
   {
     Node *n = unary();
 
-    if (n->type->ty == INT)
+    switch (n->type->ty)
+    {
+    case INT:
       return new_node_num(4);
-    else
+    case PTR:
       return new_node_num(8);
+    }
   }
-  else
-    return primary();
+
+  return primary();
 }
 
 Node *primary()
