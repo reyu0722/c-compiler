@@ -135,6 +135,19 @@ Type *new_type(TypeKind ty, Type *ptr_to)
   return type;
 }
 
+int sizeof_type(Type *type)
+{
+  switch (type->ty)
+  {
+  case INT:
+    return 4;
+  case PTR:
+    return 8;
+  }
+
+  __builtin_unreachable();
+}
+
 Node *stmt();
 Node *expr();
 Node *assign();
@@ -317,16 +330,7 @@ Node *add()
   {
     if (node->type->ty == PTR)
     {
-      int size;
-      switch (node->type->ptr_to->ty)
-      {
-      case INT:
-        size = 4;
-        break;
-      case PTR:
-        size = 8;
-        break;
-      }
+      int size = sizeof_type(node->type->ptr_to);
 
       if (consume("+"))
         node = new_typed_node(ND_ADD, node, new_node(ND_MUL, mul(), new_node_num(size)), node->type);
@@ -383,13 +387,7 @@ Node *unary()
   {
     Node *n = unary();
 
-    switch (n->type->ty)
-    {
-    case INT:
-      return new_node_num(4);
-    case PTR:
-      return new_node_num(8);
-    }
+    return new_node_num(sizeof_type(n->type));
   }
 
   return primary();
