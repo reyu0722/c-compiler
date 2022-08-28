@@ -51,6 +51,7 @@ typedef enum
   ND_FOR,    // for
   ND_BLOCK,  // { ... }
   ND_LVAR,   // Local Variable
+  ND_GVAR,   // Global Variable
   ND_CALL,   // Function Call
   ND_NUM,    // Integer
   ND_UNNAMED
@@ -85,13 +86,21 @@ struct Node
   int len;    // ND_CALL
 };
 
-typedef struct Function Function;
-struct Function
+typedef enum
 {
+  FUNC,
+  GVAR
+} ExternalKind;
+
+typedef struct External External;
+struct External
+{
+  ExternalKind kind;
   char *name;
   int len;
   Node *code[100];
   int offsets[6];
+  int size;
 };
 
 // main.c
@@ -102,9 +111,8 @@ void error_at(char *loc, char *fmt, ...);
 void gen(Node *node);
 
 // parse.c
-extern Function function;
 bool at_eof();
-void parse_function();
+External *external();
 
 // tokenize.c
 extern Token *token;

@@ -40,6 +40,37 @@ LVar *new_lvar(char *name, int len, Type *type)
   return lvar;
 }
 
+typedef struct GVar GVar;
+struct GVar
+{
+  GVar *next;
+  char *name;
+  int len;
+  Type *type;
+};
+
+GVar *globals;
+
+void new_gvar(char *name, int len, Type *type)
+{
+  GVar *gvar = calloc(1, sizeof(GVar));
+  gvar->next = globals;
+  gvar->name = name;
+  gvar->len = len;
+  gvar->type = type;
+
+  globals = gvar;
+}
+
+GVar *find_gvar(Token *tok)
+{
+  for (GVar *var = globals; var; var = var->next)
+    if (var->len == tok->len && !memcmp(tok->str, var->name, var->len))
+      return var;
+
+  return NULL;
+}
+
 bool consume(char *op)
 {
   if (token->kind != TK_RESERVED || strlen(op) != token->len || memcmp(token->str, op, token->len))
@@ -162,48 +193,70 @@ Node *unary();
 Node *postfix();
 Node *primary();
 
-Function function;
-
-void parse_function()
+External *external()
 {
+  External *external = calloc(1, sizeof(External));
   int i = 0;
 
   expect_kind(TK_INT);
+  Type *type = new_type(INT, NULL);
+  while (consume("*"))
+    type = new_type(PTR, type);
+
   Token *tok = consume_ident();
-  function.name = tok->str;
-  function.len = tok->len;
-  expect("(");
-
-  if (!consume(")"))
+  external->name = tok->str;
+  external->len = tok->len;
+  if (consume("("))
   {
-    for (;;)
+    external->kind = FUNC;
+    if (!consume(")"))
     {
-      expect_kind(TK_INT);
-      Token *arg = consume_ident();
-      if (!arg)
-        error_at(tok->str, "failed to parse argument");
+      for (;;)
+      {
+        expect_kind(TK_INT);
+        Token *arg = consume_ident();
+        if (!arg)
+          error_at(tok->str, "failed to parse argument");
 
-      LVar *lvar = find_lvar(arg);
-      if (!lvar)
-        lvar = new_lvar(arg->str, arg->len, new_type(INT, NULL));
+        LVar *lvar = find_lvar(arg);
+        if (!lvar)
+          lvar = new_lvar(arg->str, arg->len, new_type(INT, NULL));
 
-      function.offsets[i] = lvar->offset;
-      i++;
+        external->offsets[i] = lvar->offset;
+        i++;
 
-      if (!consume(","))
-        break;
+        if (!consume(","))
+          break;
+      }
+
+      expect(")");
     }
 
-    expect(")");
+    expect("{");
+
+    i = 0;
+
+    while (!consume("}"))
+      external->code[i++] = stmt();
+    external->code[i] = NULL;
+  }
+  else
+  {
+    external->kind = GVAR;
+    while (consume("["))
+    {
+      type = new_type(ARRAY, type);
+      type->array_size = expect_number();
+      expect("]");
+    }
+
+    new_gvar(tok->str, tok->len, type);
+    external->size = sizeof_type(type);
+
+    expect(";");
   }
 
-  expect("{");
-
-  i = 0;
-
-  while (!consume("}"))
-    function.code[i++] = stmt();
-  function.code[i] = NULL;
+  return external;
 }
 
 Node *stmt()
@@ -411,7 +464,7 @@ Node *postfix()
   {
     if (consume("["))
     {
-      Node* subscript = expr();
+      Node *subscript = expr();
       node = new_typed_node(ND_DEREF, new_typed_node(ND_ADD, node, subscript, node->type), NULL, node->type->ptr_to);
       expect("]");
       continue;
@@ -489,11 +542,23 @@ Node *primary()
     else
     {
       LVar *lvar = find_lvar(tok);
-      if (!lvar)
-        error_at(tok->str, "%.*s is not defined", tok->len, tok->str);
-
-      node = new_typed_node(ND_LVAR, NULL, NULL, lvar->type);
-      node->offset = lvar->offset;
+      if (lvar)
+      {
+        node = new_typed_node(ND_LVAR, NULL, NULL, lvar->type);
+        node->offset = lvar->offset;
+      }
+      else
+      {
+        GVar *gvar = find_gvar(tok);
+        if (gvar)
+        {
+          node = new_typed_node(ND_GVAR, NULL, NULL, gvar->type);
+          node->name = tok->str;
+          node->len = tok->len;
+        }
+        else
+          error_at(tok->str, "%.*s is not defined", tok->len, tok->str);
+      }
     }
 
     return node;

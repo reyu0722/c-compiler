@@ -43,26 +43,36 @@ int main(int argc, char **argv)
 
   while (!at_eof())
   {
-    parse_function();
+    External *ext = external();
 
-    printf("%.*s:\n", function.len, function.name);
-
-    printf("  push rbp\n");
-    printf("  mov rbp, rsp\n");
-    printf("  sub rsp, 208\n");
-
-    for (int i = 0; function.offsets[i]; i++)
-      printf("  mov [rbp - %d], %s\n", function.offsets[i], regs[i]);
-
-    for (int i = 0; function.code[i]; i++)
+    switch (ext->kind)
     {
-      gen(function.code[i]);
-      printf("  pop rax\n");
-    }
+    case FUNC:
+      printf(".text\n");
+      printf("%.*s:\n", ext->len, ext->name);
+      printf("  push rbp\n");
+      printf("  mov rbp, rsp\n");
+      printf("  sub rsp, 208\n");
 
-    printf("  mov rsp, rbp\n");
-    printf("  pop rbp\n");
-    printf("  ret\n");
+      for (int i = 0; i < 6 && ext->offsets[i]; i++)
+        printf("  mov [rbp - %d], %s\n", ext->offsets[i], regs[i]);
+
+      for (int i = 0; ext->code[i]; i++)
+      {
+        gen(ext->code[i]);
+        printf("  pop rax\n");
+      }
+
+      printf("  mov rsp, rbp\n");
+      printf("  pop rbp\n");
+      printf("  ret\n");
+      break;
+    case GVAR:
+      printf(".data\n");
+      printf("%.*s:\n", ext->len, ext->name);
+      printf("  .zero %d\n", ext->size);
+      break;
+    }
   }
 
   return 0;

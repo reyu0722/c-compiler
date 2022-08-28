@@ -4,7 +4,7 @@ assert() {
   input="$2"
 
   ./mycc "$input" > tmp.s
-  cc -o tmp tmp.s
+  cc -static -o tmp tmp.s
   ./tmp
   actual="$?"
 
@@ -61,5 +61,9 @@ assert 24 "int main() {int a[3]; return sizeof a;}"
 assert 10 "int main() {int a[2]; *(a + 1) = 10; return *(a + 1);}"
 assert 3 "int main() {int a[2]; int b; *(a + 1) = 3; b = 4; return *(a + 1);}"
 assert 4 "int main() {int arr[10]; int i; for (i=0; i<10; i = i + 1) arr[i] = i; return arr[4];}"
+assert 10 "int g; int main() { g = 10; return g; }"
+assert 10 "int g; int foo() {g = 10;} int main() { g = 20; foo(); return g; }"
+assert 20 "int g; int foo() {g = 10;} int main() { int g; g = 20; foo(); return g; }"
+
 
 echo OK
