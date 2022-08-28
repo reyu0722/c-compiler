@@ -64,6 +64,6 @@ assert 4 "int main() {int arr[10]; int i; for (i=0; i<10; i = i + 1) arr[i] = i;
 assert 10 "int g; int main() { g = 10; return g; }"
 assert 10 "int g; int foo() {g = 10;} int main() { g = 20; foo(); return g; }"
 assert 20 "int g; int foo() {g = 10;} int main() { int g; g = 20; foo(); return g; }"
-
+assert 3 "int main() {char x[3]; x[0] = -1; x[1] = 2; int y; y = 4; return x[0] + y;}"
 
 echo OK

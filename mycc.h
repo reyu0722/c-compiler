@@ -16,6 +16,7 @@ typedef enum
   TK_WHILE,
   TK_FOR,
   TK_INT,
+  TK_CHAR,
   TK_EOF,
   TK_SIZEOF
 } TokenKind;
@@ -61,7 +62,8 @@ typedef enum
 {
   INT,
   PTR,
-  ARRAY
+  ARRAY,
+  CHAR,
 } TypeKind;
 
 typedef struct Type Type;

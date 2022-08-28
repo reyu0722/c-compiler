@@ -102,9 +102,17 @@ Token *tokenize(char *p)
 			continue;
 		}
 
-		if (strncmp(p, "sizeof", 6) == 0 && !is_alnum(p[6])) {
+		if (strncmp(p, "sizeof", 6) == 0 && !is_alnum(p[6]))
+		{
 			cur = new_token(TK_SIZEOF, cur, p);
 			p += 6;
+			continue;
+		}
+
+		if (strncmp(p, "char", 4) == 0 && !is_alnum(p[4]))
+		{
+			cur = new_token(TK_CHAR, cur, p);
+			p += 4;
 			continue;
 		}
 

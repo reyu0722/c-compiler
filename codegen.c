@@ -35,7 +35,16 @@ void gen(Node *node)
   case ND_GVAR:
     gen_lval(node);
     printf("  pop rax\n");
-    printf("  mov rax, [rax]\n");
+    switch (node->type->ty)
+    {
+    case INT:
+    case PTR:
+      printf("  mov rax, [rax]\n");
+      break;
+    case CHAR:
+      printf("  movsx rax, BYTE PTR [rax]\n");
+      break;
+    }
     printf("  push rax\n");
     return;
   case ND_ASSIGN:
@@ -44,7 +53,20 @@ void gen(Node *node)
 
     printf("  pop rdi\n");
     printf("  pop rax\n");
-    printf("  mov [rax], rdi\n");
+    if (node->lhs->kind == ND_LVAR || node->lhs->kind == ND_GVAR)
+    {
+      switch (node->lhs->type->ty)
+      {
+      case INT:
+      case PTR:
+        printf("  mov [rax], rdi\n");
+        break;
+      case CHAR:
+        printf("  mov [rax], dl\n");
+      }
+    }
+    else
+      printf("  mov [rax], rdi\n");
     printf("  push rdi\n");
     return;
   case ND_RETURN:

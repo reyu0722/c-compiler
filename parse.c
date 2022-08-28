@@ -177,6 +177,8 @@ int sizeof_type(Type *type)
     return 8;
   case ARRAY:
     return sizeof_type(type->ptr_to) * type->array_size;
+  case CHAR:
+    return 1;
   }
 
   __builtin_unreachable();
@@ -193,13 +195,25 @@ Node *unary();
 Node *postfix();
 Node *primary();
 
+Type *consume_type_name()
+{
+  if (consume_kind(TK_INT))
+    return new_type(INT, NULL);
+  else if (consume_kind(TK_CHAR))
+    return new_type(CHAR, NULL);
+
+  return NULL;
+}
+
 External *external()
 {
   External *external = calloc(1, sizeof(External));
   int i = 0;
 
-  expect_kind(TK_INT);
-  Type *type = new_type(INT, NULL);
+  Type *type = consume_type_name();
+  if (!type)
+    error_at(token->str, "invalid type");
+
   while (consume("*"))
     type = new_type(PTR, type);
 
@@ -483,10 +497,9 @@ Node *primary()
     return node;
   }
 
-  if (consume_kind(TK_INT))
+  Type *type = consume_type_name();
+  if (type)
   {
-    Type *type = new_type(INT, NULL);
-
     while (consume("*"))
       type = new_type(PTR, type);
 
