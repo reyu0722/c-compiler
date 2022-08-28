@@ -60,5 +60,6 @@ assert 8 "int main() {int *a; return sizeof a;}"
 assert 24 "int main() {int a[3]; return sizeof a;}"
 assert 10 "int main() {int a[2]; *(a + 1) = 10; return *(a + 1);}"
 assert 3 "int main() {int a[2]; int b; *(a + 1) = 3; b = 4; return *(a + 1);}"
+assert 4 "int main() {int arr[10]; int i; for (i=0; i<10; i = i + 1) arr[i] = i; return arr[4];}"
 
 echo OK

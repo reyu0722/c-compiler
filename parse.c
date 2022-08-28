@@ -159,6 +159,7 @@ Node *relational();
 Node *add();
 Node *mul();
 Node *unary();
+Node *postfix();
 Node *primary();
 
 Function function;
@@ -373,9 +374,9 @@ Node *mul()
 Node *unary()
 {
   if (consume("+"))
-    return primary();
+    return postfix();
   else if (consume("-"))
-    return new_typed_node(ND_SUB, new_node_num(0), primary(), new_type(INT, NULL));
+    return new_typed_node(ND_SUB, new_node_num(0), postfix(), new_type(INT, NULL));
   else if (consume("&"))
   {
     Node *l = primary();
@@ -399,7 +400,25 @@ Node *unary()
     return new_node_num(sizeof_type(n->type));
   }
 
-  return primary();
+  return postfix();
+}
+
+Node *postfix()
+{
+  Node *node = primary();
+
+  for (;;)
+  {
+    if (consume("["))
+    {
+      Node* subscript = expr();
+      node = new_typed_node(ND_DEREF, new_typed_node(ND_ADD, node, subscript, node->type), NULL, node->type->ptr_to);
+      expect("]");
+      continue;
+    }
+    break;
+  }
+  return node;
 }
 
 Node *primary()
