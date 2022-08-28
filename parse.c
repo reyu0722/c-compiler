@@ -22,6 +22,7 @@ LVar *find_lvar(Token *tok)
   return NULL;
 }
 
+int sizeof_type(Type *type);
 LVar *new_lvar(char *name, int len, Type *type)
 {
   LVar *lvar = calloc(1, sizeof(LVar));
@@ -31,9 +32,9 @@ LVar *new_lvar(char *name, int len, Type *type)
   lvar->type = type;
 
   if (locals)
-    lvar->offset = locals->offset + 8;
+    lvar->offset = locals->offset + sizeof_type(type);
   else
-    lvar->offset = 8;
+    lvar->offset = sizeof_type(type);
 
   locals = lvar;
   return lvar;
@@ -140,9 +141,11 @@ int sizeof_type(Type *type)
   switch (type->ty)
   {
   case INT:
-    return 4;
+    return 8;
   case PTR:
     return 8;
+  case ARRAY:
+    return sizeof_type(type->ptr_to) * type->array_size;
   }
 
   __builtin_unreachable();
@@ -328,16 +331,19 @@ Node *add()
 
   for (;;)
   {
-    if (node->type->ty == PTR)
+    if (node->type->ty == PTR || node->type->ty == ARRAY)
     {
       int size = sizeof_type(node->type->ptr_to);
+
+      if (node->type->ty == ARRAY)
+        node = new_typed_node(ND_ADDR, node, NULL, new_type(PTR, node->type->ptr_to));
 
       if (consume("+"))
         node = new_typed_node(ND_ADD, node, new_node(ND_MUL, mul(), new_node_num(size)), node->type);
       else if (consume("-"))
         node = new_typed_node(ND_SUB, node, new_node(ND_MUL, mul(), new_node_num(size)), node->type);
-      else
-        return node;
+
+      return node;
     }
 
     if (consume("+"))
@@ -370,7 +376,6 @@ Node *unary()
     return primary();
   else if (consume("-"))
     return new_typed_node(ND_SUB, new_node_num(0), primary(), new_type(INT, NULL));
-
   else if (consume("&"))
   {
     Node *l = primary();
@@ -379,8 +384,12 @@ Node *unary()
   else if (consume("*"))
   {
     Node *l = primary();
-    if (l->type->ty != PTR)
+    if (l->type->ty != PTR && l->type->ty != ARRAY)
       error_at(token->str, "dereference failed: not a pointer");
+
+    if (l->type->ty == ARRAY)
+      l = new_typed_node(ND_ADDR, l, NULL, new_type(PTR, l->type->ptr_to));
+
     return new_typed_node(ND_DEREF, l, NULL, l->type->ptr_to);
   }
   else if (consume_kind(TK_SIZEOF))
@@ -413,6 +422,14 @@ Node *primary()
 
     if (!tok)
       error_at(token->str, "parse failed");
+
+    while (consume("["))
+    {
+      int val = expect_number();
+      type = new_type(ARRAY, type);
+      type->array_size = val;
+      expect("]");
+    }
 
     LVar *lvar = find_lvar(tok);
     if (!lvar)

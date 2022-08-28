@@ -5,7 +5,7 @@ int label_count = 0;
 void gen_lval(Node *node)
 {
   if (node->kind == ND_DEREF)
-    printf("  push rax\n");
+    gen(node->lhs);
   else if (node->kind == ND_LVAR)
   {
     printf("  mov rax, rbp\n");
