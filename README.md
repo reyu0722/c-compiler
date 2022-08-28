@@ -6,8 +6,9 @@ C (subset) compiler written in C.
 ## Syntax
 
 ```ebnf
-program    = function*
-function   = "int" "(" ("int" ident ("," "int" ident)*)? ")" "{" stmt* "}"
+program    = external*
+external   = "int" "*"* ident ("(" ("int" ident ("," "int" ident)*)? ")" "{" stmt* "}"
+           | "int" "*"* ident ("[" num "]")* ";"
 stmt       = expr ";"
            | "if" "(" expr ")" stmt ("else" stmt)?
            | "while "(" expr ")" stmt
@@ -23,7 +24,7 @@ mul        = unary ("*" unary | "/" unary)*
 unary      = ("+" | "-" | "&" | "*" | "sizeof")? postfix
 postfix    = primary ("[" expr "]")*
 primary    = num | "(" expr ")"
-           | "int" ident ("[" num "]")*
+           | "int" "*"* ident ("[" num "]")*
            | ident ("(" (ident ("," ident)*)? ")")?
 ```
 
