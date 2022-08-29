@@ -80,14 +80,15 @@ bool consume(char *op)
   return true;
 }
 
-bool consume_kind(TokenKind kind)
+Token *consume_kind(TokenKind kind)
 {
   if (token->kind == kind)
   {
+    Token *tok = token;
     token = token->next;
-    return true;
+    return tok;
   }
-  return false;
+  return NULL;
 }
 
 Token *consume_ident()
@@ -205,9 +206,13 @@ Type *consume_type_name()
   return NULL;
 }
 
+External *ext;
+int literal_count;
+
 External *external()
 {
   External *external = calloc(1, sizeof(External));
+  ext = external;
   int i = 0;
 
   Type *type = consume_type_name();
@@ -497,13 +502,27 @@ Node *primary()
     return node;
   }
 
+  Token *tok = consume_kind(TK_STRING);
+  if (tok)
+  {
+    StringLiteral *s = calloc(1, sizeof(StringLiteral));
+    s->str = tok->str;
+    s->len = tok->len;
+    s->next = ext->literals;
+    ext->literals = s;
+    Node *node = new_typed_node(ND_STRING, NULL, NULL, new_type(PTR, new_type(CHAR, NULL)));
+    node->offset = literal_count++;
+    s->offset = node->offset;
+    return node;
+  }
+
   Type *type = consume_type_name();
   if (type)
   {
     while (consume("*"))
       type = new_type(PTR, type);
 
-    Token *tok = consume_ident();
+    tok = consume_ident();
 
     if (!tok)
       error_at(token->str, "parse failed");
@@ -525,7 +544,7 @@ Node *primary()
     return node;
   }
 
-  Token *tok = consume_ident();
+  tok = consume_ident();
   if (tok)
   {
     Node *node;

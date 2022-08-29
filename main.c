@@ -48,6 +48,13 @@ int main(int argc, char **argv)
     switch (ext->kind)
     {
     case FUNC:
+      for (StringLiteral *l = ext->literals; l; l = l->next)
+      {
+        printf(".data\n");
+        printf(".LC%d:\n", l->offset);
+        printf("  .string \"%.*s\"\n", l->len, l->str);
+      }
+
       printf(".text\n");
       printf("%.*s:\n", ext->len, ext->name);
       printf("  push rbp\n");

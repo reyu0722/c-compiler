@@ -17,6 +17,11 @@ void gen_lval(Node *node)
     printf("  lea rax, %.*s[rip]\n", node->len, node->name);
     printf("  push rax\n");
   }
+  else if (node->kind == ND_STRING)
+  {
+    printf("  lea rax, .LC%d[rip]\n", node->offset);
+    printf("  push rax\n");
+  }
   else
     error("left value of assignment must be variable");
 }
@@ -46,6 +51,9 @@ void gen(Node *node)
       break;
     }
     printf("  push rax\n");
+    return;
+  case ND_STRING:
+    gen_lval(node);
     return;
   case ND_ASSIGN:
     gen_lval(node->lhs);

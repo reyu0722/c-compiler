@@ -50,6 +50,15 @@ Token *tokenize(char *p)
 			continue;
 		}
 
+		if (*p == '"')
+		{
+			cur = new_token(TK_STRING, cur, ++p);
+			for (; *p != '"'; p++)
+				cur->len++;
+			p++;
+			continue;
+		}
+
 		if (isdigit(*p))
 		{
 			char *newp;

@@ -18,7 +18,8 @@ typedef enum
   TK_INT,
   TK_CHAR,
   TK_EOF,
-  TK_SIZEOF
+  TK_SIZEOF,
+  TK_STRING
 } TokenKind;
 
 typedef struct Token Token;
@@ -55,6 +56,7 @@ typedef enum
   ND_GVAR,   // Global Variable
   ND_CALL,   // Function Call
   ND_NUM,    // Integer
+  ND_STRING, // String literals
   ND_UNNAMED
 } NodeKind;
 
@@ -88,6 +90,15 @@ struct Node
   int len;    // ND_CALL
 };
 
+typedef struct StringLiteral StringLiteral;
+struct StringLiteral
+{
+  StringLiteral *next;
+  char *str;
+  int len;
+  int offset;
+};
+
 typedef enum
 {
   FUNC,
@@ -103,6 +114,7 @@ struct External
   Node *code[100];
   int offsets[6];
   int size;
+  StringLiteral *literals;
 };
 
 // main.c
