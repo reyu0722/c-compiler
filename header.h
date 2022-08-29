@@ -36,28 +36,29 @@ struct Token
 
 typedef enum
 {
-  ND_ADD,    // +
-  ND_SUB,    // -
-  ND_MUL,    // *
-  ND_DIV,    // /
-  ND_ASSIGN, // =
-  ND_EQ,     // ==
-  ND_NE,     // !=
-  ND_LT,     // <
-  ND_LE,     // <=
-  ND_ADDR,   // *
-  ND_DEREF,  // &
-  ND_RETURN, // return
-  ND_IF,     // if
-  ND_IFELSE, // if ... else ...
-  ND_WHILE,  // while
-  ND_FOR,    // for
-  ND_BLOCK,  // { ... }
-  ND_LVAR,   // Local Variable
-  ND_GVAR,   // Global Variable
-  ND_CALL,   // Function Call
-  ND_NUM,    // Integer
-  ND_STRING, // String literals
+  ND_ADD,          // +
+  ND_SUB,          // -
+  ND_MUL,          // *
+  ND_DIV,          // /
+  ND_ASSIGN,       // =
+  ND_ASSIGN_ARRAY, // = { ... }
+  ND_EQ,           // ==
+  ND_NE,           // !=
+  ND_LT,           // <
+  ND_LE,           // <=
+  ND_ADDR,         // *
+  ND_DEREF,        // &
+  ND_RETURN,       // return
+  ND_IF,           // if
+  ND_IFELSE,       // if ... else ...
+  ND_WHILE,        // while
+  ND_FOR,          // for
+  ND_BLOCK,        // { ... }
+  ND_LVAR,         // Local Variable
+  ND_GVAR,         // Global Variable
+  ND_CALL,         // Function Call
+  ND_NUM,          // Integer
+  ND_STRING,       // String literals
   ND_UNNAMED
 } NodeKind;
 

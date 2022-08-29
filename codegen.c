@@ -23,7 +23,7 @@ void gen_lval(Node *node)
     printf("  push rax\n");
   }
   else
-    error("left value of assignment must be variable");
+    error("left value of assignment must be variable: found %d\n", node->kind);
 }
 
 void gen(Node *node)
@@ -76,6 +76,13 @@ void gen(Node *node)
     else
       printf("  mov [rax], rdi\n");
     printf("  push rdi\n");
+    return;
+  case ND_ASSIGN_ARRAY:
+    for (node = node->rhs; node; node = node->rhs) {
+      gen(node->lhs);
+      printf("  pop rax\n");
+    }
+    printf("  push rax\n");
     return;
   case ND_RETURN:
     gen(node->lhs);

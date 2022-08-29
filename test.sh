@@ -68,5 +68,7 @@ assert 10 "int g; int foo() {g = 10;} int main() { g = 20; foo(); return g; }"
 assert 20 "int g; int foo() {g = 10;} int main() { int g; g = 20; foo(); return g; }"
 assert 3 "int main() {char x[3]; x[0] = -1; x[1] = 2; int y; y = 4; return x[0] + y;}"
 assert 98 "int main() {char *x = \"abc\"; return x[1];}"
+assert 4 "int main() {int a = 1; int b = a = 2; return a + b;}"
+assert 3 "int main() {int a[3] = {1, 2, 3}; return a[2];}"
 
 echo OK

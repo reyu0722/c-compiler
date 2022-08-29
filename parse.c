@@ -548,6 +548,34 @@ Node *primary()
 
     Node *node = new_typed_node(ND_LVAR, NULL, NULL, lvar->type);
     node->offset = lvar->offset;
+
+    if (consume("="))
+    {
+      if (consume("{"))
+      {
+        if (lvar->type->ty != ARRAY)
+          error_at(tok->str, "type mismatch");
+
+        node = new_typed_node(ND_ASSIGN_ARRAY, node, NULL, lvar->type);
+        Node *last = node;
+
+        for (int i = 0; i < lvar->type->array_size; i++)
+        {
+          Node *ptr = new_typed_node(ND_ADD, new_typed_node(ND_ADDR, node->lhs, NULL, new_type(PTR, lvar->type->ptr_to)), new_node_num(i * sizeof_type(lvar->type->ptr_to)), new_type(PTR, lvar->type->ptr_to));
+          Node *deref = new_typed_node(ND_DEREF, ptr, NULL, lvar->type->ptr_to);
+
+          last->rhs = new_node(ND_UNNAMED, new_typed_node(ND_ASSIGN, deref, assign(), lvar->type->ptr_to), NULL);
+          last = last->rhs;
+
+          if (i != lvar->type->array_size - 1)
+            expect(",");
+        }
+        expect("}");
+      }
+      else
+        node = new_typed_node(ND_ASSIGN, node, assign(), lvar->type);
+    }
+
     return node;
   }
 
