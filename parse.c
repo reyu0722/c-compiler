@@ -408,14 +408,18 @@ Node *add()
     {
       int size = sizeof_type(node->type->ptr_to);
 
-      if (node->type->ty == ARRAY)
-        node = new_typed_node(ND_ADDR, node, NULL, new_type(PTR, node->type->ptr_to));
-
       if (consume("+"))
+      {
+        if (node->type->ty == ARRAY)
+          node = new_typed_node(ND_ADDR, node, NULL, new_type(PTR, node->type->ptr_to));
         node = new_typed_node(ND_ADD, node, new_node(ND_MUL, mul(), new_node_num(size)), node->type);
+      }
       else if (consume("-"))
+      {
+        if (node->type->ty == ARRAY)
+          node = new_typed_node(ND_ADDR, node, NULL, new_type(PTR, node->type->ptr_to));
         node = new_typed_node(ND_SUB, node, new_node(ND_MUL, mul(), new_node_num(size)), node->type);
-
+      }
       return node;
     }
 
@@ -484,7 +488,10 @@ Node *postfix()
     if (consume("["))
     {
       Node *subscript = expr();
-      node = new_typed_node(ND_DEREF, new_typed_node(ND_ADD, node, subscript, node->type), NULL, node->type->ptr_to);
+      int size = sizeof_type(node->type->ptr_to);
+      if (node->type->ty == ARRAY)
+        node = new_typed_node(ND_ADDR, node, NULL, new_type(PTR, node->type->ptr_to));
+      node = new_typed_node(ND_DEREF, new_typed_node(ND_ADD, node, new_typed_node(ND_MUL, subscript, new_node_num(size), new_type(INT, NULL)), node->type), NULL, node->type->ptr_to);
       expect("]");
       continue;
     }
