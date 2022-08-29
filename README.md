@@ -24,10 +24,11 @@ mul        = unary ("*" unary | "/" unary)*
 unary      = ("+" | "-" | "&" | "*" | "sizeof")? postfix
 postfix    = primary ("[" expr "]")*
 primary    = num | string | "(" expr ")"
-           | type_name "*"* ident ("[" num "]")*
+           | type_name "*"* ident ("[" num "]")* ("=" (assign | "{" expr_list? "}"))?
            | ident ("(" (ident ("," ident)*)? ")")?
 
 type_name  = "int" | "char"
+expr_list  = expr ("," expr_list)?
 ```
 
 
