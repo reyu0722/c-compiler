@@ -3,8 +3,8 @@ assert() {
   expected="$1"
   input="$2"
 
-  echo "$input" > tmp.c
-  ./main tmp.c > tmp.s
+  echo "$input" > tmp.in
+  ./main tmp.in > tmp.s
   cc -static -o tmp tmp.s
   ./tmp
   actual="$?"
