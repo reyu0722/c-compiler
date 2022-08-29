@@ -25,7 +25,7 @@ unary      = ("+" | "-" | "&" | "*" | "sizeof")? postfix
 postfix    = primary ("[" expr "]")*
 primary    = num | string | "(" expr ")"
            | type_name "*"* ident ("[" num "]")* ("=" (assign | "{" expr_list? "}"))?
-           | ident ("(" (ident ("," ident)*)? ")")?
+           | ident ("(" expr_list? ")")?
 
 type_name  = "int" | "char"
 expr_list  = expr ("," expr_list)?
