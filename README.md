@@ -1,4 +1,4 @@
-# mycc
+# c-compiler
 
 C (subset) compiler written in C.
 

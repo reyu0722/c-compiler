@@ -1,4 +1,4 @@
-#include "mycc.h"
+#include "header.h"
 
 Token *token;
 

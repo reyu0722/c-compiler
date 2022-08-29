@@ -1,4 +1,4 @@
-#include "mycc.h"
+#include "header.h"
 
 char *user_input;
 char *regs[6] = {"rdi", "rsi", "rdx", "rcx", "r8", "r9"};
