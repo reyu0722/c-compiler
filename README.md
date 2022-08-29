@@ -7,8 +7,8 @@ C (subset) compiler written in C.
 
 ```ebnf
 program    = external*
-external   = "int" "*"* ident ("(" ("int" ident ("," "int" ident)*)? ")" "{" stmt* "}"
-           | "int" "*"* ident ("[" num "]")* ";"
+external   = type_name "*"* ident ("(" ("int" ident ("," "int" ident)*)? ")" "{" stmt* "}"
+           | type_name "*"* ident ("[" num "]")* ";"
 stmt       = expr ";"
            | "if" "(" expr ")" stmt ("else" stmt)?
            | "while "(" expr ")" stmt
@@ -23,9 +23,11 @@ add        = mul ("+" mul | "-" mul)*
 mul        = unary ("*" unary | "/" unary)*
 unary      = ("+" | "-" | "&" | "*" | "sizeof")? postfix
 postfix    = primary ("[" expr "]")*
-primary    = num | "(" expr ")"
-           | "int" "*"* ident ("[" num "]")*
+primary    = num | string | "(" expr ")"
+           | type_name "*"* ident ("[" num "]")*
            | ident ("(" (ident ("," ident)*)? ")")?
+
+type_name  = "int" | "char"
 ```
 
 
