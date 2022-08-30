@@ -78,7 +78,8 @@ void gen(Node *node)
     printf("  push rdi\n");
     return;
   case ND_ASSIGN_ARRAY:
-    for (node = node->rhs; node; node = node->rhs) {
+    for (node = node->rhs; node; node = node->rhs)
+    {
       gen(node->lhs);
       printf("  pop rax\n");
     }
@@ -166,7 +167,19 @@ void gen(Node *node)
   case ND_DEREF:
     gen(node->lhs);
     printf("  pop rax\n");
-    printf("  mov rax, [rax]\n");
+    switch (node->type->ty)
+    {
+    case INT:
+    case PTR:
+      printf("  mov rax, [rax]\n");
+      break;
+    case CHAR:
+      printf("  movsx rax, BYTE PTR [rax]\n");
+      break;
+    case ARRAY:
+      error("failed to dereference array");
+    }
+
     printf("  push rax\n");
     return;
   default:
