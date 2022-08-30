@@ -14,7 +14,8 @@ void error(char *fmt, ...)
   exit(1);
 }
 
-void error_at(char *loc, char *fmt, ...) {
+void error_at(char *loc, char *fmt, ...)
+{
   va_list ap;
   va_start(ap, fmt);
 
@@ -42,7 +43,8 @@ void error_at(char *loc, char *fmt, ...) {
   exit(1);
 }
 
-char *read_file(char *path) {
+char *read_file(char *path)
+{
   FILE *fp = fopen(path, "r");
   if (!fp)
     error("cannot open %s: %s", path, strerror(errno));

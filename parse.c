@@ -1,5 +1,20 @@
 #include "header.h"
 
+void assert(bool flag)
+{
+  if (!flag)
+    error_at(token->str, "assertion failed");
+}
+
+Type *new_type(TypeKind ty, Type *ptr_to)
+{
+  Type *type = calloc(1, sizeof(Type));
+  type->ty = ty;
+  type->ptr_to = ptr_to;
+
+  return type;
+}
+
 typedef struct LVar LVar;
 
 struct LVar
@@ -138,12 +153,55 @@ Node *new_node(NodeKind kind, Node *lhs, Node *rhs)
   node->kind = kind;
   node->lhs = lhs;
   node->rhs = rhs;
+
+  switch (kind)
+  {
+  case ND_ADD:
+  case ND_SUB:
+  case ND_MUL:
+  case ND_DIV:
+  case ND_ASSIGN:
+    assert(lhs->type);
+    node->type = lhs->type;
+    break;
+  case ND_EQ:
+  case ND_NE:
+  case ND_LT:
+  case ND_LE:
+    node->type = new_type(INT, NULL);
+    break;
+  case ND_ADDR:
+    assert(!rhs);
+    node->type = new_type(PTR, lhs->type);
+    break;
+  case ND_DEREF:
+    assert(lhs->type->ty == PTR);
+    assert(!rhs);
+    node->type = lhs->type->ptr_to;
+    break;
+  case ND_STRING:
+    node->type = new_type(PTR, new_type(CHAR, NULL));
+    break;
+  case ND_CALL:
+    node->type = new_type(INT, NULL);
+    break;
+  case ND_LVAR:
+  case ND_GVAR:
+    error_at(token->str, "internal error");
+    break;
+  default:
+    break;
+  }
+
   return node;
 }
 
 Node *new_typed_node(NodeKind kind, Node *lhs, Node *rhs, Type *type)
 {
-  Node *node = new_node(kind, lhs, rhs);
+  Node *node = calloc(1, sizeof(Node));
+  node->kind = kind;
+  node->lhs = lhs;
+  node->rhs = rhs;
   node->type = type;
   return node;
 }
@@ -157,15 +215,6 @@ Node *new_node_num(int val)
   type->ty = INT;
   node->type = type;
   return node;
-}
-
-Type *new_type(TypeKind ty, Type *ptr_to)
-{
-  Type *type = calloc(1, sizeof(Type));
-  type->ty = ty;
-  type->ptr_to = ptr_to;
-
-  return type;
 }
 
 int sizeof_type(Type *type)
@@ -386,13 +435,13 @@ Node *relational()
   for (;;)
   {
     if (consume("<="))
-      node = new_typed_node(ND_LE, node, add(), new_type(INT, NULL));
+      node = new_node(ND_LE, node, add());
     else if (consume("<"))
-      node = new_typed_node(ND_LT, node, add(), new_type(INT, NULL));
+      node = new_node(ND_LT, node, add());
     else if (consume(">="))
-      node = new_typed_node(ND_LE, add(), node, new_type(INT, NULL));
+      node = new_node(ND_LE, add(), node);
     else if (consume(">"))
-      node = new_typed_node(ND_LT, add(), node, new_type(INT, NULL));
+      node = new_node(ND_LT, add(), node);
     else
       return node;
   }
@@ -412,21 +461,21 @@ Node *add()
       {
         if (node->type->ty == ARRAY)
           node = new_typed_node(ND_ADDR, node, NULL, new_type(PTR, node->type->ptr_to));
-        node = new_typed_node(ND_ADD, node, new_node(ND_MUL, mul(), new_node_num(size)), node->type);
+        node = new_node(ND_ADD, node, new_node(ND_MUL, mul(), new_node_num(size)));
       }
       else if (consume("-"))
       {
         if (node->type->ty == ARRAY)
           node = new_typed_node(ND_ADDR, node, NULL, new_type(PTR, node->type->ptr_to));
-        node = new_typed_node(ND_SUB, node, new_node(ND_MUL, mul(), new_node_num(size)), node->type);
+        node = new_node(ND_SUB, node, new_node(ND_MUL, mul(), new_node_num(size)));
       }
       return node;
     }
 
     if (consume("+"))
-      node = new_typed_node(ND_ADD, node, mul(), node->type);
+      node = new_node(ND_ADD, node, mul());
     else if (consume("-"))
-      node = new_typed_node(ND_SUB, node, mul(), node->type);
+      node = new_node(ND_SUB, node, mul());
     else
       return node;
   }
@@ -439,9 +488,9 @@ Node *mul()
   for (;;)
   {
     if (consume("*"))
-      node = new_typed_node(ND_MUL, node, unary(), node->type);
+      node = new_node(ND_MUL, node, unary());
     else if (consume("/"))
-      node = new_typed_node(ND_DIV, node, unary(), node->type);
+      node = new_node(ND_DIV, node, unary());
     else
       return node;
   }
@@ -452,11 +501,11 @@ Node *unary()
   if (consume("+"))
     return postfix();
   else if (consume("-"))
-    return new_typed_node(ND_SUB, new_node_num(0), postfix(), new_type(INT, NULL));
+    return new_node(ND_SUB, new_node_num(0), postfix());
   else if (consume("&"))
   {
     Node *l = primary();
-    return new_typed_node(ND_ADDR, l, NULL, new_type(PTR, l->type));
+    return new_node(ND_ADDR, l, NULL);
   }
   else if (consume("*"))
   {
@@ -465,9 +514,9 @@ Node *unary()
       error_at(token->str, "dereference failed: not a pointer");
 
     if (l->type->ty == ARRAY)
-      l = new_typed_node(ND_ADDR, l, NULL, new_type(PTR, l->type->ptr_to));
+      l = new_node(ND_ADDR, l, NULL);
 
-    return new_typed_node(ND_DEREF, l, NULL, l->type->ptr_to);
+    return new_node(ND_DEREF, l, NULL);
   }
   else if (consume_kind(TK_SIZEOF))
   {
@@ -491,7 +540,7 @@ Node *postfix()
       int size = sizeof_type(node->type->ptr_to);
       if (node->type->ty == ARRAY)
         node = new_typed_node(ND_ADDR, node, NULL, new_type(PTR, node->type->ptr_to));
-      node = new_typed_node(ND_DEREF, new_typed_node(ND_ADD, node, new_typed_node(ND_MUL, subscript, new_node_num(size), new_type(INT, NULL)), node->type), NULL, node->type->ptr_to);
+      node = new_node(ND_DEREF, new_node(ND_ADD, node, new_node(ND_MUL, subscript, new_node_num(size))), NULL);
       expect("]");
       continue;
     }
@@ -517,7 +566,7 @@ Node *primary()
     s->len = tok->len;
     s->next = ext->literals;
     ext->literals = s;
-    Node *node = new_typed_node(ND_STRING, NULL, NULL, new_type(PTR, new_type(CHAR, NULL)));
+    Node *node = new_node(ND_STRING, NULL, NULL);
     node->offset = literal_count++;
     s->offset = node->offset;
     return node;
@@ -561,10 +610,10 @@ Node *primary()
 
         for (int i = 0; i < lvar->type->array_size; i++)
         {
-          Node *ptr = new_typed_node(ND_ADD, new_typed_node(ND_ADDR, node->lhs, NULL, new_type(PTR, lvar->type->ptr_to)), new_node_num(i * sizeof_type(lvar->type->ptr_to)), new_type(PTR, lvar->type->ptr_to));
-          Node *deref = new_typed_node(ND_DEREF, ptr, NULL, lvar->type->ptr_to);
+          Node *ptr = new_node(ND_ADD, new_node(ND_ADDR, node->lhs, NULL), new_node_num(i * sizeof_type(lvar->type->ptr_to)));
+          Node *deref = new_node(ND_DEREF, ptr, NULL);
 
-          last->rhs = new_node(ND_UNNAMED, new_typed_node(ND_ASSIGN, deref, assign(), lvar->type->ptr_to), NULL);
+          last->rhs = new_node(ND_UNNAMED, new_node(ND_ASSIGN, deref, assign()), NULL);
           last = last->rhs;
 
           if (i != lvar->type->array_size - 1)
@@ -573,7 +622,7 @@ Node *primary()
         expect("}");
       }
       else
-        node = new_typed_node(ND_ASSIGN, node, assign(), lvar->type);
+        node = new_node(ND_ASSIGN, node, assign());
     }
 
     return node;
@@ -590,7 +639,7 @@ Node *primary()
       func->name = tok->str;
       func->len = tok->len;
 
-      node = new_typed_node(ND_CALL, func, NULL, new_type(INT, NULL));
+      node = new_node(ND_CALL, func, NULL);
 
       Node *last = node;
       if (consume(")"))
