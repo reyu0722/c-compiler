@@ -1,6 +1,6 @@
 int main()
 {
-	// assert(sizeof(1), 4);
+	assert(sizeof(1), 4);
 	int *p = 1;
 	assert(sizeof(p), 8);
 	char c = 1;

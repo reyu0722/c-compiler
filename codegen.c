@@ -43,6 +43,8 @@ void gen(Node *node)
     switch (node->type->ty)
     {
     case INT:
+      printf("  mov eax, [rax]\n");
+      break;
     case PTR:
       printf("  mov rax, [rax]\n");
       break;
@@ -66,6 +68,8 @@ void gen(Node *node)
       switch (node->lhs->type->ty)
       {
       case INT:
+        printf("  mov [rax], edi\n");
+        break;
       case PTR:
         printf("  mov [rax], rdi\n");
         break;
@@ -170,6 +174,8 @@ void gen(Node *node)
     switch (node->type->ty)
     {
     case INT:
+      printf("  mov eax, [rax]\n");
+      break;
     case PTR:
       printf("  mov rax, [rax]\n");
       break;

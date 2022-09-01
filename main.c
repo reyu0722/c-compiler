@@ -2,7 +2,7 @@
 
 char *user_input;
 char *filename;
-char *regs[6] = {"rdi", "rsi", "rdx", "rcx", "r8", "r9"};
+char *regs[6] = {"edi", "esi", "edx", "ecx", "r8d", "r9d"};
 
 void error(char *fmt, ...)
 {

@@ -222,7 +222,7 @@ int sizeof_type(Type *type)
   switch (type->ty)
   {
   case INT:
-    return 8;
+    return 4;
   case PTR:
     return 8;
   case ARRAY:
