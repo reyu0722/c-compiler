@@ -7,8 +7,8 @@ C (subset) compiler written in C.
 
 ```ebnf
 program    = external*
-external   = type_name "*"* ident ("(" ("int" ident ("," "int" ident)*)? ")" "{" stmt* "}"
-           | type_name "*"* ident ("[" num "]")* ";"
+external   = declaration ("(" ("int" ident ("," "int" ident)*)? ")" "{" stmt* "}"
+           | declaration ";"
 stmt       = expr ";"
            | "if" "(" expr ")" stmt ("else" stmt)?
            | "while "(" expr ")" stmt
@@ -24,11 +24,13 @@ mul        = unary ("*" unary | "/" unary)*
 unary      = ("+" | "-" | "&" | "*" | "sizeof")? postfix
 postfix    = primary ("[" expr "]")*
 primary    = num | string | "(" expr ")"
-           | type_name "*"* ident ("[" num "]")* ("=" (assign | "{" expr_list? "}"))?
+           | declaration ("=" (assign | "{" expr_list? "}"))?
            | ident ("(" expr_list? ")")?
 
-type_name  = "int" | "char"
-expr_list  = expr ("," expr_list)?
+declaration = type_name nested_type
+type_name   = "int" | "char"
+nested_type = "*"* ("(" nested_type ")" | ident) ("[" num "]")*
+expr_list   = expr ("," expr_list)?
 ```
 
 
