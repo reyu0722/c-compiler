@@ -148,6 +148,17 @@ void gen(Node *node)
   case ND_CALL:
     n = node->rhs;
     i = 0;
+
+    printf("  mov rdi, 16\n");
+    printf("  mov rax, rsp\n");
+    printf("  mov rdx, 0\n");
+    printf("  idiv rdi\n");
+    printf("  mov rax, rsp\n");
+    printf("  sub rsp, rdx\n");
+
+    printf("  push rax\n");
+    printf("  push 0\n");
+
     while (n)
     {
       gen(n->lhs);
@@ -163,7 +174,13 @@ void gen(Node *node)
       printf("  pop %s\n", regs[j]);
 
     printf("  call %.*s\n", node->lhs->len, node->lhs->name);
+
+    printf("  pop rdi\n");
+    printf("  pop rdi\n");
+
+    printf("  mov rsp, rdi\n");
     printf("  push rax\n");
+
     return;
   case ND_ADDR:
     gen_lval(node->lhs);
