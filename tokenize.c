@@ -51,13 +51,14 @@ Token *tokenize(char *p)
 			continue;
 		}
 
-		if (strncmp(p, "/*", 2) == 0) {
-      char *q = strstr(p + 2, "*/");
-      if (!q)
-        error_at(p, "tokenize failed: \"*/\" not found");
-      p = q + 2;
-      continue;
-    }
+		if (strncmp(p, "/*", 2) == 0)
+		{
+			char *q = strstr(p + 2, "*/");
+			if (!q)
+				error_at(p, "tokenize failed: \"*/\" not found");
+			p = q + 2;
+			continue;
+		}
 
 		if (strchr("+-*/()<>;={},&[]", *p))
 		{
@@ -141,10 +142,17 @@ Token *tokenize(char *p)
 			continue;
 		}
 
-		if ('a' <= *p && *p <= 'z')
+		if (strncmp(p, "enum", 4) == 0 && !is_alnum(p[4]))
+		{
+			cur = new_token(TK_ENUM, cur, p);
+			p += 4;
+			continue;
+		}
+
+		if (('a' <= *p && *p <= 'z') || ('A' <= *p && *p <= 'Z') || (*p == '_'))
 		{
 			char *q;
-			for (q = p; 'a' <= *q && *q <= 'z'; q++)
+			for (q = p; ('a' <= *q && *q <= 'z') || ('A' <= *q && *q <= 'Z') || (*q == '_'); q++)
 				;
 
 			cur = new_token(TK_IDENT, cur, p);

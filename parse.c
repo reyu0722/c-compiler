@@ -55,6 +55,37 @@ LVar *new_lvar(char *name, int len, Type *type)
   return lvar;
 }
 
+typedef struct EnumVal EnumVal;
+struct EnumVal
+{
+  EnumVal *next;
+  char *name;
+  int len;
+  int val;
+};
+EnumVal *enumVals;
+
+EnumVal *find_enum_val(Token *tok)
+{
+  for (EnumVal *val = enumVals; val; val = val->next)
+    if (val->len == tok->len && !memcmp(tok->str, val->name, val->len))
+      return val;
+
+  return NULL;
+}
+
+EnumVal *new_enum_val(char *name, int len, int val)
+{
+  EnumVal *enumVal = calloc(1, sizeof(EnumVal));
+  enumVal->next = enumVals;
+  enumVal->name = name;
+  enumVal->len = len;
+  enumVal->val = val;
+
+  enumVals = enumVal;
+  return enumVal;
+}
+
 typedef struct GVar GVar;
 struct GVar
 {
@@ -307,6 +338,36 @@ External *external()
   External *external = calloc(1, sizeof(External));
   ext = external;
   int i = 0;
+
+  if (consume_kind(TK_ENUM))
+  {
+    ext->kind = ENUM;
+
+    Token *tok = consume_ident();
+    if (!tok)
+      error_at(token->str, "expected identifier");
+
+    expect("{");
+
+    tok = consume_ident();
+    if (!tok)
+      error_at(token->str, "expected identifier");
+
+    new_enum_val(tok->str, tok->len, i++);
+
+    while (consume(","))
+    {
+      tok = consume_ident();
+      if (!tok)
+        error_at(token->str, "expected identifier");
+
+      new_enum_val(tok->str, tok->len, i++);
+    }
+
+    expect("}");
+    expect(";");
+    return ext;
+  }
 
   ConsumeTypeRes *res = consume_type();
   if (!res)
@@ -685,15 +746,21 @@ Node *primary()
       }
       else
       {
-        GVar *gvar = find_gvar(tok);
-        if (gvar)
-        {
-          node = new_typed_node(ND_GVAR, NULL, NULL, gvar->type);
-          node->name = tok->str;
-          node->len = tok->len;
-        }
+        EnumVal *val = find_enum_val(tok);
+        if (val)
+          node = new_node_num(val->val);
         else
-          error_at(tok->str, "%.*s is not defined", tok->len, tok->str);
+        {
+          GVar *gvar = find_gvar(tok);
+          if (gvar)
+          {
+            node = new_typed_node(ND_GVAR, NULL, NULL, gvar->type);
+            node->name = tok->str;
+            node->len = tok->len;
+          }
+          else
+            error_at(tok->str, "%.*s is not defined", tok->len, tok->str);
+        }
       }
     }
 

@@ -119,6 +119,8 @@ int main(int argc, char **argv)
       printf("%.*s:\n", ext->len, ext->name);
       printf("  .zero %d\n", ext->size);
       break;
+    case ENUM:
+      break;
     }
   }
 

@@ -18,6 +18,7 @@ typedef enum
   TK_FOR,
   TK_INT,
   TK_CHAR,
+  TK_ENUM,
   TK_EOF,
   TK_SIZEOF,
   TK_STRING
@@ -104,7 +105,8 @@ struct StringLiteral
 typedef enum
 {
   FUNC,
-  GVAR
+  GVAR,
+  ENUM
 } ExternalKind;
 
 typedef struct External External;
