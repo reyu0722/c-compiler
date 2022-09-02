@@ -147,6 +147,60 @@ bool at_eof()
   return token->kind == TK_EOF;
 }
 
+typedef struct ConsumeTypeRes ConsumeTypeRes;
+struct ConsumeTypeRes
+{
+  Type *type;
+  Token *tok;
+};
+
+ConsumeTypeRes *expect_nested_type(Type *type)
+{
+  while (consume("*"))
+    type = new_type(PTR, type);
+
+  ConsumeTypeRes *res;
+
+  if (consume("("))
+  {
+    res = expect_nested_type(type);
+    expect(")");
+  }
+  else
+  {
+    Token *tok = consume_ident();
+    if (!tok)
+      error_at(token->str, "expected identifier");
+
+    res = calloc(1, sizeof(ConsumeTypeRes));
+    res->type = type;
+    res->tok = tok;
+  }
+
+  while (consume("["))
+  {
+    int size = expect_number();
+    expect("]");
+    res->type = new_type(ARRAY, type);
+    res->type->array_size = size;
+  }
+
+  return res;
+}
+
+ConsumeTypeRes *consume_type()
+{
+  Type *type;
+  if (consume_kind(TK_INT))
+    type = new_type(INT, NULL);
+  else if (consume_kind(TK_CHAR))
+    type = new_type(CHAR, NULL);
+  else
+    return NULL;
+
+  return expect_nested_type(type);
+}
+
 Node *new_node(NodeKind kind, Node *lhs, Node *rhs)
 {
   Node *node = calloc(1, sizeof(Node));
@@ -245,16 +299,6 @@ Node *unary();
 Node *postfix();
 Node *primary();
 
-Type *consume_type_name()
-{
-  if (consume_kind(TK_INT))
-    return new_type(INT, NULL);
-  else if (consume_kind(TK_CHAR))
-    return new_type(CHAR, NULL);
-
-  return NULL;
-}
-
 External *ext;
 int literal_count;
 
@@ -264,16 +308,12 @@ External *external()
   ext = external;
   int i = 0;
 
-  Type *type = consume_type_name();
-  if (!type)
+  ConsumeTypeRes *res = consume_type();
+  if (!res)
     error_at(token->str, "invalid type");
 
-  while (consume("*"))
-    type = new_type(PTR, type);
-
-  Token *tok = consume_ident();
-  external->name = tok->str;
-  external->len = tok->len;
+  external->name = res->tok->str;
+  external->len = res->tok->len;
   if (consume("("))
   {
     external->kind = FUNC;
@@ -284,7 +324,7 @@ External *external()
         expect_kind(TK_INT);
         Token *arg = consume_ident();
         if (!arg)
-          error_at(tok->str, "failed to parse argument");
+          error_at(res->tok->str, "failed to parse argument");
 
         LVar *lvar = find_lvar(arg);
         if (!lvar)
@@ -311,15 +351,9 @@ External *external()
   else
   {
     external->kind = GVAR;
-    while (consume("["))
-    {
-      type = new_type(ARRAY, type);
-      type->array_size = expect_number();
-      expect("]");
-    }
 
-    new_gvar(tok->str, tok->len, type);
-    external->size = sizeof_type(type);
+    new_gvar(res->tok->str, res->tok->len, res->type);
+    external->size = sizeof_type(res->type);
 
     expect(";");
   }
@@ -574,28 +608,12 @@ Node *primary()
     return node;
   }
 
-  Type *type = consume_type_name();
-  if (type)
+  ConsumeTypeRes *res = consume_type();
+  if (res)
   {
-    while (consume("*"))
-      type = new_type(PTR, type);
-
-    tok = consume_ident();
-
-    if (!tok)
-      error_at(token->str, "parse failed");
-
-    while (consume("["))
-    {
-      int val = expect_number();
-      type = new_type(ARRAY, type);
-      type->array_size = val;
-      expect("]");
-    }
-
-    LVar *lvar = find_lvar(tok);
+    LVar *lvar = find_lvar(res->tok);
     if (!lvar)
-      lvar = new_lvar(tok->str, tok->len, type);
+      lvar = new_lvar(res->tok->str, res->tok->len, res->type);
 
     Node *node = new_typed_node(ND_LVAR, NULL, NULL, lvar->type);
     node->offset = lvar->offset;
