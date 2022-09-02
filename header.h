@@ -117,6 +117,7 @@ struct External
   int offsets[6];
   int size;
   StringLiteral *literals;
+  int stack_size;
 };
 
 // main.c

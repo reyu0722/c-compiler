@@ -99,7 +99,7 @@ int main(int argc, char **argv)
       printf("%.*s:\n", ext->len, ext->name);
       printf("  push rbp\n");
       printf("  mov rbp, rsp\n");
-      printf("  sub rsp, 208\n");
+      printf("  sub rsp, %d\n", ext->stack_size);
 
       for (int i = 0; i < 6 && ext->offsets[i]; i++)
         printf("  mov [rbp - %d], %s\n", ext->offsets[i], regs[i]);

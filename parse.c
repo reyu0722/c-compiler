@@ -323,6 +323,8 @@ External *external()
 
     expect(";");
   }
+  if (locals)
+    external->stack_size = locals->offset;
 
   return external;
 }
