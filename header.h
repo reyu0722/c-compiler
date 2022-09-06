@@ -91,6 +91,7 @@ struct StructType
   char *name;
   int len;
   StructField *fields;
+  int size;
 };
 
 struct Type

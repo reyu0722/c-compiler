@@ -97,6 +97,15 @@ StructType *find_struct(Token *tok)
   return NULL;
 }
 
+StructField *find_struct_field(Token *tok, StructType *type)
+{
+  for (StructField *field = type->fields; field; field = field->next)
+    if (field->len == tok->len && !memcmp(tok->str, field->name, field->len))
+      return field;
+
+  return NULL;
+}
+
 typedef struct GVar GVar;
 struct GVar
 {
@@ -339,7 +348,7 @@ int sizeof_type(Type *type)
   case CHAR:
     return 1;
   case STRUCT:
-    return type->struct_type->fields->offset;
+    return type->struct_type->size;
   }
 
   __builtin_unreachable();
@@ -428,6 +437,7 @@ External *external()
       field->next->offset = field->offset + sizeof_type(field->next->type);
       field = field->next;
     }
+    strType->size = field->offset;
 
     expect("}");
     expect(";");
@@ -706,6 +716,25 @@ Node *postfix()
         node = new_typed_node(ND_ADDR, node, NULL, new_type(PTR, node->type->ptr_to));
       node = new_node(ND_DEREF, new_node(ND_ADD, node, new_node(ND_MUL, subscript, new_node_num(size))), NULL);
       expect("]");
+      continue;
+    }
+    if (consume("."))
+    {
+      Token *tok = consume_ident();
+      if (!tok)
+        error_at(token->str, "expected identifier after '.'");
+
+      if (node->type->ty != STRUCT)
+        error_at(token->str, "expected struct type");
+
+      StructField *field = find_struct_field(tok, node->type->struct_type);
+      if (!field)
+        error_at(token->str, "no such field");
+
+      int offset = node->offset + field->offset - sizeof_type(node->type);
+
+      node = new_typed_node(ND_LVAR, NULL, NULL, field->type);
+      node->offset = offset;
       continue;
     }
     break;
