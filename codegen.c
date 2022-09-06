@@ -63,22 +63,20 @@ void gen(Node *node)
 
     printf("  pop rdi\n");
     printf("  pop rax\n");
-    if (node->lhs->kind == ND_LVAR || node->lhs->kind == ND_GVAR)
+
+    switch (node->lhs->type->ty)
     {
-      switch (node->lhs->type->ty)
-      {
-      case INT:
-        printf("  mov [rax], edi\n");
-        break;
-      case PTR:
-        printf("  mov [rax], rdi\n");
-        break;
-      case CHAR:
-        printf("  mov [rax], dl\n");
-      }
-    }
-    else
+    case INT:
+      printf("  mov [rax], edi\n");
+      break;
+    case CHAR:
+      printf("  mov [rax], dl\n");
+      break;
+    default:
       printf("  mov [rax], rdi\n");
+      break;
+    }
+
     printf("  push rdi\n");
     return;
   case ND_ASSIGN_ARRAY:
@@ -201,6 +199,7 @@ void gen(Node *node)
       break;
     case ARRAY:
       error("failed to dereference array");
+      break;
     }
 
     printf("  push rax\n");

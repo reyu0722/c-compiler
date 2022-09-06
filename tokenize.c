@@ -60,6 +60,14 @@ Token *tokenize(char *p)
 			continue;
 		}
 
+		if (strncmp(p, "->", 2) == 0)
+		{
+			cur = new_token(TK_RESERVED, cur, p);
+			p += 2;
+			cur->len = 2;
+			continue;
+		}
+
 		if (strchr("+-*/()<>;={},&[].", *p))
 		{
 			cur = new_token(TK_RESERVED, cur, p++);

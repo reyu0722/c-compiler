@@ -727,16 +727,39 @@ Node *postfix()
       if (node->type->ty != STRUCT)
         error_at(token->str, "expected struct type");
 
+      int size = node->type->struct_type->size;
       StructField *field = find_struct_field(tok, node->type->struct_type);
       if (!field)
         error_at(token->str, "no such field");
 
-      int offset = node->offset + field->offset - sizeof_type(node->type);
-
-      node = new_typed_node(ND_LVAR, NULL, NULL, field->type);
-      node->offset = offset;
+      node = new_node(ND_ADDR, node, NULL);
+      node = new_node(ND_ADD, node, new_node_num(size - field->offset));
+      node->type = new_type(PTR, field->type);
+      node = new_node(ND_DEREF, node, NULL);
       continue;
     }
+    if (consume("->"))
+    {
+      Token *tok = consume_ident();
+      if (!tok)
+        error_at(token->str, "expected identifier after '->'");
+
+      if (node->type->ty != PTR)
+        error_at(token->str, "expected pointer type");
+
+      if (node->type->ptr_to->ty != STRUCT)
+        error_at(token->str, "expected struct type");
+
+      StructField *field = find_struct_field(tok, node->type->ptr_to->struct_type);
+      if (!field)
+        error_at(token->str, "no such field");
+
+      node = new_node(ND_ADD, node, new_node_num(node->type->ptr_to->struct_type->size - field->offset));
+      node->type = new_type(PTR, field->type);
+      node = new_node(ND_DEREF, node, NULL);
+      continue;
+    }
+
     break;
   }
   return node;

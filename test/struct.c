@@ -13,5 +13,10 @@ int main()
   a.b = 2;
   assert(1, a.a);
   assert(2, a.b);
+
+  struct Test *b = &a;
+  assert(1, b->a);
+  assert(2, b->b);
+
   return 0;
 }
