@@ -19,6 +19,7 @@ typedef enum
   TK_INT,
   TK_CHAR,
   TK_ENUM,
+  TK_STRUCT,
   TK_EOF,
   TK_SIZEOF,
   TK_STRING
@@ -69,14 +70,35 @@ typedef enum
   PTR,
   ARRAY,
   CHAR,
+  STRUCT,
 } TypeKind;
 
+typedef struct StructField StructField;
 typedef struct Type Type;
+struct StructField
+{
+  StructField *next;
+  char *name;
+  int len;
+  Type *type;
+  int offset;
+};
+
+typedef struct StructType StructType;
+struct StructType
+{
+  StructType *next;
+  char *name;
+  int len;
+  StructField *fields;
+};
+
 struct Type
 {
   TypeKind ty;
   Type *ptr_to;
   size_t array_size;
+  StructType *struct_type;
 };
 
 typedef struct Node Node;
@@ -104,9 +126,10 @@ struct StringLiteral
 
 typedef enum
 {
-  FUNC,
-  GVAR,
-  ENUM
+  EXT_FUNC,
+  EXT_GVAR,
+  EXT_ENUM,
+  EXT_STRUCT,
 } ExternalKind;
 
 typedef struct External External;

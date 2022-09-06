@@ -10,6 +10,7 @@ program    = external*
 external   = declaration ("(" ("int" ident ("," "int" ident)*)? ")" "{" stmt* "}"
            | declaration ";"
            | "enum" ident "{" ident ("," ident)* "}"
+           | "struct" ident "{" declaration ("," declaration)* "}"
 stmt       = expr ";"
            | "if" "(" expr ")" stmt ("else" stmt)?
            | "while "(" expr ")" stmt

@@ -86,6 +86,17 @@ EnumVal *new_enum_val(char *name, int len, int val)
   return enumVal;
 }
 
+StructType *structs;
+
+StructType *find_struct(Token *tok)
+{
+  for (StructType *type = structs; type; type = type->next)
+    if (type->len == tok->len && !memcmp(tok->str, type->name, type->len))
+      return type;
+
+  return NULL;
+}
+
 typedef struct GVar GVar;
 struct GVar
 {
@@ -226,6 +237,19 @@ ConsumeTypeRes *consume_type()
     type = new_type(INT, NULL);
   else if (consume_kind(TK_CHAR))
     type = new_type(CHAR, NULL);
+  else if (consume_kind(TK_STRUCT))
+  {
+    Token *tok = consume_ident();
+    if (!tok)
+      error_at(token->str, "expected identifier");
+
+    StructType *struct_type = find_struct(tok);
+    if (!struct_type)
+      error_at(token->str, "unknown struct type");
+
+    type = new_type(STRUCT, NULL);
+    type->struct_type = struct_type;
+  }
   else
     return NULL;
 
@@ -314,6 +338,8 @@ int sizeof_type(Type *type)
     return sizeof_type(type->ptr_to) * type->array_size;
   case CHAR:
     return 1;
+  case STRUCT:
+    return type->struct_type->fields->offset;
   }
 
   __builtin_unreachable();
@@ -341,7 +367,7 @@ External *external()
 
   if (consume_kind(TK_ENUM))
   {
-    ext->kind = ENUM;
+    ext->kind = EXT_ENUM;
 
     Token *tok = consume_ident();
     if (!tok)
@@ -369,6 +395,47 @@ External *external()
     return ext;
   }
 
+  if (consume_kind(TK_STRUCT))
+  {
+    ext->kind = EXT_STRUCT;
+    Token *tok = consume_ident();
+    if (!tok)
+      error_at(token->str, "expected identifier");
+
+    StructType *strType = calloc(1, sizeof(StructType));
+    strType->name = tok->str;
+    strType->len = tok->len;
+
+    expect("{");
+    ConsumeTypeRes *res = consume_type();
+    StructField *field = calloc(1, sizeof(StructField));
+    strType->fields = field;
+
+    field->name = res->tok->str;
+    field->len = res->tok->len;
+    field->type = res->type;
+    field->offset = sizeof_type(field->type);
+
+    while (consume(";"))
+    {
+      res = consume_type();
+      if (!res)
+        break;
+      field->next = calloc(1, sizeof(StructField));
+      field->next->name = res->tok->str;
+      field->next->len = res->tok->len;
+      field->next->type = res->type;
+      field->next->offset = field->offset + sizeof_type(field->next->type);
+      field = field->next;
+    }
+
+    expect("}");
+    expect(";");
+
+    strType->next = structs;
+    structs = strType;
+  }
+
   ConsumeTypeRes *res = consume_type();
   if (!res)
     error_at(token->str, "invalid type");
@@ -377,7 +444,7 @@ External *external()
   external->len = res->tok->len;
   if (consume("("))
   {
-    external->kind = FUNC;
+    external->kind = EXT_FUNC;
     if (!consume(")"))
     {
       for (;;)
@@ -411,7 +478,7 @@ External *external()
   }
   else
   {
-    external->kind = GVAR;
+    external->kind = EXT_GVAR;
 
     new_gvar(res->tok->str, res->tok->len, res->type);
     external->size = sizeof_type(res->type);

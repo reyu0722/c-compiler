@@ -87,7 +87,7 @@ int main(int argc, char **argv)
 
     switch (ext->kind)
     {
-    case FUNC:
+    case EXT_FUNC:
       for (StringLiteral *l = ext->literals; l; l = l->next)
       {
         printf(".data\n");
@@ -114,12 +114,12 @@ int main(int argc, char **argv)
       printf("  pop rbp\n");
       printf("  ret\n");
       break;
-    case GVAR:
+    case EXT_GVAR:
       printf(".data\n");
       printf("%.*s:\n", ext->len, ext->name);
       printf("  .zero %d\n", ext->size);
       break;
-    case ENUM:
+    case EXT_ENUM:
       break;
     }
   }
