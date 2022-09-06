@@ -30,7 +30,7 @@ primary    = num | string | "(" expr ")"
            | ident ("(" expr_list? ")")?
 
 declaration = type_name nested_type
-type_name   = "int" | "char"
+type_name   = "int" | "char" | "struct" ident
 nested_type = "*"* ("(" nested_type ")" | ident) ("[" num "]")*
 expr_list   = expr ("," expr_list)?
 ```
