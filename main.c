@@ -120,6 +120,8 @@ int main(int argc, char **argv)
       printf("  .zero %d\n", ext->size);
       break;
     case EXT_ENUM:
+    case EXT_STRUCT:
+    case EXT_FUNCDECL:
       break;
     }
   }

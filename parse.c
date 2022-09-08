@@ -478,6 +478,12 @@ External *external()
       expect(")");
     }
 
+    if (consume(";"))
+    {
+      external->kind = EXT_FUNCDECL;
+      return external;
+    }
+
     expect("{");
 
     i = 0;

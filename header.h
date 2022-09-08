@@ -128,6 +128,7 @@ struct StringLiteral
 typedef enum
 {
   EXT_FUNC,
+  EXT_FUNCDECL,
   EXT_GVAR,
   EXT_ENUM,
   EXT_STRUCT,
