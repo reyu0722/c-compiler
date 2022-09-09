@@ -1,6 +1,7 @@
 #include <stdbool.h>
 #include <stdio.h>
 #include <string.h>
+#include "error.h"
 #include "header.h"
 #include "tokenize.h"
 

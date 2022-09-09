@@ -58,8 +58,7 @@ struct StringLiteral
   int offset;
 };
 
-// main.c
-char *dir_name;
-void error(char *fmt, ...);
-void error_at(char *loc, char *fmt, ...);
+extern char *user_input;
+extern char *dir_name;
+extern char *filename;
 char *read_file(char *path);
