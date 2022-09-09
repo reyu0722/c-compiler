@@ -6,15 +6,6 @@ void assert(bool flag)
     error_at(token->str, "assertion failed");
 }
 
-Type *new_type(TypeKind ty, Type *ptr_to)
-{
-  Type *type = calloc(1, sizeof(Type));
-  type->ty = ty;
-  type->ptr_to = ptr_to;
-
-  return type;
-}
-
 typedef struct LVar LVar;
 
 struct LVar
@@ -37,7 +28,6 @@ LVar *find_lvar(Token *tok)
   return NULL;
 }
 
-int sizeof_type(Type *type);
 LVar *new_lvar(char *name, int len, Type *type)
 {
   LVar *lvar = calloc(1, sizeof(LVar));
@@ -335,25 +325,6 @@ Node *new_node_num(int val)
   return node;
 }
 
-int sizeof_type(Type *type)
-{
-  switch (type->ty)
-  {
-  case INT:
-    return 4;
-  case PTR:
-    return 8;
-  case ARRAY:
-    return sizeof_type(type->ptr_to) * type->array_size;
-  case CHAR:
-    return 1;
-  case STRUCT:
-    return type->struct_type->size;
-  }
-
-  __builtin_unreachable();
-}
-
 Node *stmt();
 Node *expr();
 Node *assign();
@@ -588,7 +559,7 @@ Node *assign()
   if (consume("="))
   {
     Node *r = assign();
-    node = new_typed_node(ND_ASSIGN, node, r, r->type);
+    node = new_node(ND_ASSIGN, node, r);
   }
   return node;
 }
@@ -600,9 +571,9 @@ Node *equality()
   for (;;)
   {
     if (consume("=="))
-      node = new_typed_node(ND_EQ, node, relational(), new_type(INT, NULL));
+      node = new_node(ND_EQ, node, relational());
     else if (consume("!="))
-      node = new_typed_node(ND_NE, node, relational(), new_type(INT, NULL));
+      node = new_node(ND_NE, node, relational());
     else
       return node;
   }
@@ -683,10 +654,7 @@ Node *unary()
   else if (consume("-"))
     return new_node(ND_SUB, new_node_num(0), postfix());
   else if (consume("&"))
-  {
-    Node *l = primary();
-    return new_node(ND_ADDR, l, NULL);
-  }
+    return new_node(ND_ADDR, primary(), NULL);
   else if (consume("*"))
   {
     Node *l = primary();
@@ -699,11 +667,7 @@ Node *unary()
     return new_node(ND_DEREF, l, NULL);
   }
   else if (consume_kind(TK_SIZEOF))
-  {
-    Node *n = unary();
-
-    return new_node_num(sizeof_type(n->type));
-  }
+    return new_node_num(sizeof_type(unary()->type));
 
   return postfix();
 }
