@@ -2,6 +2,7 @@
 
 char *user_input;
 char *filename;
+char *dir_name;
 char *regs[6] = {"edi", "esi", "edx", "ecx", "r8d", "r9d"};
 
 void error(char *fmt, ...)
@@ -75,8 +76,20 @@ int main(int argc, char **argv)
 
   filename = argv[1];
 
+  int dir;
+  for (dir = strlen(filename) - 1; dir >= 0; dir--)
+  {
+    if (filename[dir] == '/')
+      break;
+  }
+
+  dir_name = calloc(1, dir + 1);
+  strncpy(dir_name, filename, dir);
+
   user_input = read_file(filename);
-  token = tokenize(user_input);
+  token = tokenize(user_input, true);
+
+  token = preprocess(token);
 
   printf(".intel_syntax noprefix\n");
   printf(".globl main\n");

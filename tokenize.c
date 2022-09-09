@@ -21,7 +21,7 @@ bool startswith(char *p, char *q)
 	return memcmp(p, q, strlen(q)) == 0;
 }
 
-Token *tokenize(char *p)
+Token *tokenize(char *p, bool eof)
 {
 	Token head;
 	head.next = NULL;
@@ -32,6 +32,15 @@ Token *tokenize(char *p)
 		if (isspace(*p))
 		{
 			p++;
+			continue;
+		}
+
+		if (startswith(p, "#"))
+		{
+			cur = new_token(TK_PREPROCESSOR, cur, p);
+			char *q = strstr(p, "\n");
+			cur->len = q - p;
+			p = q;
 			continue;
 		}
 
@@ -179,6 +188,7 @@ Token *tokenize(char *p)
 		error_at(p, "tokenize failed");
 	}
 
-	new_token(TK_EOF, cur, p);
+	if (eof)
+		new_token(TK_EOF, cur, p);
 	return head.next;
 }

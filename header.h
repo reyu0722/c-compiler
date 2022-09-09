@@ -22,7 +22,8 @@ typedef enum
   TK_STRUCT,
   TK_EOF,
   TK_SIZEOF,
-  TK_STRING
+  TK_STRING,
+  TK_PREPROCESSOR
 } TokenKind;
 
 typedef struct Token Token;
@@ -63,6 +64,11 @@ typedef enum
   ND_STRING,       // String literals
   ND_UNNAMED
 } NodeKind;
+
+typedef enum
+{
+  DIR_INCLUDE
+} Directive;
 
 typedef enum
 {
@@ -148,8 +154,10 @@ struct External
 };
 
 // main.c
+char *dir_name;
 void error(char *fmt, ...);
 void error_at(char *loc, char *fmt, ...);
+char *read_file(char *path);
 
 // codegen.c
 void gen(Node *node);
@@ -158,6 +166,10 @@ void gen(Node *node);
 bool at_eof();
 External *external();
 
+// preprocess.c
+Token *preprocess(Token *tok);
+
 // tokenize.c
 extern Token *token;
-Token *tokenize(char *p);
+bool startswith(char *p, char *q);
+Token *tokenize(char *p, bool eof);

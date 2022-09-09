@@ -11,6 +11,7 @@ external   = declaration ("(" ("int" ident ("," "int" ident)*)? ")" (";" | "{" s
            | declaration ";"
            | "enum" ident "{" ident ("," ident)* "}"
            | "struct" ident "{" declaration ("," declaration)* "}"
+           | preprocessor
 stmt       = expr ";"
            | "if" "(" expr ")" stmt ("else" stmt)?
            | "while "(" expr ")" stmt
@@ -29,6 +30,8 @@ postfix    = primary ("[" expr "]")*
 primary    = num | string | "(" expr ")"
            | declaration ("=" (assign | "{" expr_list? "}"))?
            | ident ("(" expr_list? ")")?
+
+preprocessor = "#" "include" string
 
 declaration = type_name nested_type
 type_name   = "int" | "char" | "struct" ident
