@@ -14,8 +14,7 @@ typedef struct ConsumeTypeRes ConsumeTypeRes;
 struct LVar
 {
   LVar *next;
-  char *name;
-  int len;
+  String *name;
   int offset;
   Type *type;
 };
@@ -23,16 +22,14 @@ struct LVar
 struct GVar
 {
   GVar *next;
-  char *name;
-  int len;
+  String *name;
   Type *type;
 };
 
 struct EnumVal
 {
   EnumVal *next;
-  char *name;
-  int len;
+  String *name;
   int val;
 };
 
@@ -50,18 +47,17 @@ StructType *structs;
 LVar *find_lvar(Token *tok)
 {
   for (LVar *var = locals; var; var = var->next)
-    if (var->len == tok->len && !memcmp(tok->str, var->name, var->len))
+    if (str_equals(var->name, tok->str))
       return var;
 
   return NULL;
 }
 
-LVar *new_lvar(char *name, int len, Type *type)
+LVar *new_lvar(String *name, Type *type)
 {
   LVar *lvar = calloc(1, sizeof(LVar));
   lvar->next = locals;
   lvar->name = name;
-  lvar->len = len;
   lvar->type = type;
 
   if (locals)
@@ -76,18 +72,17 @@ LVar *new_lvar(char *name, int len, Type *type)
 EnumVal *find_enum_val(Token *tok)
 {
   for (EnumVal *val = enumVals; val; val = val->next)
-    if (val->len == tok->len && !memcmp(tok->str, val->name, val->len))
+    if (str_equals(val->name, tok->str))
       return val;
 
   return NULL;
 }
 
-EnumVal *new_enum_val(char *name, int len, int val)
+EnumVal *new_enum_val(String *name, int val)
 {
   EnumVal *enumVal = calloc(1, sizeof(EnumVal));
   enumVal->next = enumVals;
   enumVal->name = name;
-  enumVal->len = len;
   enumVal->val = val;
 
   enumVals = enumVal;
@@ -97,7 +92,7 @@ EnumVal *new_enum_val(char *name, int len, int val)
 StructType *find_struct(Token *tok)
 {
   for (StructType *type = structs; type; type = type->next)
-    if (type->len == tok->len && !memcmp(tok->str, type->name, type->len))
+    if (str_equals(type->name, tok->str))
       return type;
 
   return NULL;
@@ -106,18 +101,17 @@ StructType *find_struct(Token *tok)
 StructField *find_struct_field(Token *tok, StructType *type)
 {
   for (StructField *field = type->fields; field; field = field->next)
-    if (field->len == tok->len && !memcmp(tok->str, field->name, field->len))
+    if (str_equals(field->name, tok->str))
       return field;
 
   return NULL;
 }
 
-void new_gvar(char *name, int len, Type *type)
+void new_gvar(String *name, Type *type)
 {
   GVar *gvar = calloc(1, sizeof(GVar));
   gvar->next = globals;
   gvar->name = name;
-  gvar->len = len;
   gvar->type = type;
 
   globals = gvar;
@@ -126,7 +120,7 @@ void new_gvar(char *name, int len, Type *type)
 GVar *find_gvar(Token *tok)
 {
   for (GVar *var = globals; var; var = var->next)
-    if (var->len == tok->len && !memcmp(tok->str, var->name, var->len))
+    if (str_equals(var->name, tok->str))
       return var;
 
   return NULL;
@@ -134,7 +128,7 @@ GVar *find_gvar(Token *tok)
 
 bool consume(char *op)
 {
-  if (token->kind != TK_RESERVED || strlen(op) != token->len || memcmp(token->str, op, token->len))
+  if (token->kind != TK_RESERVED || !str_chr_equals(token->str, op))
     return false;
 
   token = token->next;
@@ -164,8 +158,8 @@ Token *consume_ident()
 
 void expect(char *op)
 {
-  if (token->kind != TK_RESERVED || strlen(op) != token->len || memcmp(token->str, op, token->len))
-    error_at(token->str, "token mismatch: expected %s", op);
+  if (token->kind != TK_RESERVED || !str_chr_equals(token->str, op))
+    error_at_here("token mismatch: expected %s", op);
 
   token = token->next;
 }
@@ -173,7 +167,7 @@ void expect(char *op)
 void expect_kind(TokenKind kind)
 {
   if (token->kind != kind)
-    error_at(token->str, "token mismatch");
+    error_at_here("token mismatch");
 
   token = token->next;
 }
@@ -181,7 +175,7 @@ void expect_kind(TokenKind kind)
 int expect_number()
 {
   if (token->kind != TK_NUM)
-    error_at(token->str, "token mismatch: expected number");
+    error_at_here("token mismatch: expected number");
 
   int val = token->val;
   token = token->next;
@@ -209,7 +203,7 @@ ConsumeTypeRes *expect_nested_type(Type *type)
   {
     Token *tok = consume_ident();
     if (!tok)
-      error_at(token->str, "expected identifier");
+      error_at_token(tok, "expected identifier");
 
     res = calloc(1, sizeof(ConsumeTypeRes));
     res->type = type;
@@ -238,11 +232,11 @@ ConsumeTypeRes *consume_type()
   {
     Token *tok = consume_ident();
     if (!tok)
-      error_at(token->str, "expected identifier");
+      error_at_token(tok, "expected identifier");
 
     StructType *struct_type = find_struct(tok);
     if (!struct_type)
-      error_at(token->str, "unknown struct type");
+      error_at_token(tok, "unknown struct type");
 
     type = new_type(STRUCT, NULL);
     type->struct_type = struct_type;
@@ -293,7 +287,7 @@ Node *new_node(NodeKind kind, Node *lhs, Node *rhs)
     break;
   case ND_LVAR:
   case ND_GVAR:
-    error_at(token->str, "internal error");
+    error_at_here("internal error");
     break;
   default:
     break;
@@ -349,23 +343,23 @@ External *external()
 
     Token *tok = consume_ident();
     if (!tok)
-      error_at(token->str, "expected identifier");
+      error_at_here("expected identifier");
 
     expect("{");
 
     tok = consume_ident();
     if (!tok)
-      error_at(token->str, "expected identifier");
+      error_at_here("expected identifier");
 
-    new_enum_val(tok->str, tok->len, i++);
+    new_enum_val(tok->str, i++);
 
     while (consume(","))
     {
       tok = consume_ident();
       if (!tok)
-        error_at(token->str, "expected identifier");
+        error_at_here("expected identifier");
 
-      new_enum_val(tok->str, tok->len, i++);
+      new_enum_val(tok->str, i++);
     }
 
     expect("}");
@@ -378,11 +372,10 @@ External *external()
     ext->kind = EXT_STRUCT;
     Token *tok = consume_ident();
     if (!tok)
-      error_at(token->str, "expected identifier");
+      error_at_here("expected identifier");
 
     StructType *strType = calloc(1, sizeof(StructType));
     strType->name = tok->str;
-    strType->len = tok->len;
 
     expect("{");
     ConsumeTypeRes *res = consume_type();
@@ -390,7 +383,6 @@ External *external()
     strType->fields = field;
 
     field->name = res->tok->str;
-    field->len = res->tok->len;
     field->type = res->type;
     field->offset = sizeof_type(field->type);
 
@@ -401,7 +393,6 @@ External *external()
         break;
       field->next = calloc(1, sizeof(StructField));
       field->next->name = res->tok->str;
-      field->next->len = res->tok->len;
       field->next->type = res->type;
       field->next->offset = field->offset + sizeof_type(field->next->type);
       field = field->next;
@@ -417,10 +408,9 @@ External *external()
 
   ConsumeTypeRes *res = consume_type();
   if (!res)
-    error_at(token->str, "invalid type");
+    error_at_here("invalid type");
 
   external->name = res->tok->str;
-  external->len = res->tok->len;
   if (consume("("))
   {
     external->kind = EXT_FUNC;
@@ -431,11 +421,11 @@ External *external()
         expect_kind(TK_INT);
         Token *arg = consume_ident();
         if (!arg)
-          error_at(res->tok->str, "failed to parse argument");
+          error_at(res->tok->str->ptr, "failed to parse argument");
 
         LVar *lvar = find_lvar(arg);
         if (!lvar)
-          lvar = new_lvar(arg->str, arg->len, new_type(INT, NULL));
+          lvar = new_lvar(arg->str, new_type(INT, NULL));
 
         external->offsets[i] = lvar->offset;
         i++;
@@ -465,7 +455,7 @@ External *external()
   {
     external->kind = EXT_GVAR;
 
-    new_gvar(res->tok->str, res->tok->len, res->type);
+    new_gvar(res->tok->str, res->type);
     external->size = sizeof_type(res->type);
 
     expect(";");
@@ -657,7 +647,7 @@ Node *unary()
   {
     Node *l = primary();
     if (l->type->ty != PTR && l->type->ty != ARRAY)
-      error_at(token->str, "dereference failed: not a pointer");
+      error_at_here("dereference failed: not a pointer");
 
     if (l->type->ty == ARRAY)
       l = new_node(ND_ADDR, l, NULL);
@@ -690,15 +680,15 @@ Node *postfix()
     {
       Token *tok = consume_ident();
       if (!tok)
-        error_at(token->str, "expected identifier after '.'");
+        error_at_token(tok, "expected identifier after '.'");
 
       if (node->type->ty != STRUCT)
-        error_at(token->str, "expected struct type");
+        error_at_token(tok, "expected struct type");
 
       int size = node->type->struct_type->size;
       StructField *field = find_struct_field(tok, node->type->struct_type);
       if (!field)
-        error_at(token->str, "no such field");
+        error_at_here("no such field");
 
       node = new_node(ND_ADDR, node, NULL);
       node = new_node(ND_ADD, node, new_node_num(size - field->offset));
@@ -710,17 +700,17 @@ Node *postfix()
     {
       Token *tok = consume_ident();
       if (!tok)
-        error_at(token->str, "expected identifier after '->'");
+        error_at_token(tok, "expected identifier after '->'");
 
       if (node->type->ty != PTR)
-        error_at(token->str, "expected pointer type");
+        error_at_token(tok, "expected pointer type");
 
       if (node->type->ptr_to->ty != STRUCT)
-        error_at(token->str, "expected struct type");
+        error_at_token(tok, "expected struct type");
 
       StructField *field = find_struct_field(tok, node->type->ptr_to->struct_type);
       if (!field)
-        error_at(token->str, "no such field");
+        error_at_here("no such field");
 
       node = new_node(ND_ADD, node, new_node_num(node->type->ptr_to->struct_type->size - field->offset));
       node->type = new_type(PTR, field->type);
@@ -747,7 +737,6 @@ Node *primary()
   {
     StringLiteral *s = calloc(1, sizeof(StringLiteral));
     s->str = tok->str;
-    s->len = tok->len;
     s->next = ext->literals;
     ext->literals = s;
     Node *node = new_node(ND_STRING, NULL, NULL);
@@ -761,7 +750,7 @@ Node *primary()
   {
     LVar *lvar = find_lvar(res->tok);
     if (!lvar)
-      lvar = new_lvar(res->tok->str, res->tok->len, res->type);
+      lvar = new_lvar(res->tok->str, res->type);
 
     Node *node = new_typed_node(ND_LVAR, NULL, NULL, lvar->type);
     node->offset = lvar->offset;
@@ -771,7 +760,7 @@ Node *primary()
       if (consume("{"))
       {
         if (lvar->type->ty != ARRAY)
-          error_at(tok->str, "type mismatch");
+          error_at_token(tok, "type mismatch");
 
         node = new_typed_node(ND_ASSIGN_ARRAY, node, NULL, lvar->type);
         Node *last = node;
@@ -805,7 +794,6 @@ Node *primary()
     {
       Node *func = calloc(1, sizeof(Node));
       func->name = tok->str;
-      func->len = tok->len;
 
       node = new_node(ND_CALL, func, NULL);
 
@@ -843,10 +831,9 @@ Node *primary()
           {
             node = new_typed_node(ND_GVAR, NULL, NULL, gvar->type);
             node->name = tok->str;
-            node->len = tok->len;
           }
           else
-            error_at(tok->str, "%.*s is not defined", tok->len, tok->str);
+            error_at_token(tok, "%.*s is not defined", tok->str->len, tok->str->ptr);
         }
       }
     }

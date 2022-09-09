@@ -13,8 +13,7 @@ typedef struct External External;
 struct External
 {
 	ExternalKind kind;
-	char *name;
-	int len;
+	String *name;
 	Node *code[100];
 	int offsets[6];
 	int size;

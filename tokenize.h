@@ -1,5 +1,7 @@
 #pragma once
 
+#include "string.h"
+
 typedef struct Token Token;
 
 typedef enum
@@ -27,8 +29,7 @@ struct Token
 	TokenKind kind;
 	Token *next;
 	int val;
-	char *str;
-	int len;
+	String *str;
 };
 
 extern Token *token;

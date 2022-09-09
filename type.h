@@ -16,8 +16,7 @@ typedef struct StructField StructField;
 struct StructField
 {
 	StructField *next;
-	char *name;
-	int len;
+	String *name;
 	Type *type;
 	int offset;
 };
@@ -26,8 +25,7 @@ typedef struct StructType StructType;
 struct StructType
 {
 	StructType *next;
-	char *name;
-	int len;
+	String *name;
 	StructField *fields;
 	int size;
 };

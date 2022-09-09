@@ -13,11 +13,11 @@ Token *preprocess(Token *tok)
 	{
 		if (t->kind == TK_PREPROCESSOR)
 		{
-			if (startswith(tok->str, "#include"))
+			if (startswith(tok->str->ptr, "#include"))
 			{
 				char filename[100] = {};
 				char path[200] = {};
-				strncpy(filename, tok->str + 10, tok->len - 11);
+				strncpy(filename, tok->str->ptr + 10, tok->str->len - 11);
 
 				snprintf(path, sizeof(path), "%s/%s", dir_name, filename);
 

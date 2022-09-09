@@ -17,7 +17,7 @@ void gen_lval(Node *node)
   }
   else if (node->kind == ND_GVAR)
   {
-    printf("  lea rax, %.*s[rip]\n", node->len, node->name);
+    printf("  lea rax, %.*s[rip]\n", node->name->len, node->name->ptr);
     printf("  push rax\n");
   }
   else if (node->kind == ND_STRING)
@@ -169,14 +169,14 @@ void gen(Node *node)
       i++;
     }
     if (i > 6)
-      error_at(node->lhs->name, "too many arguments");
+      error_at(node->lhs->name->ptr, "too many arguments");
 
     char *regs[6] = {"rdi", "rsi", "rdx", "rcx", "r8", "r9"};
 
     for (int j = i - 1; j >= 0; j--)
       printf("  pop %s\n", regs[j]);
 
-    printf("  call %.*s\n", node->lhs->len, node->lhs->name);
+    printf("  call %.*s\n", node->lhs->name->len, node->lhs->name->ptr);
 
     printf("  pop rdi\n");
     printf("  pop rdi\n");

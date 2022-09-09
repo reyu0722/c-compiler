@@ -1,5 +1,6 @@
 #pragma once
 
+#include "string.h"
 #include "type.h"
 
 typedef enum
@@ -45,16 +46,14 @@ struct Node
   int val;    // ND_NUM
   int offset; // ND_LVAR
   Type *type; // expr
-  char *name; // ND_CALL
-  int len;    // ND_CALL
+  String *name; // ND_CALL
 };
 
 typedef struct StringLiteral StringLiteral;
 struct StringLiteral
 {
   StringLiteral *next;
-  char *str;
-  int len;
+  String *str;
   int offset;
 };
 

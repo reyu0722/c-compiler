@@ -75,11 +75,11 @@ int main(int argc, char **argv)
       {
         printf(".data\n");
         printf(".LC%d:\n", l->offset);
-        printf("  .string \"%.*s\"\n", l->len, l->str);
+        printf("  .string \"%.*s\"\n", l->str->len, l->str->ptr);
       }
 
       printf(".text\n");
-      printf("%.*s:\n", ext->len, ext->name);
+      printf("%.*s:\n", ext->name->len, ext->name->ptr);
       printf("  push rbp\n");
       printf("  mov rbp, rsp\n");
       printf("  sub rsp, %d\n", ext->stack_size);
@@ -99,7 +99,7 @@ int main(int argc, char **argv)
       break;
     case EXT_GVAR:
       printf(".data\n");
-      printf("%.*s:\n", ext->len, ext->name);
+      printf("%.*s:\n", ext->name->len, ext->name->ptr);
       printf("  .zero %d\n", ext->size);
       break;
     case EXT_ENUM:
