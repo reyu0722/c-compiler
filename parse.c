@@ -6,13 +6,10 @@
 #include "tokenize.h"
 #include "type.h"
 
-void assert(bool flag)
-{
-  if (!flag)
-    error_at(token->str, "assertion failed");
-}
-
 typedef struct LVar LVar;
+typedef struct GVar GVar;
+typedef struct EnumVal EnumVal;
+typedef struct ConsumeTypeRes ConsumeTypeRes;
 
 struct LVar
 {
@@ -23,7 +20,32 @@ struct LVar
   Type *type;
 };
 
+struct GVar
+{
+  GVar *next;
+  char *name;
+  int len;
+  Type *type;
+};
+
+struct EnumVal
+{
+  EnumVal *next;
+  char *name;
+  int len;
+  int val;
+};
+
+struct ConsumeTypeRes
+{
+  Type *type;
+  Token *tok;
+};
+
 LVar *locals;
+GVar *globals;
+EnumVal *enumVals;
+StructType *structs;
 
 LVar *find_lvar(Token *tok)
 {
@@ -51,16 +73,6 @@ LVar *new_lvar(char *name, int len, Type *type)
   return lvar;
 }
 
-typedef struct EnumVal EnumVal;
-struct EnumVal
-{
-  EnumVal *next;
-  char *name;
-  int len;
-  int val;
-};
-EnumVal *enumVals;
-
 EnumVal *find_enum_val(Token *tok)
 {
   for (EnumVal *val = enumVals; val; val = val->next)
@@ -82,8 +94,6 @@ EnumVal *new_enum_val(char *name, int len, int val)
   return enumVal;
 }
 
-StructType *structs;
-
 StructType *find_struct(Token *tok)
 {
   for (StructType *type = structs; type; type = type->next)
@@ -101,17 +111,6 @@ StructField *find_struct_field(Token *tok, StructType *type)
 
   return NULL;
 }
-
-typedef struct GVar GVar;
-struct GVar
-{
-  GVar *next;
-  char *name;
-  int len;
-  Type *type;
-};
-
-GVar *globals;
 
 void new_gvar(char *name, int len, Type *type)
 {
@@ -193,13 +192,6 @@ bool at_eof()
 {
   return token->kind == TK_EOF;
 }
-
-typedef struct ConsumeTypeRes ConsumeTypeRes;
-struct ConsumeTypeRes
-{
-  Type *type;
-  Token *tok;
-};
 
 ConsumeTypeRes *expect_nested_type(Type *type)
 {

@@ -1,6 +1,8 @@
 #include <stdarg.h>
 #include <stdio.h>
+#include <stdbool.h>
 #include "header.h"
+#include "tokenize.h"
 
 void error(char *fmt, ...)
 {
@@ -39,4 +41,10 @@ void error_at(char *loc, char *fmt, ...)
 	vfprintf(stderr, fmt, ap);
 	fprintf(stderr, "\n");
 	exit(1);
+}
+
+void assert(bool flag)
+{
+  if (!flag)
+    error_at(token->str, "assertion failed");
 }

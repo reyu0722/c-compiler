@@ -54,6 +54,8 @@ void gen(Node *node)
     case CHAR:
       printf("  movsx rax, BYTE PTR [rax]\n");
       break;
+    default:
+      break;
     }
     printf("  push rax\n");
     return;
@@ -200,9 +202,8 @@ void gen(Node *node)
     case CHAR:
       printf("  movsx rax, BYTE PTR [rax]\n");
       break;
-    case ARRAY:
-      error("failed to dereference array");
-      break;
+    default:
+      error("unexpected type");
     }
 
     printf("  push rax\n");
