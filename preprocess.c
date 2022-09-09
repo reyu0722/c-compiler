@@ -1,4 +1,8 @@
+#include <stdbool.h>
+#include <stdio.h>
+#include <string.h>
 #include "header.h"
+#include "tokenize.h"
 
 Token *preprocess(Token *tok)
 {

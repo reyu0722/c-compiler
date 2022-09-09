@@ -1,5 +1,6 @@
 CFLAGS=-std=c11 -g -static -Wall
 SRCS=$(wildcard *.c)
+HEADERS=$(wildcard *.h)
 OBJS=$(SRCS:.c=.o)
 
 TEST_SRCS=$(wildcard test/*.c)
@@ -8,7 +9,7 @@ TESTS=$(TEST_SRCS:.c=.out)
 main: $(OBJS)
 	$(CC) -o main $(OBJS) $(LDFLAGS)
 
-$(OBJS): header.h
+$(OBJS): $(HEADERS)
 
 test/%.out: main $(TEST_SRCS)
 	./main test/$*.c > test/$*.s

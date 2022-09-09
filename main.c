@@ -1,4 +1,13 @@
+#include <errno.h>
+#include <stdarg.h>
+#include <stdbool.h>
+#include <stdio.h>
+#include <string.h>
+#include "codegen.h"
 #include "header.h"
+#include "parse.h"
+#include "preprocess.h"
+#include "tokenize.h"
 
 char *user_input;
 char *filename;

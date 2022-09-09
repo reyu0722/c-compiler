@@ -1,41 +1,6 @@
-#include <ctype.h>
-#include <errno.h>
-#include <stdarg.h>
-#include <stdbool.h>
-#include <stdio.h>
-#include <stdlib.h>
-#include <string.h>
+#pragma once
 
-typedef enum
-{
-  TK_RESERVED,
-  TK_IDENT,
-  TK_NUM,
-  TK_RETURN,
-  TK_IF,
-  TK_ELSE,
-  TK_WHILE,
-  TK_FOR,
-  TK_INT,
-  TK_CHAR,
-  TK_ENUM,
-  TK_STRUCT,
-  TK_EOF,
-  TK_SIZEOF,
-  TK_STRING,
-  TK_PREPROCESSOR
-} TokenKind;
-
-typedef struct Token Token;
-
-struct Token
-{
-  TokenKind kind;
-  Token *next;
-  int val;
-  char *str;
-  int len;
-};
+#include "type.h"
 
 typedef enum
 {
@@ -70,44 +35,6 @@ typedef enum
   DIR_INCLUDE
 } Directive;
 
-typedef enum
-{
-  INT,
-  PTR,
-  ARRAY,
-  CHAR,
-  STRUCT,
-} TypeKind;
-
-typedef struct StructField StructField;
-typedef struct Type Type;
-struct StructField
-{
-  StructField *next;
-  char *name;
-  int len;
-  Type *type;
-  int offset;
-};
-
-typedef struct StructType StructType;
-struct StructType
-{
-  StructType *next;
-  char *name;
-  int len;
-  StructField *fields;
-  int size;
-};
-
-struct Type
-{
-  TypeKind ty;
-  Type *ptr_to;
-  size_t array_size;
-  StructType *struct_type;
-};
-
 typedef struct Node Node;
 
 struct Node
@@ -131,45 +58,8 @@ struct StringLiteral
   int offset;
 };
 
-typedef enum
-{
-  EXT_FUNC,
-  EXT_FUNCDECL,
-  EXT_GVAR,
-  EXT_ENUM,
-  EXT_STRUCT,
-} ExternalKind;
-
-typedef struct External External;
-struct External
-{
-  ExternalKind kind;
-  char *name;
-  int len;
-  Node *code[100];
-  int offsets[6];
-  int size;
-  StringLiteral *literals;
-  int stack_size;
-};
-
 // main.c
 char *dir_name;
 void error(char *fmt, ...);
 void error_at(char *loc, char *fmt, ...);
 char *read_file(char *path);
-
-// codegen.c
-void gen(Node *node);
-
-// parse.c
-bool at_eof();
-External *external();
-
-// preprocess.c
-Token *preprocess(Token *tok);
-
-// tokenize.c
-extern Token *token;
-bool startswith(char *p, char *q);
-Token *tokenize(char *p, bool eof);

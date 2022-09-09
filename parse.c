@@ -1,4 +1,9 @@
+#include <stdbool.h>
+#include <string.h>
 #include "header.h"
+#include "parse.h"
+#include "tokenize.h"
+#include "type.h"
 
 void assert(bool flag)
 {

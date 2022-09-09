@@ -1,3 +1,5 @@
+#include <stdio.h>
+#include "codegen.h"
 #include "header.h"
 
 int label_count = 0;
