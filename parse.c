@@ -10,6 +10,7 @@ typedef struct LVar LVar;
 typedef struct GVar GVar;
 typedef struct EnumVal EnumVal;
 typedef struct ConsumeTypeRes ConsumeTypeRes;
+typedef struct TypeDef TypeDef;
 
 struct LVar
 {
@@ -39,10 +40,18 @@ struct ConsumeTypeRes
   Token *tok;
 };
 
+struct TypeDef
+{
+  TypeDef *next;
+  String *name;
+  Type *type;
+};
+
 LVar *locals;
 GVar *globals;
 EnumVal *enumVals;
 StructType *structs;
+TypeDef *typedefs;
 
 LVar *find_lvar(Token *tok)
 {
@@ -126,6 +135,26 @@ GVar *find_gvar(Token *tok)
   return NULL;
 }
 
+TypeDef *find_typedef(Token *tok)
+{
+  for (TypeDef *type = typedefs; type; type = type->next)
+    if (str_equals(type->name, tok->str))
+      return type;
+
+  return NULL;
+}
+
+TypeDef *new_typedef(String *name, Type *type)
+{
+  TypeDef *typedef_ = calloc(1, sizeof(TypeDef));
+  typedef_->next = typedefs;
+  typedef_->name = name;
+  typedef_->type = type;
+
+  typedefs = typedef_;
+  return typedef_;
+}
+
 bool consume(char *op)
 {
   if (token->kind != TK_RESERVED || !str_chr_equals(token->str, op))
@@ -154,6 +183,54 @@ Token *consume_ident()
   Token *res = token;
   token = token->next;
   return res;
+}
+
+void go_to(Token *tok)
+{
+  token = tok;
+}
+
+Type *consume_type_name()
+{
+  Token *tok = consume_kind(TK_INT);
+  if (tok)
+    return new_type(INT, NULL);
+  tok = consume_kind(TK_CHAR);
+  if (tok)
+    return new_type(CHAR, NULL);
+  tok = consume_kind(TK_ENUM);
+  if (tok)
+  {
+    Token *id = consume_kind(TK_IDENT);
+    if (!id)
+      error_at_here("expected enum name");
+    return new_type(INT, NULL);
+  }
+  tok = consume_kind(TK_STRUCT);
+  if (tok)
+  {
+    Token *id = consume_kind(TK_IDENT);
+    if (!id)
+      error_at_here("expected struct name");
+
+    StructType *type = find_struct(id);
+    if (!type)
+      error_at_here("unknown struct name");
+
+    Type *ty = new_type(STRUCT, NULL);
+    ty->struct_type = type;
+    return ty;
+  }
+  tok = consume_kind(TK_IDENT);
+  if (tok)
+  {
+    TypeDef *type = find_typedef(tok);
+    if (type)
+      return type->type;
+    go_to(tok);
+  }
+
+  return NULL;
 }
 
 void expect(char *op)
@@ -223,25 +300,8 @@ ConsumeTypeRes *expect_nested_type(Type *type)
 
 ConsumeTypeRes *consume_type()
 {
-  Type *type;
-  if (consume_kind(TK_INT))
-    type = new_type(INT, NULL);
-  else if (consume_kind(TK_CHAR))
-    type = new_type(CHAR, NULL);
-  else if (consume_kind(TK_STRUCT))
-  {
-    Token *tok = consume_ident();
-    if (!tok)
-      error_at_token(tok, "expected identifier");
-
-    StructType *struct_type = find_struct(tok);
-    if (!struct_type)
-      error_at_token(tok, "unknown struct type");
-
-    type = new_type(STRUCT, NULL);
-    type->struct_type = struct_type;
-  }
-  else
+  Type *type = consume_type_name();
+  if (!type)
     return NULL;
 
   return expect_nested_type(type);
@@ -404,6 +464,24 @@ External *external()
 
     strType->next = structs;
     structs = strType;
+    return ext;
+  }
+
+  if (consume_kind(TK_TYPEDEF))
+  {
+    ext->kind = EXT_TYPEDEF;
+
+    Type *ty = consume_type_name();
+    if (!ty)
+      error_at_here("expected type name");
+
+    Token *ident = consume_ident();
+    if (!ident)
+      error_at_here("expected identifier");
+
+    new_typedef(ident->str, ty);
+    expect(";");
+    return ext;
   }
 
   ConsumeTypeRes *res = consume_type();

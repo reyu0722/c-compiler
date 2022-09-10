@@ -21,7 +21,8 @@ typedef enum
 	TK_EOF,
 	TK_SIZEOF,
 	TK_STRING,
-	TK_PREPROCESSOR
+	TK_PREPROCESSOR,
+	TK_TYPEDEF,
 } TokenKind;
 
 struct Token

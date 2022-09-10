@@ -177,6 +177,13 @@ Token *tokenize(char *p, bool eof)
 			continue;
 		}
 
+		if (strncmp(p, "typedef", 7) == 0 && !is_alnum(p[7]))
+		{
+			cur = new_token(TK_TYPEDEF, cur, p, 7);
+			p += 7;
+			continue;
+		}
+
 		if (('a' <= *p && *p <= 'z') || ('A' <= *p && *p <= 'Z') || (*p == '_'))
 		{
 			char *q;

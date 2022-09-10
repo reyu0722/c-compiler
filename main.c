@@ -105,6 +105,7 @@ int main(int argc, char **argv)
     case EXT_ENUM:
     case EXT_STRUCT:
     case EXT_FUNCDECL:
+    case EXT_TYPEDEF:
       break;
     }
   }

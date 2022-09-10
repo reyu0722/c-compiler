@@ -7,6 +7,7 @@ typedef enum
 	EXT_GVAR,
 	EXT_ENUM,
 	EXT_STRUCT,
+	EXT_TYPEDEF,
 } ExternalKind;
 
 typedef struct External External;

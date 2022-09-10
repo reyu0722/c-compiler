@@ -9,8 +9,9 @@ C (subset) compiler written in C.
 program    = external*
 external   = declaration ("(" ("int" ident ("," "int" ident)*)? ")" (";" | "{" stmt* "}")
            | declaration ";"
-           | "enum" ident "{" ident ("," ident)* "}"
-           | "struct" ident "{" declaration ("," declaration)* "}"
+           | "enum" ident "{" ident ("," ident)* "}" ";"
+           | "struct" ident "{" declaration ("," declaration)* "}" ";"
+           | "typedef" type_name ident ";"
            | preprocessor
 stmt       = expr ";"
            | "if" "(" expr ")" stmt ("else" stmt)?
