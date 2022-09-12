@@ -38,4 +38,14 @@ int main()
 	int a = 1;
 	a++;
 	assert(2, a);
+	a--;
+	assert(1, a);
+	a += 2;
+	assert(3, a);
+	a -= 4;
+	assert(-1, a);
+	a *= -5;
+	assert(5, a);
+	a /= 2;
+	assert(2, a);
 }

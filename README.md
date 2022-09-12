@@ -20,7 +20,7 @@ stmt       = expr ";"
            | "{" stmt* "}"
            | "return" expr ";"
 expr       = assign
-assign     = equality ("=" assign)?
+assign     = equality (("=" | "+=" | "-=" | "*=" | "/=") assign)?
 equality   = relational ("==" relational | "!=" relational)*
 relational = add ("<" add | "<=" add | ">" add | ">=" add)*
 add        = mul ("+" mul | "-" mul)*
