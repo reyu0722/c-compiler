@@ -28,6 +28,7 @@ mul        = unary ("*" unary | "/" unary)*
 unary      = ("+" | "-" | "&" | "*" | "sizeof")? postfix
 postfix    = primary ("[" expr "]")*
            | primary ("." | "->") ident
+           | primary ("++" | "--")
 primary    = num | string | "(" expr ")"
            | declaration ("=" (assign | "{" expr_list? "}"))?
            | ident ("(" expr_list? ")")?

@@ -795,6 +795,16 @@ Node *postfix()
       node = new_node(ND_DEREF, node, NULL);
       continue;
     }
+    if (consume("++"))
+    {
+      node = new_node(ND_ASSIGN, node, new_node(ND_ADD, node, new_node_num(1)));
+      continue;
+    }
+    if (consume("--"))
+    {
+      node = new_node(ND_ASSIGN, node, new_node(ND_SUB, node, new_node_num(1)));
+      continue;
+    }
 
     break;
   }
