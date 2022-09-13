@@ -22,6 +22,7 @@ stmt       = expr ";"
            | "for" "(" expr? ";" expr? ";" expr? ")" stmt
            | "{" stmt* "}"
            | "return" expr ";"
+           | "break" ";"
 expr       = assign
 assign     = equality (("=" | "+=" | "-=" | "*=" | "/=") assign)?
 equality   = relational ("==" relational | "!=" relational)*

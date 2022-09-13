@@ -623,6 +623,11 @@ Node *stmt()
     node = new_node(ND_RETURN, expr(), NULL);
     expect(";");
   }
+  else if (consume_kind(TK_BREAK))
+  {
+    node = new_node(ND_BREAK, NULL, NULL);
+    expect(";");
+  }
   else
   {
     node = expr();

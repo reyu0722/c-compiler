@@ -17,4 +17,18 @@ int main()
 
   assert(4, b);
   assert(3, c);
+
+
+  switch (a)
+  {
+  case 1:
+    b = 2;
+    break;
+  case 2:
+    b = 3;
+    break;
+  case 3:
+    b = 4;
+  }
+  assert(3, b);
 }

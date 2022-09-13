@@ -22,6 +22,7 @@ typedef enum
   ND_IFELSE,       // if ... else ...
   ND_SWITCH,       // switch
   ND_CASE,         // case
+  ND_BREAK,        // break
   ND_WHILE,        // while
   ND_FOR,          // for
   ND_BLOCK,        // { ... }

@@ -211,6 +211,13 @@ Token *tokenize(char *p, bool eof)
 			continue;
 		}
 
+		if (strncmp(p, "break", 5) == 0 && !is_alnum(p[5]))
+		{
+			cur = new_token(TK_BREAK, cur, p, 5);
+			p += 5;
+			continue;
+		}
+
 		if (('a' <= *p && *p <= 'z') || ('A' <= *p && *p <= 'Z') || (*p == '_'))
 		{
 			char *q;

@@ -5,6 +5,7 @@
 
 int label_count = 0;
 int switch_count = 0;
+int break_count = 0;
 
 void gen_lval(Node *node)
 {
@@ -133,13 +134,19 @@ void gen(Node *node)
         printf("  je .Lcase%d_%d\n", switch_count, n->lhs->lhs->val);
       }
 
+    int b = break_count;
     gen(node->rhs);
+    printf(".Lbreak%d:\n", b);
+    break_count++;
     switch_count++;
     return;
   case ND_CASE:
     assert(node->lhs->kind == ND_NUM);
     printf(".Lcase%d_%d:\n", switch_count, node->lhs->val);
     gen(node->rhs);
+    return;
+  case ND_BREAK:
+    printf("  jmp .Lbreak%d\n", break_count);
     return;
   case ND_WHILE:
     l = label_count++;

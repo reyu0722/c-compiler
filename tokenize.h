@@ -24,7 +24,8 @@ typedef enum
 	TK_PREPROCESSOR,
 	TK_TYPEDEF,
 	TK_SWITCH,
-	TK_CASE
+	TK_CASE,
+	TK_BREAK,
 } TokenKind;
 
 struct Token
