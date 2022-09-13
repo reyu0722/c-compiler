@@ -236,6 +236,38 @@ void gen(Node *node)
 
     printf("  push rax\n");
     return;
+  case ND_AND:
+    l = label_count++;
+    gen(node->lhs);
+    printf("  pop rax\n");
+    printf("  cmp rax, 0\n");
+    printf("  je .Lfalse%d\n", l);
+    gen(node->rhs);
+    printf("  pop rax\n");
+    printf("  cmp rax, 0\n");
+    printf("  je .Lfalse%d\n", l);
+    printf("  push 1\n");
+    printf("  jmp .Lend%d\n", l);
+    printf(".Lfalse%d:\n", l);
+    printf("  push 0\n");
+    printf(".Lend%d:\n", l);
+    return;
+  case ND_OR:
+    l = label_count++;
+    gen(node->lhs);
+    printf("  pop rax\n");
+    printf("  cmp rax, 1\n");
+    printf("  je .Ltrue%d\n", l);
+    gen(node->rhs);
+    printf("  pop rax\n");
+    printf("  cmp rax, 1\n");
+    printf("  je .Ltrue%d\n", l);
+    printf("  push 0\n");
+    printf("  jmp .Lend%d\n", l);
+    printf(".Ltrue%d:\n", l);
+    printf("  push 1\n");
+    printf(".Lend%d:\n", l);
+    return;
   default:
     gen(node->lhs);
     gen(node->rhs);

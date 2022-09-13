@@ -15,6 +15,8 @@ typedef enum
   ND_NE,           // !=
   ND_LT,           // <
   ND_LE,           // <=
+  ND_AND,          // &&
+  ND_OR,           // ||
   ND_ADDR,         // *
   ND_DEREF,        // &
   ND_RETURN,       // return

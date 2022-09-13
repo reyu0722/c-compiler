@@ -56,6 +56,13 @@ Token *tokenize(char *p, bool eof)
 			p += 2;
 			continue;
 		}
+		if (startswith(p, "||") || startswith(p, "&&"))
+		{
+			cur = new_token(TK_RESERVED, cur, p, 2);
+			p += 2;
+			continue;
+		}
+
 		if (startswith(p, "++") || startswith(p, "--"))
 		{
 			cur = new_token(TK_RESERVED, cur, p, 2);
@@ -215,6 +222,14 @@ Token *tokenize(char *p, bool eof)
 		{
 			cur = new_token(TK_BREAK, cur, p, 5);
 			p += 5;
+			continue;
+		}
+
+		if (strncmp(p, "__attibute__", 12) == 0 && !is_alnum(p[12]))
+		{
+			while (strncmp(p, "))", 2))
+				p++;
+			p += 2;
 			continue;
 		}
 

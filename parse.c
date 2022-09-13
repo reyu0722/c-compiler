@@ -328,6 +328,8 @@ Node *new_node(NodeKind kind, Node *lhs, Node *rhs)
   case ND_NE:
   case ND_LT:
   case ND_LE:
+  case ND_AND:
+  case ND_OR:
     node->type = new_type(INT, NULL);
     break;
   case ND_ADDR:
@@ -665,7 +667,11 @@ Node *equality()
 
   for (;;)
   {
-    if (consume("=="))
+    if (consume("||"))
+      node = new_node(ND_OR, node, relational());
+    else if (consume("&&"))
+      node = new_node(ND_AND, node, relational());
+    else if (consume("=="))
       node = new_node(ND_EQ, node, relational());
     else if (consume("!="))
       node = new_node(ND_NE, node, relational());
