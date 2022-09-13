@@ -54,7 +54,10 @@ int main(int argc, char **argv)
   }
 
   dir_name = calloc(1, dir + 1);
-  strncpy(dir_name, filename, dir);
+  if (dir != -1)
+    strncpy(dir_name, filename, dir);
+  else
+    dir_name[0] = '.';
 
   user_input = read_file(filename);
   token = tokenize(user_input, true);
