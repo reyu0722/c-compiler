@@ -13,8 +13,11 @@ external   = declaration ("(" ("int" ident ("," "int" ident)*)? ")" (";" | "{" s
            | "struct" ident "{" declaration ("," declaration)* "}" ";"
            | "typedef" type_name ident ";"
            | preprocessor
+label_stmt = label? stmt
+label      = "case" expr ":"
 stmt       = expr ";"
            | "if" "(" expr ")" stmt ("else" stmt)?
+           | "switch" "(" expr ")" stmt
            | "while "(" expr ")" stmt
            | "for" "(" expr? ";" expr? ";" expr? ")" stmt
            | "{" stmt* "}"

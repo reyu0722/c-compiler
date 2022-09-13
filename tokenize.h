@@ -23,6 +23,8 @@ typedef enum
 	TK_STRING,
 	TK_PREPROCESSOR,
 	TK_TYPEDEF,
+	TK_SWITCH,
+	TK_CASE
 } TokenKind;
 
 struct Token

@@ -548,7 +548,16 @@ Node *stmt()
 {
   Node *node;
 
-  if (consume_kind(TK_IF))
+  if (consume_kind(TK_CASE))
+  {
+    Node *e = expr();
+    if (e->kind != ND_NUM)
+      error_at_here("expected constant expression");
+
+    expect(":");
+    node = new_node(ND_CASE, e, stmt());
+  }
+  else if (consume_kind(TK_IF))
   {
     expect("(");
     Node *lhs = expr();
@@ -559,6 +568,15 @@ Node *stmt()
       node = new_node(ND_IFELSE, lhs, new_node(ND_UNNAMED, rhs, stmt()));
     else
       node = new_node(ND_IF, lhs, rhs);
+  }
+  else if (consume_kind(TK_SWITCH))
+  {
+    expect("(");
+    Node *lhs = expr();
+    expect(")");
+    Node *rhs = stmt();
+
+    node = new_node(ND_SWITCH, lhs, rhs);
   }
   else if (consume_kind(TK_WHILE))
   {

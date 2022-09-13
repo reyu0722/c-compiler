@@ -94,7 +94,7 @@ Token *tokenize(char *p, bool eof)
 			continue;
 		}
 
-		if (strchr("+-*/()<>;={},&[].", *p))
+		if (strchr("+-*/()<>:;={},&[].", *p))
 		{
 			cur = new_token(TK_RESERVED, cur, p++, 1);
 			continue;
@@ -194,6 +194,20 @@ Token *tokenize(char *p, bool eof)
 		{
 			cur = new_token(TK_TYPEDEF, cur, p, 7);
 			p += 7;
+			continue;
+		}
+
+		if (strncmp(p, "switch", 6) == 0 && !is_alnum(p[6]))
+		{
+			cur = new_token(TK_SWITCH, cur, p, 6);
+			p += 6;
+			continue;
+		}
+
+		if (strncmp(p, "case", 4) == 0 && !is_alnum(p[4]))
+		{
+			cur = new_token(TK_CASE, cur, p, 4);
+			p += 4;
 			continue;
 		}
 

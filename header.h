@@ -20,6 +20,8 @@ typedef enum
   ND_RETURN,       // return
   ND_IF,           // if
   ND_IFELSE,       // if ... else ...
+  ND_SWITCH,       // switch
+  ND_CASE,         // case
   ND_WHILE,        // while
   ND_FOR,          // for
   ND_BLOCK,        // { ... }
@@ -43,9 +45,9 @@ struct Node
   NodeKind kind;
   Node *lhs;
   Node *rhs;
-  int val;    // ND_NUM
-  int offset; // ND_LVAR
-  Type *type; // expr
+  int val;      // ND_NUM
+  int offset;   // ND_LVAR
+  Type *type;   // expr
   String *name; // ND_CALL
 };
 

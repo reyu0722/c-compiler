@@ -4,6 +4,7 @@
 #include "header.h"
 
 int label_count = 0;
+int switch_count = 0;
 
 void gen_lval(Node *node)
 {
@@ -119,6 +120,26 @@ void gen(Node *node)
     printf(".Lelse%d:\n", l);
     gen(node->rhs->rhs);
     printf(".Lend%d:\n", l);
+    return;
+  case ND_SWITCH:
+    assert(node->rhs->kind == ND_BLOCK);
+    gen(node->lhs);
+    printf("  pop rax\n");
+
+    for (n = node->rhs; n; n = n->rhs)
+      if (n->lhs && n->lhs->kind == ND_CASE)
+      {
+        printf("  cmp rax, %d\n", n->lhs->lhs->val);
+        printf("  je .Lcase%d_%d\n", switch_count, n->lhs->lhs->val);
+      }
+
+    gen(node->rhs);
+    switch_count++;
+    return;
+  case ND_CASE:
+    assert(node->lhs->kind == ND_NUM);
+    printf(".Lcase%d_%d:\n", switch_count, node->lhs->val);
+    gen(node->rhs);
     return;
   case ND_WHILE:
     l = label_count++;
