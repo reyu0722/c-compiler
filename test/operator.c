@@ -48,4 +48,7 @@ int main()
 	assert(5, a);
 	a /= 2;
 	assert(2, a);
+
+	assert(1, !(0 == 1));
+	assert(0, !(1 == 1));
 }

@@ -749,7 +749,7 @@ Node *unary()
   else if (consume("-"))
     return new_node(ND_SUB, new_node_num(0), postfix());
   else if (consume("&"))
-    return new_node(ND_ADDR, primary(), NULL);
+    return new_node(ND_ADDR, postfix(), NULL);
   else if (consume("*"))
   {
     Node *l = primary();
@@ -763,6 +763,8 @@ Node *unary()
   }
   else if (consume_kind(TK_SIZEOF))
     return new_node_num(sizeof_type(unary()->type));
+  else if (consume("!"))
+    return new_node(ND_EQ, postfix(), new_node_num(0));
 
   return postfix();
 }
