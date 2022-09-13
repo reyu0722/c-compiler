@@ -25,7 +25,7 @@ stmt       = expr ";"
            | "break" ";"
 expr       = assign
 assign     = equality (("=" | "+=" | "-=" | "*=" | "/=") assign)?
-equality   = relational ("==" relational | "!=" relational)*
+equality   = relational (("&&" | "||" | "==" | "!=") relational)*
 relational = add ("<" add | "<=" add | ">" add | ">=" add)*
 add        = mul ("+" mul | "-" mul)*
 mul        = unary ("*" unary | "/" unary)*
