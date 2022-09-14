@@ -9,6 +9,7 @@ typedef enum
 	ARRAY,
 	CHAR,
 	STRUCT,
+	VOID,
 } TypeKind;
 
 typedef struct Type Type;
