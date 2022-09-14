@@ -494,7 +494,9 @@ External *external()
   if (consume("("))
   {
     external->kind = EXT_FUNC;
-    if (!consume(")"))
+    if (consume_kind(TK_VOID))
+      expect(")");
+    else if (!consume(")"))
     {
       for (;;)
       {

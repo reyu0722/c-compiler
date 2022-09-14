@@ -7,7 +7,7 @@ C (subset) compiler written in C.
 
 ```ebnf
 program    = external*
-external   = declaration ("(" ("int" ident ("," "int" ident)*)? ")" (";" | "{" stmt* "}")
+external   = declaration "(" ("int" ident ("," "int" ident)*)? | "void" ")" (";" | "{" stmt* "}")
            | declaration ";"
            | "enum" ident "{" ident ("," ident)* "}" ";"
            | "struct" ident "{" declaration ("," declaration)* "}" ";"

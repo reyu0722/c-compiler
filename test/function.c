@@ -24,6 +24,11 @@ int fib(int i)
 
 int after();
 
+int no_args(void)
+{
+	return 32;
+}
+
 int main()
 {
 	assert(10, foo());
@@ -31,6 +36,7 @@ int main()
 	assert(21, baz(1, 2, 3, 4, 5, 6));
 	assert(55, fib(10));
 	assert(20, after());
+	assert(32, no_args());
 }
 
 int after()
