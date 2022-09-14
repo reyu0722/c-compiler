@@ -561,15 +561,11 @@ External *external()
   {
     ext->kind = EXT_TYPEDEF;
 
-    Type *ty = consume_type_name();
-    if (!ty)
-      error_at_here("expected type name");
+    ConsumeTypeRes *res = consume_type();
+    if (!res)
+      error_at_here("expected type");
 
-    Token *ident = consume_ident();
-    if (!ident)
-      error_at_here("expected identifier");
-
-    new_typedef(ident->str, ty);
+    new_typedef(res->tok->str, res->type);
     expect(";");
     return ext;
   }
