@@ -18,5 +18,13 @@ int main()
   assert(1, b->a);
   assert(2, b->b);
 
+  struct
+  {
+    int a;
+    int b;
+  } c;
+
+  assert(8, sizeof(c));
+
   return 0;
 }

@@ -190,6 +190,39 @@ void go_to(Token *tok)
   token = tok;
 }
 
+void expect(char *op)
+{
+  if (token->kind != TK_RESERVED || !str_chr_equals(token->str, op))
+    error_at_here("token mismatch: expected %s", op);
+
+  token = token->next;
+}
+
+void expect_kind(TokenKind kind)
+{
+  if (token->kind != kind)
+    error_at_here("token mismatch");
+
+  token = token->next;
+}
+
+int expect_number()
+{
+  if (token->kind != TK_NUM)
+    error_at_here("token mismatch: expected number");
+
+  int val = token->val;
+  token = token->next;
+  return val;
+}
+
+bool at_eof()
+{
+  return token->kind == TK_EOF;
+}
+
+
+ConsumeTypeRes *consume_type();
 Type *consume_type_name()
 {
   if (consume_kind(TK_INT))
@@ -254,6 +287,34 @@ Type *consume_type_name()
   }
   if (consume_kind(TK_STRUCT))
   {
+    if (consume("{"))
+    {
+      StructType *type = calloc(1, sizeof(StructType));
+
+      while (!consume("}"))
+      {
+        ConsumeTypeRes *res = consume_type();
+        if (!res)
+          error_at_here("expected type");
+
+        expect(";");
+
+        StructField *field = calloc(1, sizeof(StructField));
+        field->type = res->type;
+        field->next = type->fields;
+        if (field->next)
+          field->offset = field->next->offset + sizeof_type(field->type);
+        else
+          field->offset = sizeof_type(field->type);
+        type->fields = field;
+      }
+
+      type->size = type->fields->offset;
+
+      Type *ty = new_type(STRUCT, NULL);
+      ty->struct_type = type;
+      return ty;
+    }
     Token *id = consume_kind(TK_IDENT);
     if (!id)
       error_at_here("expected struct name");
@@ -276,37 +337,6 @@ Type *consume_type_name()
   }
 
   return NULL;
-}
-
-void expect(char *op)
-{
-  if (token->kind != TK_RESERVED || !str_chr_equals(token->str, op))
-    error_at_here("token mismatch: expected %s", op);
-
-  token = token->next;
-}
-
-void expect_kind(TokenKind kind)
-{
-  if (token->kind != kind)
-    error_at_here("token mismatch");
-
-  token = token->next;
-}
-
-int expect_number()
-{
-  if (token->kind != TK_NUM)
-    error_at_here("token mismatch: expected number");
-
-  int val = token->val;
-  token = token->next;
-  return val;
-}
-
-bool at_eof()
-{
-  return token->kind == TK_EOF;
 }
 
 ConsumeTypeRes *expect_nested_type(Type *type)
