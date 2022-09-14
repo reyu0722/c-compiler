@@ -379,6 +379,17 @@ Node *new_node_num(int val)
   return node;
 }
 
+Node *new_node_char(char val)
+{
+  Node *node = calloc(1, sizeof(Node));
+  node->kind = ND_NUM;
+  node->val = val;
+  Type *type = calloc(1, sizeof(Type));
+  type->ty = CHAR;
+  node->type = type;
+  return node;
+}
+
 Node *stmt();
 Node *expr();
 Node *assign();
@@ -965,6 +976,13 @@ Node *primary()
       }
     }
 
+    return node;
+  }
+
+  tok = consume_kind(TK_CHAR_CONST);
+  if (tok)
+  {
+    Node *node = new_node_char(*tok->str->ptr);
     return node;
   }
 

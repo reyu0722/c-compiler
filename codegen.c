@@ -77,7 +77,7 @@ void gen(Node *node)
       printf("  mov [rax], edi\n");
       break;
     case CHAR:
-      printf("  mov [rax], dl\n");
+      printf("  mov [rax], dil\n");
       break;
     default:
       printf("  mov [rax], rdi\n");

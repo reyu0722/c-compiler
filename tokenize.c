@@ -116,6 +116,15 @@ Token *tokenize(char *p, bool eof)
 			continue;
 		}
 
+		if (*p == '\'')
+		{
+			cur = new_token(TK_CHAR_CONST, cur, ++p, 0);
+			for (; *(p - 1) == '\\' || *p != '\''; p++)
+				cur->str->len++;
+			p++;
+			continue;
+		}
+
 		if (isdigit(*p))
 		{
 			char *newp;
