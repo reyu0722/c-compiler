@@ -198,6 +198,70 @@ Type *consume_type_name()
   tok = consume_kind(TK_CHAR);
   if (tok)
     return new_type(CHAR, NULL);
+  tok = consume_kind(TK_LONG);
+  if (tok)
+  {
+    tok = consume_kind(TK_INT);
+    if (tok)
+      return new_type(INT, NULL); // long int
+
+    tok = consume_kind(TK_UNSIGNED);
+    if (tok)
+    {
+      tok = consume_kind(TK_INT);
+      if (tok)
+        return new_type(INT, NULL); // unsigned long int
+      return NULL;
+    }
+
+    return new_type(INT, NULL); // long int
+  }
+  tok = consume_kind(TK_UNSIGNED);
+  if (tok)
+  {
+    tok = consume_kind(TK_INT);
+    if (tok)
+      return new_type(INT, NULL); // unsigned int
+    tok = consume_kind(TK_CHAR);
+    if (tok)
+      return new_type(CHAR, NULL); // unsigned char
+    tok = consume_kind(TK_SHORT);
+    if (tok)
+    {
+      consume_kind(TK_INT);
+      return new_type(INT, NULL); // unsigned short
+    }
+    tok = consume_kind(TK_LONG);
+    if (tok)
+    {
+      consume_kind(TK_INT);
+      return new_type(INT, NULL); // unsigned long int
+    }
+    return NULL;
+  }
+  tok = consume_kind(TK_SIGNED);
+  if (tok)
+  {
+    tok = consume_kind(TK_INT);
+    if (tok)
+      return new_type(INT, NULL); // int
+    tok = consume_kind(TK_CHAR);
+    if (tok)
+      return new_type(CHAR, NULL); // char
+    tok = consume_kind(TK_SHORT);
+    if (tok)
+    {
+      consume_kind(TK_INT);
+      return new_type(INT, NULL); // short
+    }
+    tok = consume_kind(TK_LONG);
+    if (tok)
+    {
+      consume_kind(TK_INT);
+      return new_type(INT, NULL); // long int
+    }
+    return NULL;
+  }
   tok = consume_kind(TK_ENUM);
   if (tok)
   {

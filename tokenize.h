@@ -27,7 +27,11 @@ typedef enum
 	TK_SWITCH,
 	TK_CASE,
 	TK_BREAK,
-	TK_VOID
+	TK_VOID,
+	TK_LONG,
+	TK_UNSIGNED,
+	TK_SIGNED,
+	TK_SHORT
 } TokenKind;
 
 struct Token
