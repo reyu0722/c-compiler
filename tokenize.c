@@ -241,7 +241,7 @@ Token *tokenize(char *p, bool eof)
 			continue;
 		}
 
-		if (strncmp(p, "__attibute__", 12) == 0 && !is_alnum(p[12]))
+		if (strncmp(p, "__attribute__", 13) == 0 && !is_alnum(p[13]))
 		{
 			while (strncmp(p, "))", 2))
 				p++;
