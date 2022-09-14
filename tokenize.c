@@ -110,7 +110,7 @@ Token *tokenize(char *p, bool eof)
 		if (*p == '"')
 		{
 			cur = new_token(TK_STRING, cur, ++p, 0);
-			for (; *p != '"'; p++)
+			for (; *(p - 1) == '\\' || *p != '"'; p++)
 				cur->str->len++;
 			p++;
 			continue;
@@ -246,6 +246,12 @@ Token *tokenize(char *p, bool eof)
 			while (strncmp(p, "))", 2))
 				p++;
 			p += 2;
+			continue;
+		}
+
+		if (strncmp(p, "extern", 6) == 0 && !is_alnum(p[6]))
+		{
+			p += 6;
 			continue;
 		}
 
