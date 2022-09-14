@@ -192,86 +192,67 @@ void go_to(Token *tok)
 
 Type *consume_type_name()
 {
-  Token *tok = consume_kind(TK_INT);
-  if (tok)
+  if (consume_kind(TK_INT))
     return new_type(INT, NULL);
-  tok = consume_kind(TK_CHAR);
-  if (tok)
+  if (consume_kind(TK_CHAR))
     return new_type(CHAR, NULL);
-  tok = consume_kind(TK_LONG);
-  if (tok)
+  if (consume_kind(TK_LONG))
   {
-    tok = consume_kind(TK_INT);
-    if (tok)
+    if (consume_kind(TK_INT))
       return new_type(INT, NULL); // long int
-
-    tok = consume_kind(TK_UNSIGNED);
-    if (tok)
+    if (consume_kind(TK_UNSIGNED))
     {
-      tok = consume_kind(TK_INT);
-      if (tok)
+      if (consume_kind(TK_INT))
         return new_type(INT, NULL); // unsigned long int
       return NULL;
     }
 
     return new_type(INT, NULL); // long int
   }
-  tok = consume_kind(TK_UNSIGNED);
-  if (tok)
+  if (consume_kind(TK_UNSIGNED))
   {
-    tok = consume_kind(TK_INT);
-    if (tok)
+    if (consume_kind(TK_INT))
       return new_type(INT, NULL); // unsigned int
-    tok = consume_kind(TK_CHAR);
-    if (tok)
+    if (consume_kind(TK_CHAR))
       return new_type(CHAR, NULL); // unsigned char
-    tok = consume_kind(TK_SHORT);
-    if (tok)
+    if (consume_kind(TK_SHORT))
     {
       consume_kind(TK_INT);
       return new_type(INT, NULL); // unsigned short
     }
-    tok = consume_kind(TK_LONG);
-    if (tok)
+    if (consume_kind(TK_LONG))
     {
       consume_kind(TK_INT);
       return new_type(INT, NULL); // unsigned long int
     }
     return NULL;
   }
-  tok = consume_kind(TK_SIGNED);
-  if (tok)
+  if (consume_kind(TK_SIGNED))
   {
-    tok = consume_kind(TK_INT);
-    if (tok)
+    if (consume_kind(TK_INT))
       return new_type(INT, NULL); // int
-    tok = consume_kind(TK_CHAR);
-    if (tok)
+    if (consume_kind(TK_CHAR))
       return new_type(CHAR, NULL); // char
-    tok = consume_kind(TK_SHORT);
-    if (tok)
+    if (consume_kind(TK_SHORT))
     {
       consume_kind(TK_INT);
       return new_type(INT, NULL); // short
     }
-    tok = consume_kind(TK_LONG);
-    if (tok)
+    if (consume_kind(TK_LONG))
     {
       consume_kind(TK_INT);
       return new_type(INT, NULL); // long int
     }
     return NULL;
   }
-  tok = consume_kind(TK_ENUM);
-  if (tok)
+  if (consume_kind(TK_ENUM))
   {
     Token *id = consume_kind(TK_IDENT);
     if (!id)
       error_at_here("expected enum name");
     return new_type(INT, NULL);
   }
-  tok = consume_kind(TK_STRUCT);
-  if (tok)
+  if (consume_kind(TK_STRUCT))
   {
     Token *id = consume_kind(TK_IDENT);
     if (!id)
@@ -285,7 +266,7 @@ Type *consume_type_name()
     ty->struct_type = type;
     return ty;
   }
-  tok = consume_kind(TK_IDENT);
+  Token *tok = consume_kind(TK_IDENT);
   if (tok)
   {
     TypeDef *type = find_typedef(tok);
