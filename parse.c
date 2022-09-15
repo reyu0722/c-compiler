@@ -221,7 +221,6 @@ bool at_eof()
   return token->kind == TK_EOF;
 }
 
-
 ConsumeTypeRes *consume_type();
 Type *consume_type_name()
 {
@@ -432,6 +431,26 @@ ConsumeTypeRes *consume_type()
     return NULL;
 
   return expect_nested_type(type);
+}
+
+Type *consume_noident_type()
+{
+  Type *type = consume_type_name();
+  if (!type)
+    return NULL;
+
+  while (consume("*"))
+    type = new_type(PTR, type);
+
+  while (consume("["))
+  {
+    int size = expect_number();
+    expect("]");
+    type = new_type(ARRAY, type);
+    type->array_size = size;
+  }
+
+  return type;
 }
 
 Node *new_node(NodeKind kind, Node *lhs, Node *rhs)
@@ -953,7 +972,21 @@ Node *unary()
     return new_node(ND_DEREF, l, NULL);
   }
   else if (consume_kind(TK_SIZEOF))
+  {
+    Token *cur = token;
+    if (consume("("))
+    {
+      Type *type = consume_noident_type();
+      if (type)
+      {
+        expect(")");
+        return new_node_num(sizeof_type(type));
+      }
+      go_to(cur);
+    }
+
     return new_node_num(sizeof_type(unary()->type));
+  }
   else if (consume("!"))
     return new_node(ND_EQ, postfix(), new_node_num(0));
 
