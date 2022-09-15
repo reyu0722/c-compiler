@@ -1,3 +1,4 @@
+#include <stdlib.h>
 #include "header.h"
 
 Type *new_type(TypeKind ty, Type *ptr_to)

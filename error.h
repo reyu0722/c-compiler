@@ -1,4 +1,3 @@
-#include <stdbool.h>
 #include "tokenize.h"
 
 void error(char *fmt, ...);
