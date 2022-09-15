@@ -15,7 +15,7 @@ void error(char *fmt, ...)
 	exit(1);
 }
 
-void _error_at(char *loc, char *fmt, va_list *ap)
+void _error_at(char *loc, char *fmt, va_list ap)
 {
 	char *line = loc;
 	while (user_input < line && line[-1] != '\n')
@@ -46,7 +46,7 @@ void error_at(char *loc, char *fmt, ...)
 	va_list ap;
 	va_start(ap, fmt);
 
-	_error_at(loc, fmt, &ap);
+	_error_at(loc, fmt, ap);
 }
 
 void error_at_token(Token *tok, char *fmt, ...)
@@ -54,7 +54,7 @@ void error_at_token(Token *tok, char *fmt, ...)
 	va_list ap;
 	va_start(ap, fmt);
 
-	_error_at(tok->str->ptr, fmt, &ap);
+	_error_at(tok->str->ptr, fmt, ap);
 }
 
 void error_at_here(char *fmt, ...)
@@ -62,7 +62,7 @@ void error_at_here(char *fmt, ...)
 	va_list ap;
 	va_start(ap, fmt);
 
-	_error_at(token->str->ptr, fmt, &ap);
+	_error_at(token->str->ptr, fmt, ap);
 }
 
 void assert(bool flag)
