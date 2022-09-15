@@ -289,41 +289,45 @@ Type *consume_type_name()
   }
   if (consume_kind(TK_STRUCT))
   {
-    if (consume("{"))
+    if (!consume("{"))
     {
-      StructType *type = calloc(1, sizeof(StructType));
+      Token *id = consume_kind(TK_IDENT);
+      if (!id)
+        error_at_here("expected struct name");
 
-      while (!consume("}"))
+      if (!consume("{"))
       {
-        ConsumeTypeRes *res = consume_type();
-        if (!res)
-          error_at_here("expected type");
+        StructType *type = find_struct(id);
+        if (!type)
+          error_at_here("unknown struct name");
 
-        expect(";");
-
-        StructField *field = calloc(1, sizeof(StructField));
-        field->type = res->type;
-        field->next = type->fields;
-        if (field->next)
-          field->offset = field->next->offset + sizeof_type(field->type);
-        else
-          field->offset = sizeof_type(field->type);
-        type->fields = field;
+        Type *ty = new_type(STRUCT, NULL);
+        ty->struct_type = type;
+        return ty;
       }
-
-      type->size = type->fields->offset;
-
-      Type *ty = new_type(STRUCT, NULL);
-      ty->struct_type = type;
-      return ty;
     }
-    Token *id = consume_kind(TK_IDENT);
-    if (!id)
-      error_at_here("expected struct name");
 
-    StructType *type = find_struct(id);
-    if (!type)
-      error_at_here("unknown struct name");
+    StructType *type = calloc(1, sizeof(StructType));
+
+    while (!consume("}"))
+    {
+      ConsumeTypeRes *res = consume_type();
+      if (!res)
+        error_at_here("expected type");
+
+      expect(";");
+
+      StructField *field = calloc(1, sizeof(StructField));
+      field->type = res->type;
+      field->next = type->fields;
+      if (field->next)
+        field->offset = field->next->offset + sizeof_type(field->type);
+      else
+        field->offset = sizeof_type(field->type);
+      type->fields = field;
+    }
+
+    type->size = type->fields->offset;
 
     Type *ty = new_type(STRUCT, NULL);
     ty->struct_type = type;
@@ -331,41 +335,44 @@ Type *consume_type_name()
   }
   if (consume_kind(TK_UNION))
   {
-    if (consume("{"))
+    if (!consume("{"))
     {
-      StructType *type = calloc(1, sizeof(StructType));
+      Token *id = consume_kind(TK_IDENT);
+      if (!id)
+        error_at_here("expected struct name");
 
-      while (!consume("}"))
+      if (!consume("{"))
       {
-        ConsumeTypeRes *res = consume_type();
-        if (!res)
-          error_at_here("expected type");
+        StructType *type = find_struct(id);
+        if (!type)
+          error_at_here("unknown struct name");
 
-        expect(";");
-
-        StructField *field = calloc(1, sizeof(StructField));
-        field->type = res->type;
-        field->next = type->fields;
-        if (!field->next || field->next->offset < sizeof_type(field->type))
-          field->offset = sizeof_type(field->type);
-
-        type->fields = field;
+        Type *ty = new_type(STRUCT, NULL);
+        ty->struct_type = type;
+        return ty;
       }
-
-      type->size = type->fields->offset;
-      type->is_union = true;
-
-      Type *ty = new_type(STRUCT, NULL);
-      ty->struct_type = type;
-      return ty;
     }
-    Token *id = consume_kind(TK_IDENT);
-    if (!id)
-      error_at_here("expected struct name");
+    StructType *type = calloc(1, sizeof(StructType));
 
-    StructType *type = find_struct(id);
-    if (!type)
-      error_at_here("unknown struct name");
+    while (!consume("}"))
+    {
+      ConsumeTypeRes *res = consume_type();
+      if (!res)
+        error_at_here("expected type");
+
+      expect(";");
+
+      StructField *field = calloc(1, sizeof(StructField));
+      field->type = res->type;
+      field->next = type->fields;
+      if (!field->next || field->next->offset < sizeof_type(field->type))
+        field->offset = sizeof_type(field->type);
+
+      type->fields = field;
+    }
+
+    type->size = type->fields->offset;
+    type->is_union = true;
 
     Type *ty = new_type(STRUCT, NULL);
     ty->struct_type = type;
@@ -570,6 +577,12 @@ External *external()
     StructType *strType = calloc(1, sizeof(StructType));
     strType->name = tok->str;
 
+    if (consume(";"))
+    {
+      strType->next = structs;
+      structs = strType;
+      return ext;
+    }
     expect("{");
     ConsumeTypeRes *res = consume_type();
     StructField *field = calloc(1, sizeof(StructField));
