@@ -929,9 +929,21 @@ Node *add()
     }
 
     if (consume("+"))
-      node = new_node(ND_ADD, node, mul());
+    {
+      Node *rhs = mul();
+      if (node->kind == ND_NUM && rhs->kind == ND_NUM)
+        node->val += rhs->val;
+      else
+        node = new_node(ND_ADD, node, rhs);
+    }
     else if (consume("-"))
-      node = new_node(ND_SUB, node, mul());
+    {
+      Node *rhs = mul();
+      if (node->kind == ND_NUM && rhs->kind == ND_NUM)
+        node->val -= rhs->val;
+      else
+        node = new_node(ND_SUB, node, rhs);
+    }
     else
       return node;
   }
@@ -944,9 +956,21 @@ Node *mul()
   for (;;)
   {
     if (consume("*"))
-      node = new_node(ND_MUL, node, unary());
+    {
+      Node *rhs = unary();
+      if (node->kind == ND_NUM && rhs->kind == ND_NUM)
+        node->val *= rhs->val;
+      else
+        node = new_node(ND_MUL, node, rhs);
+    }
     else if (consume("/"))
-      node = new_node(ND_DIV, node, unary());
+    {
+      Node *rhs = unary();
+      if (node->kind == ND_NUM && rhs->kind == ND_NUM)
+        node->val /= rhs->val;
+      else
+        node = new_node(ND_DIV, node, rhs);
+    }
     else
       return node;
   }
@@ -957,7 +981,16 @@ Node *unary()
   if (consume("+"))
     return postfix();
   else if (consume("-"))
-    return new_node(ND_SUB, new_node_num(0), postfix());
+  {
+    Node *rhs = postfix();
+    if (rhs->kind == ND_NUM)
+    {
+      rhs->val = -rhs->val;
+      return rhs;
+    }
+    else
+      return new_node(ND_SUB, new_node_num(0), rhs);
+  }
   else if (consume("&"))
     return new_node(ND_ADDR, postfix(), NULL);
   else if (consume("*"))
