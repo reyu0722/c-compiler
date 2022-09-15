@@ -18,6 +18,7 @@ typedef enum
 	TK_CHAR,
 	TK_ENUM,
 	TK_STRUCT,
+	TK_UNION,
 	TK_EOF,
 	TK_SIZEOF,
 	TK_STRING,

@@ -29,6 +29,7 @@ struct StructType
 	String *name;
 	StructField *fields;
 	int size;
+	bool is_union;
 };
 
 struct Type

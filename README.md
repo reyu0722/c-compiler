@@ -10,7 +10,7 @@ program    = external*
 external   = declaration "(" ("int" ident ("," "int" ident)*)? | "void" ")" (";" | "{" stmt* "}")
            | declaration ";"
            | "enum" ident "{" ident ("," ident)* "}" ";"
-           | "struct" ident "{" declaration ("," declaration)* "}" ";"
+           | ("struct" | "union") ident "{" declaration ("," declaration)* "}" ";"
            | "typedef" type_name ident ";"
            | preprocessor
 label_stmt = label? stmt

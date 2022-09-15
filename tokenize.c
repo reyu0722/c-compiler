@@ -206,6 +206,13 @@ Token *tokenize(char *p, bool eof)
 			continue;
 		}
 
+		if (strncmp(p, "union", 5) == 0 && !is_alnum(p[5]))
+		{
+			cur = new_token(TK_UNION, cur, p, 5);
+			p += 5;
+			continue;
+		}
+
 		if (strncmp(p, "typedef", 7) == 0 && !is_alnum(p[7]))
 		{
 			cur = new_token(TK_TYPEDEF, cur, p, 7);
