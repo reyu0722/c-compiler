@@ -701,15 +701,22 @@ External *external()
   if (consume("("))
   {
     external->kind = EXT_FUNC;
+    Token *cur = token;
+    bool no_args = false;
     if (consume_kind(TK_VOID))
-      expect(")");
-    else if (!consume(")"))
+    {
+      if (consume(")"))
+        no_args = true;
+      else
+        go_to(cur);
+    }
+    if (!consume(")") && !no_args)
     {
       for (;;)
       {
         ConsumeTypeRes *res = consume_type();
         if (!res)
-          error_at(res->tok->str->ptr, "failed to parse argument");
+          error_at_here("failed to parse argument");
 
         LVar *lvar = find_lvar(res->tok);
         if (!lvar)

@@ -34,6 +34,11 @@ int chr(char c)
 	return c;
 }
 
+int void_ptr(void *ptr)
+{
+	return 12;
+}
+
 int main()
 {
 	assert(10, foo());
@@ -43,6 +48,9 @@ int main()
 	assert(20, after());
 	assert(32, no_args());
 	assert(97, chr('a'));
+
+	int *p = 12;
+	assert(12, void_ptr(p));
 }
 
 int after()
