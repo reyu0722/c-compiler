@@ -390,6 +390,7 @@ Type *consume_type_name()
   return NULL;
 }
 
+Node *expr();
 ConsumeTypeRes *expect_nested_type(Type *type)
 {
   while (consume("*"))
@@ -415,10 +416,12 @@ ConsumeTypeRes *expect_nested_type(Type *type)
 
   while (consume("["))
   {
-    int size = expect_number();
+    Node *size = expr();
+    if (size->kind != ND_NUM)
+      error_at_here("expected constant expression");
     expect("]");
     res->type = new_type(ARRAY, type);
-    res->type->array_size = size;
+    res->type->array_size = size->val;
   }
 
   return res;
@@ -444,10 +447,12 @@ Type *consume_noident_type()
 
   while (consume("["))
   {
-    int size = expect_number();
+    Node *size = expr();
+    if (size->kind != ND_NUM)
+      error_at_here("expected constant expression");
     expect("]");
     type = new_type(ARRAY, type);
-    type->array_size = size;
+    type->array_size = size->val;
   }
 
   return type;
