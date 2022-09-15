@@ -707,14 +707,13 @@ External *external()
     {
       for (;;)
       {
-        expect_kind(TK_INT);
-        Token *arg = consume_ident();
-        if (!arg)
+        ConsumeTypeRes *res = consume_type();
+        if (!res)
           error_at(res->tok->str->ptr, "failed to parse argument");
 
-        LVar *lvar = find_lvar(arg);
+        LVar *lvar = find_lvar(res->tok);
         if (!lvar)
-          lvar = new_lvar(arg->str, new_type(INT, NULL));
+          lvar = new_lvar(res->tok->str, res->type);
 
         external->offsets[i] = lvar->offset;
         i++;

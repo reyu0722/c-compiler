@@ -29,6 +29,11 @@ int no_args(void)
 	return 32;
 }
 
+int chr(char c)
+{
+	return c;
+}
+
 int main()
 {
 	assert(10, foo());
@@ -37,6 +42,7 @@ int main()
 	assert(55, fib(10));
 	assert(20, after());
 	assert(32, no_args());
+	assert(97, chr('a'));
 }
 
 int after()
