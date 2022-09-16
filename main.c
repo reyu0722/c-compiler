@@ -13,7 +13,8 @@
 char *user_input;
 char *filename;
 char *dir_name;
-char *regs[6] = {"edi", "esi", "edx", "ecx", "r8d", "r9d"};
+char *regs4[6] = {"edi", "esi", "edx", "ecx", "r8d", "r9d"};
+char *regs8[6] = {"rdi", "rsi", "rdx", "rcx", "r8", "r9"};
 
 char *read_file(char *path)
 {
@@ -89,7 +90,26 @@ int main(int argc, char **argv)
       printf("  sub rsp, %d\n", ext->stack_size);
 
       for (int i = 0; i < 6 && ext->offsets[i]; i++)
-        printf("  mov [rbp - %d], %s\n", ext->offsets[i], regs[i]);
+      {
+        char *reg;
+        if (i == 0)
+        {
+          if (ext->offsets[i] >= 8)
+            reg = regs8[i];
+          else
+            reg = regs4[i];
+        }
+        else
+        {
+          if (ext->offsets[i] - ext->offsets[i - 1] == 8)
+            reg = regs8[i];
+          else if (ext->offsets[i] - ext->offsets[i - 1] == 4)
+            reg = regs4[i];
+          else
+            error("not implemented: offset %d", ext->offsets[i] - ext->offsets[i - 1]);
+        }
+        printf("  mov [rbp - %d], %s\n", ext->offsets[i], reg);
+      }
 
       for (int i = 0; ext->code[i]; i++)
       {
