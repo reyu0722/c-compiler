@@ -2,6 +2,8 @@ int ga[2];
 int (*gb)[2];
 int (**gc)[2];
 int (*gd[2])[2];
+int (*x[3])();
+void (*signal(int, void (*)(int)))(int);
 
 int main()
 {

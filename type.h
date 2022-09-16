@@ -8,6 +8,7 @@ typedef enum
 	CHAR,
 	STRUCT,
 	VOID,
+	FUNC
 } TypeKind;
 
 typedef struct Type Type;

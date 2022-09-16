@@ -59,5 +59,5 @@ int sizeof_type(Type *type)
 		return type->struct_type->size;
 	}
 
-	__builtin_unreachable();
+	error_at_here("sizeof_type: unknown type");
 }

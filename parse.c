@@ -388,15 +388,16 @@ Type *consume_type_name()
 }
 
 Node *expr();
+Type *consume_noident_type();
 ConsumeTypeRes *expect_nested_type(Type *type)
 {
-  while (consume("*"))
-    type = new_type(PTR, type);
-
+  int ptr = 0;
   ConsumeTypeRes *res;
 
   if (consume("("))
   {
+    while (consume("*"))
+      ptr++;
     res = expect_nested_type(type);
     expect(")");
   }
@@ -404,12 +405,28 @@ ConsumeTypeRes *expect_nested_type(Type *type)
   {
     Token *tok = consume_ident();
     if (!tok)
-      error_at_token(tok, "expected identifier");
+      error_at_here("expected identifier");
 
     res = calloc(1, sizeof(ConsumeTypeRes));
     res->type = type;
     res->tok = tok;
   }
+  if (consume("("))
+  {
+    consume_noident_type();
+    consume_ident();
+    while (consume(","))
+    {
+      assert (consume_noident_type() != NULL);
+      consume_ident();
+    }
+
+    expect(")");
+
+    res->type = new_type(FUNC, NULL);
+  }
+  for (int i = 0; i < ptr; i++)
+    res->type = new_type(PTR, res->type);
 
   while (consume("["))
   {
@@ -429,18 +446,34 @@ ConsumeTypeRes *consume_type()
   Type *type = consume_type_name();
   if (!type)
     return NULL;
-
-  return expect_nested_type(type);
+  int ptr = 0;
+  while (consume("*"))
+    ptr++;
+  ConsumeTypeRes *res = expect_nested_type(type);
+  for (int i = 0; i < ptr; i++)
+    res->type = new_type(PTR, res->type);
+  return res;
 }
 
-Type *consume_noident_type()
+Type *expect_noident_type(Type *type)
 {
-  Type *type = consume_type_name();
-  if (!type)
-    return NULL;
-
   while (consume("*"))
     type = new_type(PTR, type);
+
+  if (consume("("))
+  {
+    type = expect_noident_type(type);
+    expect(")");
+  }
+
+  if (consume("("))
+  {
+    consume_noident_type();
+    while (consume(","))
+      consume_noident_type();
+    expect(")");
+    type = new_type(FUNC, NULL);
+  }
 
   while (consume("["))
   {
@@ -453,6 +486,20 @@ Type *consume_noident_type()
   }
 
   return type;
+}
+
+Type *consume_noident_type()
+{
+  Type *type = consume_type_name();
+  if (!type)
+    return NULL;
+
+  return expect_noident_type(type);
+}
+
+void next()
+{
+  token = token->next;
 }
 
 Node *new_node(NodeKind kind, Node *lhs, Node *rhs)
@@ -595,9 +642,13 @@ External *external()
     error_at_here("invalid type");
 
   external->name = res->tok->str;
-  if (consume("("))
+  if (res->type->ty == FUNC)
   {
     external->kind = EXT_FUNC;
+    go_to(res->tok);
+    next();
+    expect("(");
+
     Token *cur = token;
     bool no_args = false;
     if (consume_kind(TK_VOID))
