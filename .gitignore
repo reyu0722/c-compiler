@@ -1,8 +1,11 @@
 *~
 *.o
+*.s
 tmp*
 a.out
 main
+main2
+main3
 .gdb_history
 peda-session-*
 test/*.s
