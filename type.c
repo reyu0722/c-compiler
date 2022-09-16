@@ -34,11 +34,11 @@ void add_field(StructType *type, Type *ty, String *name)
 	else
 	{
 		if (type->fields)
-			field->offset = type->fields->offset + sizeof_type(ty);
+			field->offset = type->fields->offset + sizeof_type(type->fields->type);
 		else
-			field->offset = sizeof_type(ty);
+			field->offset = 0;
 
-		type->size = field->offset;
+		type->size = field->offset + sizeof_type(field->type);
 	}
 	field->next = type->fields;
 	type->fields = field;
