@@ -186,6 +186,11 @@ Token *consume_ident()
   return res;
 }
 
+bool check_kind(TokenKind kind)
+{
+  return token->kind == kind;
+}
+
 void go_to(Token *tok)
 {
   token = tok;
@@ -287,96 +292,73 @@ Type *consume_type_name()
       error_at_here("expected enum name");
     return new_type(INT, NULL);
   }
-  if (consume_kind(TK_STRUCT))
+
+  if (check_kind(TK_STRUCT) || check_kind(TK_UNION))
   {
-    if (!consume("{"))
+    bool is_union = false;
+    if (consume_kind(TK_UNION))
+      is_union = true;
+    else
+      consume_kind(TK_STRUCT);
+
+    Token *id = consume_kind(TK_IDENT);
+
+    if (consume("{"))
     {
-      Token *id = consume_kind(TK_IDENT);
+      String *name = NULL;
+      if (id)
+        name = id->str;
+      Type *type = new_struct_type(name, is_union);
+
+      while (!consume("}"))
+      {
+        ConsumeTypeRes *res = consume_type();
+        if (!res)
+          error_at_here("expected type");
+
+        add_field(type->struct_type, res->type, res->tok->str);
+        expect(";");
+      }
+
+      if (id)
+      {
+        StructType *s = find_struct(id);
+        if (s)
+        {
+          if (s->fields)
+            error_at_here("struct %.*s is already defined", id->str->len, id->str->ptr);
+          else
+          {
+            s->fields = type->struct_type->fields;
+            s->is_union = type->struct_type->is_union;
+            s->size = type->struct_type->size;
+          }
+        }
+        else
+        {
+          if (structs)
+            structs->next = type->struct_type;
+          structs = type->struct_type;
+        }
+      }
+
+      return type;
+    }
+    else
+    {
       if (!id)
         error_at_here("expected struct name");
-
-      if (!consume("{"))
-      {
-        StructType *type = find_struct(id);
-        if (!type)
-          error_at_here("unknown struct name");
-
-        Type *ty = new_type(STRUCT, NULL);
-        ty->struct_type = type;
-        return ty;
-      }
-    }
-
-    StructType *type = calloc(1, sizeof(StructType));
-
-    while (!consume("}"))
-    {
-      ConsumeTypeRes *res = consume_type();
-      if (!res)
-        error_at_here("expected type");
-
-      expect(";");
-
-      StructField *field = calloc(1, sizeof(StructField));
-      field->type = res->type;
-      field->next = type->fields;
-      if (field->next)
-        field->offset = field->next->offset + sizeof_type(field->type);
+      StructType *type = find_struct(id);
+      Type *ty;
+      if (!type) // forward declaration
+        ty = new_struct_type(id->str, is_union);
       else
-        field->offset = sizeof_type(field->type);
-      type->fields = field;
-    }
-
-    type->size = type->fields->offset;
-
-    Type *ty = new_type(STRUCT, NULL);
-    ty->struct_type = type;
-    return ty;
-  }
-  if (consume_kind(TK_UNION))
-  {
-    if (!consume("{"))
-    {
-      Token *id = consume_kind(TK_IDENT);
-      if (!id)
-        error_at_here("expected struct name");
-
-      if (!consume("{"))
       {
-        StructType *type = find_struct(id);
-        if (!type)
-          error_at_here("unknown struct name");
-
-        Type *ty = new_type(STRUCT, NULL);
+        ty = new_type(STRUCT, NULL);
         ty->struct_type = type;
-        return ty;
       }
+      return ty;
     }
-    StructType *type = calloc(1, sizeof(StructType));
-
-    while (!consume("}"))
-    {
-      ConsumeTypeRes *res = consume_type();
-      if (!res)
-        error_at_here("expected type");
-
-      expect(";");
-
-      StructField *field = calloc(1, sizeof(StructField));
-      field->type = res->type;
-      field->next = type->fields;
-      if (!field->next || field->next->offset < sizeof_type(field->type))
-        field->offset = sizeof_type(field->type);
-
-      type->fields = field;
-    }
-
-    type->size = type->fields->offset;
-    type->is_union = true;
-
-    Type *ty = new_type(STRUCT, NULL);
-    ty->struct_type = type;
-    return ty;
   }
 
   Token *tok = consume_kind(TK_IDENT);
@@ -592,92 +574,13 @@ External *external()
     return ext;
   }
 
-  if (consume_kind(TK_STRUCT))
+  if (check_kind(TK_STRUCT) || check_kind(TK_UNION))
   {
     ext->kind = EXT_STRUCT;
-    Token *tok = consume_ident();
-    if (!tok)
-      error_at_here("expected identifier");
-
-    StructType *strType = calloc(1, sizeof(StructType));
-    strType->name = tok->str;
-
-    if (consume(";"))
-    {
-      strType->next = structs;
-      structs = strType;
-      return ext;
-    }
-    expect("{");
-    ConsumeTypeRes *res = consume_type();
-    StructField *field = calloc(1, sizeof(StructField));
-    strType->fields = field;
-
-    field->name = res->tok->str;
-    field->type = res->type;
-    field->offset = sizeof_type(field->type);
-
-    while (consume(";"))
-    {
-      res = consume_type();
-      if (!res)
-        break;
-      field->next = calloc(1, sizeof(StructField));
-      field->next->name = res->tok->str;
-      field->next->type = res->type;
-      field->next->offset = field->offset + sizeof_type(field->next->type);
-      field = field->next;
-    }
-    strType->size = field->offset;
-
-    expect("}");
+    Type *ty = consume_type_name();
+    if (!ty)
+      error_at_here("expected struct or union");
     expect(";");
-
-    strType->next = structs;
-    structs = strType;
-    return ext;
-  }
-
-  if (consume_kind(TK_UNION))
-  {
-    ext->kind = EXT_STRUCT;
-    Token *tok = consume_ident();
-    if (!tok)
-      error_at_here("expected identifier");
-
-    StructType *strType = calloc(1, sizeof(StructType));
-    strType->name = tok->str;
-
-    expect("{");
-    ConsumeTypeRes *res = consume_type();
-    StructField *field = calloc(1, sizeof(StructField));
-    strType->fields = field;
-
-    field->name = res->tok->str;
-    field->type = res->type;
-    field->offset = sizeof_type(field->type);
-
-    int size = field->offset;
-    while (consume(";"))
-    {
-      res = consume_type();
-      if (!res)
-        break;
-      field->next = calloc(1, sizeof(StructField));
-      field->next->name = res->tok->str;
-      field->next->type = res->type;
-      field->next->offset = sizeof_type(field->next->type);
-      if (field->next->offset > field->offset)
-        size = field->next->offset;
-      field = field->next;
-    }
-    strType->size = size;
-
-    expect("}");
-    expect(";");
-
-    strType->next = structs;
-    structs = strType;
     return ext;
   }
 
