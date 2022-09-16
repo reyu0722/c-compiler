@@ -32,7 +32,8 @@ typedef enum
 	TK_LONG,
 	TK_UNSIGNED,
 	TK_SIGNED,
-	TK_SHORT
+	TK_SHORT,
+	TK_BOOL,
 } TokenKind;
 
 struct Token

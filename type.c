@@ -1,4 +1,5 @@
 #include <stdlib.h>
+#include "error.h"
 #include "header.h"
 
 Type *new_type(TypeKind ty, Type *ptr_to)
@@ -57,6 +58,8 @@ int sizeof_type(Type *type)
 		return 1;
 	case STRUCT:
 		return type->struct_type->size;
+	case BOOL:
+		return 1;
 	}
 
 	error_at_here("sizeof_type: unknown type");

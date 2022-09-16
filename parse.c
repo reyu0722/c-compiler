@@ -237,6 +237,8 @@ Type *consume_type_name()
     return new_type(CHAR, NULL);
   if (consume_kind(TK_VOID))
     return new_type(VOID, NULL);
+  if (consume_kind(TK_BOOL))
+    return new_type(BOOL, NULL);
   if (consume_kind(TK_LONG))
   {
     if (consume_kind(TK_INT))

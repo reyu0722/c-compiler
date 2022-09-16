@@ -276,6 +276,13 @@ Token *tokenize(char *p, bool eof)
 			continue;
 		}
 
+		if (strncmp(p, "_Bool", 5) == 0 && !is_alnum(p[5]))
+		{
+			cur = new_token(TK_BOOL, cur, p, 5);
+			p += 5;
+			continue;
+		}
+
 		if (strncmp(p, "__attribute__", 13) == 0 && !is_alnum(p[13]))
 		{
 			while (strncmp(p, "))", 2))
