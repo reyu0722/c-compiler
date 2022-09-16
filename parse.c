@@ -12,6 +12,7 @@ typedef struct GVar GVar;
 typedef struct EnumVal EnumVal;
 typedef struct ConsumeTypeRes ConsumeTypeRes;
 typedef struct TypeDef TypeDef;
+typedef struct Enum Enum;
 
 struct LVar
 {
@@ -287,9 +288,22 @@ Type *consume_type_name()
   }
   if (consume_kind(TK_ENUM))
   {
-    Token *id = consume_kind(TK_IDENT);
-    if (!id)
-      error_at_here("expected enum name");
+    consume_kind(TK_IDENT);
+    if (consume("{"))
+    {
+      int i = 0;
+      while (!consume("}"))
+      {
+        Token *name = consume_ident();
+        if (!name)
+          error_at_here("expected enum name");
+
+        new_enum_val(name->str, i);
+
+        consume(",");
+        i++;
+      }
+    }
     return new_type(INT, NULL);
   }
 
@@ -544,32 +558,11 @@ External *external()
   ext = external;
   int i = 0;
 
-  if (consume_kind(TK_ENUM))
+  if (check_kind(TK_ENUM))
   {
     ext->kind = EXT_ENUM;
 
-    Token *tok = consume_ident();
-    if (!tok)
-      error_at_here("expected identifier");
-
-    expect("{");
-
-    tok = consume_ident();
-    if (!tok)
-      error_at_here("expected identifier");
-
-    new_enum_val(tok->str, i++);
-
-    while (consume(","))
-    {
-      tok = consume_ident();
-      if (!tok)
-        error_at_here("expected identifier");
-
-      new_enum_val(tok->str, i++);
-    }
-
-    expect("}");
+    consume_type_name();
     expect(";");
     return ext;
   }
