@@ -24,7 +24,6 @@ Token *preprocess(Token *tok)
 				char *header = read_file(path);
 				Token *header_token = tokenize(header, false);
 				header_token = preprocess(header_token);
-				printf("// include %s\n", filename);
 				if (!header_token)
 					error("failed to tokenize %s", path);
 

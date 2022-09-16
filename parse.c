@@ -448,12 +448,9 @@ ConsumeTypeRes *consume_type()
   Type *type = consume_type_name();
   if (!type)
     return NULL;
-  int ptr = 0;
   while (consume("*"))
-    ptr++;
+    type = new_type(PTR, type);
   ConsumeTypeRes *res = expect_nested_type(type);
-  for (int i = 0; i < ptr; i++)
-    res->type = new_type(PTR, res->type);
   return res;
 }
 

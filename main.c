@@ -67,7 +67,6 @@ int main(int argc, char **argv)
   token = preprocess(token);
 
   printf(".intel_syntax noprefix\n");
-  printf(".globl main\n");
 
   while (!at_eof())
   {
@@ -82,6 +81,7 @@ int main(int argc, char **argv)
         printf(".LC%d:\n", l->offset);
         printf("  .string \"%.*s\"\n", l->str->len, l->str->ptr);
       }
+      printf(".globl %.*s\n", ext->name->len, ext->name->ptr);
 
       printf(".text\n");
       printf("%.*s:\n", ext->name->len, ext->name->ptr);
