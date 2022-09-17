@@ -49,4 +49,13 @@ expr_list   = expr ("," expr_list)?
 
 ## References
 
+- [N1570](http://port70.net/~nsz/c/c11/n1570.html) (C11 final working draft)
+- [System V Application Binary Interface AMD64 Architecture Processor Supplement](https://www.uclibc.org/docs/psABI-x86_64.pdf)
 - [低レイヤを知りたい人のためのCコンパイラ作成入門](https://www.sigbus.info/compilerbook)
+- [C reference - cppreference.com](https://en.cppreference.com/w/c)
+- [2022年セキュリティ・キャンプL3ゼミ(Cコンパイラ班)ログ](https://sozysozbot.github.io/seccamp-2022-c-compiler-seminar/)
+- https://github.com/season1618/books/blob/main/c-compiler/index.md
+- [rui314/chibicc: A small C compiler](https://github.com/rui314/chibicc)
+- [hsjoihs/c-compiler: seccamp2018 c compiler](https://github.com/hsjoihs/c-compiler)
+- [Imperi13/my-cc](https://github.com/Imperi13/my-cc)
+- [season1618/c-compiler](https://github.com/season1618/c-compiler)
