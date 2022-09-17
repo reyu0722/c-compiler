@@ -423,6 +423,8 @@ ConsumeTypeRes *expect_nested_type(Type *type)
     consume_ident();
     while (consume(","))
     {
+      if (consume("..."))
+        break;
       assert(consume_noident_type() != NULL);
       consume_ident();
     }
@@ -605,6 +607,8 @@ int literal_count;
 External *external()
 {
   locals = NULL;
+  if (!globals)
+    new_gvar(new_string("NULL", 4), new_type(PTR, new_type(VOID, NULL)));
 
   External *external = calloc(1, sizeof(External));
   ext = external;
@@ -667,6 +671,8 @@ External *external()
     {
       for (;;)
       {
+        if (consume("..."))
+          break;
         ConsumeTypeRes *res = consume_type();
         if (!res)
           error_at_here("failed to parse argument");
@@ -873,7 +879,7 @@ Node *add()
 
   for (;;)
   {
-    if (node->type->ty == PTR || node->type->ty == ARRAY)
+    if ((node->type->ty == PTR || node->type->ty == ARRAY) && node->type->ptr_to->ty != VOID)
     {
       int size = sizeof_type(node->type->ptr_to);
 

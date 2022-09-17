@@ -69,6 +69,10 @@ int main(int argc, char **argv)
 
   printf(".intel_syntax noprefix\n");
 
+  printf(".data\n");
+  printf("NULL:\n");
+  printf("  .zero 8\n");
+
   while (!at_eof())
   {
     External *ext = external();

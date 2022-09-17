@@ -45,5 +45,5 @@ struct Token
 };
 
 extern Token *token;
-bool startswith(char *p, char *q);
-Token *tokenize(char *p, bool eof);
+_Bool startswith(char *p, char *q);
+Token *tokenize(char *p, _Bool eof);

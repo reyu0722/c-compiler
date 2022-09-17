@@ -14,6 +14,8 @@ typedef enum
 
 typedef struct Type Type;
 typedef struct StructField StructField;
+typedef struct StructType StructType;
+
 struct StructField
 {
 	StructField *next;
@@ -22,25 +24,24 @@ struct StructField
 	int offset;
 };
 
-typedef struct StructType StructType;
 struct StructType
 {
 	StructType *next;
 	String *name;
 	StructField *fields;
 	int alignment;
-	bool is_union;
+	_Bool is_union;
 };
 
 struct Type
 {
 	TypeKind ty;
 	Type *ptr_to;
-	size_t array_size;
+	int array_size;
 	StructType *struct_type;
 };
 
 Type *new_type(TypeKind ty, Type *ptr_to);
-Type *new_struct_type(String *name, bool is_union);
+Type *new_struct_type(String *name, _Bool is_union);
 void add_field(StructType *type, Type *ty, String *name);
 int sizeof_type(Type *type);

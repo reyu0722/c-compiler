@@ -16,13 +16,17 @@ $(OBJS): $(HEADERS)
 main2: main
 	cp $(OBJS) stage2/
 	./main string.c > stage2/string.s
+	./main type.c > stage2/type.s
 	$(CC) -c stage2/string.s -o stage2/string.o
+	$(CC) -c stage2/type.s -o stage2/type.o
 	$(CC) -o main2 $(addprefix stage2/, $(OBJS)) $(LDFLAGS)
 
 main3: main main2
 	cp $(OBJS) stage3/
 	./main2 string.c > stage3/string.s
+	./main2 type.c > stage3/type.s
 	$(CC) -c stage3/string.s -o stage3/string.o
+	$(CC) -c stage3/type.s -o stage3/type.o
 	$(CC) -o main3 $(addprefix stage3/, $(OBJS)) $(LDFLAGS)
 
 test/%.out: main $(TEST_SRCS)
@@ -55,11 +59,14 @@ test3: $(TESTS3)
 .PHONY: diff-test
 diff-test: main2 main3
 	diff stage2/string.s stage3/string.s
-	@if [ $$? -ne 0 ]; then exit 1; else echo OK; fi
+	@if [ $$? -ne 0 ]; then exit 1; fi
+	diff stage2/type.s stage3/type.s
+	@if [ $$? -ne 0 ]; then exit 1; fi
+	@echo OK
 
 .PHONY: test-all
 test-all: test test2 test3 diff-test
 
 .PHONY: clean
 clean:
-	rm -f main *.o *~ tmp* test/*.s test/*.out
+	rm -f main **/*.o *~ tmp* **/*.s test/*.out
