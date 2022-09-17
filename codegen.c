@@ -45,15 +45,15 @@ void gen(Node *node)
   case ND_GVAR:
     gen_lval(node);
     printf("  pop rax\n");
-    switch (node->type->ty)
+    switch (sizeof_type(node->type))
     {
-    case INT:
+    case 4:
       printf("  mov eax, [rax]\n");
       break;
-    case PTR:
+    case 8:
       printf("  mov rax, [rax]\n");
       break;
-    case CHAR:
+    case 1:
       printf("  movsx rax, BYTE PTR [rax]\n");
       break;
     default:
@@ -71,17 +71,19 @@ void gen(Node *node)
     printf("  pop rdi\n");
     printf("  pop rax\n");
 
-    switch (node->lhs->type->ty)
+    switch (sizeof_type(node->lhs->type))
     {
-    case INT:
+    case 4:
       printf("  mov [rax], edi\n");
       break;
-    case CHAR:
+    case 1:
       printf("  mov [rax], dil\n");
       break;
-    default:
+    case 8:
       printf("  mov [rax], rdi\n");
       break;
+    default:
+      error("failed to assign");
     }
 
     printf("  push rdi\n");
@@ -92,7 +94,7 @@ void gen(Node *node)
       gen(node->lhs);
       printf("  pop rax\n");
     }
-    printf("  push rax\n");
+    printf("  push 0\n");
     return;
   case ND_RETURN:
     gen(node->lhs);
@@ -108,6 +110,7 @@ void gen(Node *node)
     printf("  cmp rax, 0\n");
     printf("  je .Lend%d\n", l);
     gen(node->rhs);
+    printf("  pop rax\n");
     printf(".Lend%d:\n", l);
     printf("  push 0\n");
     return;
@@ -118,9 +121,11 @@ void gen(Node *node)
     printf("  cmp rax, 0\n");
     printf("  je .Lelse%d\n", l);
     gen(node->rhs->lhs);
+    printf("  pop rax\n");
     printf("  jmp .Lend%d\n", l);
     printf(".Lelse%d:\n", l);
     gen(node->rhs->rhs);
+    printf("  pop rax\n");
     printf(".Lend%d:\n", l);
     printf("  push 0\n");
     return;
@@ -161,7 +166,6 @@ void gen(Node *node)
     gen(node->rhs);
     printf("  jmp .Lbegin%d\n", l);
     printf(".Lend%d:\n", l);
-    printf("  push 0\n");
     return;
   case ND_FOR:
     l = label_count++;
@@ -175,11 +179,15 @@ void gen(Node *node)
     gen(node->rhs->lhs);
     printf("  jmp .Lbegin%d\n", l);
     printf(".Lend%d:\n", l);
-    printf("  push 0\n");
+    printf("  pop rax\n");
     return;
   case ND_BLOCK:
     for (n = node->rhs; n; n = n->rhs)
+    {
       gen(n->lhs);
+      printf("  pop rax\n");
+    }
+    printf("  push 0\n");
     return;
   case ND_CALL:
     n = node->rhs;
