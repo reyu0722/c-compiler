@@ -1,7 +1,9 @@
+#ifdef __STDC__
 #include <ctype.h>
 #include <stdbool.h>
 #include <stdlib.h>
 #include <string.h>
+#endif
 #include "error.h"
 #include "header.h"
 #include "string.h"
@@ -18,17 +20,17 @@ Token *new_token(TokenKind kind, Token *cur, char *str, int len)
 	return tok;
 }
 
-bool is_alnum(char c)
+_Bool is_alnum(char c)
 {
 	return ('a' <= c && c <= 'z') || ('A' <= c && c <= 'Z') || ('0' <= c && c <= '9') || (c == '_');
 }
 
-bool startswith(char *p, char *q)
+_Bool startswith(char *p, char *q)
 {
 	return memcmp(p, q, strlen(q)) == 0;
 }
 
-Token *tokenize(char *p, bool eof)
+Token *tokenize(char *p, _Bool eof)
 {
 	Token head;
 	head.next = NULL;
@@ -116,7 +118,8 @@ Token *tokenize(char *p, bool eof)
 
 		if (*p == '"')
 		{
-			cur = new_token(TK_STRING, cur, ++p, 0);
+			p++;
+			cur = new_token(TK_STRING, cur, p, 0);
 			for (; *(p - 1) == '\\' || *p != '"'; p++)
 				cur->str->len++;
 			p++;
@@ -125,8 +128,9 @@ Token *tokenize(char *p, bool eof)
 
 		if (*p == '\'')
 		{
-			cur = new_token(TK_CHAR_CONST, cur, ++p, 0);
-			for (; *(p - 1) == '\\' || *p != '\''; p++)
+			p++;
+			cur = new_token(TK_CHAR_CONST, cur, p, 0);
+			for (; (*(p - 2) != '\\' && *(p - 1) == '\\') || *p != '\''; p++)
 				cur->str->len++;
 			p++;
 			continue;
@@ -315,7 +319,7 @@ Token *tokenize(char *p, bool eof)
 		{
 			char *q;
 			for (q = p; ('a' <= *q && *q <= 'z') || ('A' <= *q && *q <= 'Z') || ('0' <= *q && *q <= '9') || (*q == '_'); q++)
-				;
+				q = q;
 
 			cur = new_token(TK_IDENT, cur, p, q - p);
 			p = q;

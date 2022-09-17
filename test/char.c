@@ -4,4 +4,7 @@ int main()
 
 	char c = 'a';
 	assert(97, c);
+
+	char c2 = '\\';
+	assert(92, c2);
 }

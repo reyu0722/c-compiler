@@ -763,7 +763,10 @@ Node *stmt()
   }
   else if (consume_kind(TK_FOR))
   {
-    Node *a, *b, *c, *d;
+    Node *a = NULL;
+    Node *b = NULL;
+    Node *c = NULL;
+    Node *d = NULL;
     expect("(");
     if (!consume(";"))
     {
