@@ -24,6 +24,7 @@ stmt       = expr ";"
            | "{" stmt* "}"
            | "return" expr ";"
            | "break" ";"
+           | "contunie" ";"
 expr       = assign
 assign     = equality (("=" | "+=" | "-=" | "*=" | "/=") assign)?
 equality   = relational (("&&" | "||" | "==" | "!=") relational)*

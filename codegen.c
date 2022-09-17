@@ -6,6 +6,7 @@
 int label_count = 0;
 int switch_count = 0;
 int break_count = 0;
+int continue_count = 0;
 
 void gen_lval(Node *node)
 {
@@ -156,9 +157,13 @@ void gen(Node *node)
   case ND_BREAK:
     printf("  jmp .Lbreak%d\n", break_count);
     return;
+  case ND_CONTINUE:
+    printf("  jmp .Lcontinue%d\n", continue_count);
+    return;
   case ND_WHILE:
     l = label_count++;
     printf(".Lbegin%d:\n", l);
+    printf(".Lcontinue%d:\n", continue_count);
     gen(node->lhs);
     printf("  pop rax\n");
     printf("  cmp rax, 0\n");
@@ -166,6 +171,7 @@ void gen(Node *node)
     gen(node->rhs);
     printf("  jmp .Lbegin%d\n", l);
     printf(".Lend%d:\n", l);
+    continue_count++;
     return;
   case ND_FOR:
     l = label_count++;
@@ -176,10 +182,12 @@ void gen(Node *node)
     printf("  cmp rax, 0\n");
     printf("  je .Lend%d\n", l);
     gen(node->rhs->rhs);
+    printf(".Lcontinue%d:\n", continue_count);
     gen(node->rhs->lhs);
     printf("  jmp .Lbegin%d\n", l);
     printf(".Lend%d:\n", l);
     printf("  pop rax\n");
+    continue_count++;
     return;
   case ND_BLOCK:
     for (n = node->rhs; n; n = n->rhs)

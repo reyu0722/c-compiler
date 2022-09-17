@@ -804,6 +804,11 @@ Node *stmt()
     node = new_node(ND_BREAK, NULL, NULL);
     expect(";");
   }
+  else if (consume_kind(TK_CONTINUE))
+  {
+    node = new_node(ND_CONTINUE, NULL, NULL);
+    expect(";");
+  }
   else
   {
     node = expr();

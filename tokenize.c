@@ -248,6 +248,13 @@ Token *tokenize(char *p, bool eof)
 			continue;
 		}
 
+		if (strncmp(p, "continue", 8) == 0 && !is_alnum(p[8]))
+		{
+			cur = new_token(TK_CONTINUE, cur, p, 8);
+			p += 8;
+			continue;
+		}
+
 		if (strncmp(p, "void", 4) == 0 && !is_alnum(p[4]))
 		{
 			cur = new_token(TK_VOID, cur, p, 4);

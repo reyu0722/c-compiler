@@ -25,6 +25,7 @@ typedef enum
   ND_SWITCH,       // switch
   ND_CASE,         // case
   ND_BREAK,        // break
+  ND_CONTINUE,     // continue
   ND_WHILE,        // while
   ND_FOR,          // for
   ND_BLOCK,        // { ... }

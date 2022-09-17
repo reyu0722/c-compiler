@@ -28,6 +28,7 @@ typedef enum
 	TK_SWITCH,
 	TK_CASE,
 	TK_BREAK,
+	TK_CONTINUE,
 	TK_VOID,
 	TK_LONG,
 	TK_UNSIGNED,
