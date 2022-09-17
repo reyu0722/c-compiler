@@ -3,7 +3,8 @@
 #include <string.h>
 #include "error.h"
 #include "header.h"
-#include "tokenize.h"
+
+char *once_file[100];
 
 Token *preprocess(Token *tok)
 {
@@ -15,28 +16,30 @@ Token *preprocess(Token *tok)
 		{
 			if (startswith(t->str->ptr, "#include"))
 			{
-				char filename[100] = {};
-				char path[200] = {};
+				char *curfile = filename;
+				filename = calloc(1, 100);
+				char *path = calloc(1, 200);
 				strncpy(filename, t->str->ptr + 10, t->str->len - 11);
 
-				snprintf(path, sizeof(path), "%s/%s", dir_name, filename);
+				snprintf(path, 200, "%s/%s", dir_name, filename);
 
 				char *header = read_file(path);
 				Token *header_token = tokenize(header, false);
 				header_token = preprocess(header_token);
-				if (!header_token)
-					error("failed to tokenize %s", path);
+				filename = curfile;
+				if (header_token)
+				{
+					Token *header_token_end = header_token;
+					while (header_token_end->next)
+						header_token_end = header_token_end->next;
 
-				Token *header_token_end = header_token;
-				while (header_token_end->next)
-					header_token_end = header_token_end->next;
+					if (before)
+						before->next = header_token;
+					else
+						start = header_token;
 
-				if (before)
-					before->next = header_token;
-				else
-					start = header_token;
-
-				before = header_token_end;
+					before = header_token_end;
+				}
 			}
 
 			if (startswith(t->str->ptr, "#ifdef"))
@@ -65,6 +68,18 @@ Token *preprocess(Token *tok)
 				{
 					assert(startswith(t->str->ptr, "#endif"));
 				}
+			}
+
+			if (startswith(t->str->ptr, "#pragma once"))
+			{
+				int i = 0;
+				while (once_file[i])
+				{
+					if (strcmp(once_file[i], filename) == 0)
+						return NULL;
+					i++;
+				}
+				once_file[i] = filename;
 			}
 		}
 		else
