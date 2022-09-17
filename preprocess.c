@@ -1,6 +1,8 @@
+#ifdef __STDC__
 #include <stdbool.h>
 #include <stdio.h>
 #include <string.h>
+#endif
 #include "error.h"
 #include "header.h"
 
@@ -24,7 +26,7 @@ Token *preprocess(Token *tok)
 				snprintf(path, 200, "%s/%s", dir_name, filename);
 
 				char *header = read_file(path);
-				Token *header_token = tokenize(header, false);
+				Token *header_token = tokenize(header, 0); // TODO: use `false`
 				header_token = preprocess(header_token);
 				filename = curfile;
 				if (header_token)

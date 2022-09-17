@@ -1,5 +1,6 @@
-#ifdef __STDC__
 #pragma once
+
+#ifdef __STDC__
 #include <stdbool.h>
 #endif
 

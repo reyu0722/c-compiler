@@ -17,6 +17,7 @@ main2: main
 	cp $(OBJS) stage2/
 	./main string.c > stage2/string.s
 	./main type.c > stage2/type.s
+	./main preprocess.c > stage2/preprocess.s
 	$(CC) -c stage2/string.s -o stage2/string.o
 	$(CC) -c stage2/type.s -o stage2/type.o
 	$(CC) -o main2 $(addprefix stage2/, $(OBJS)) $(LDFLAGS)
@@ -25,6 +26,7 @@ main3: main main2
 	cp $(OBJS) stage3/
 	./main2 string.c > stage3/string.s
 	./main2 type.c > stage3/type.s
+	./main2 preprocess.c > stage3/preprocess.s
 	$(CC) -c stage3/string.s -o stage3/string.o
 	$(CC) -c stage3/type.s -o stage3/type.o
 	$(CC) -o main3 $(addprefix stage3/, $(OBJS)) $(LDFLAGS)
@@ -61,6 +63,8 @@ diff-test: main2 main3
 	diff stage2/string.s stage3/string.s
 	@if [ $$? -ne 0 ]; then exit 1; fi
 	diff stage2/type.s stage3/type.s
+	@if [ $$? -ne 0 ]; then exit 1; fi
+	diff stage2/preprocess.s stage3/preprocess.s
 	@if [ $$? -ne 0 ]; then exit 1; fi
 	@echo OK
 
