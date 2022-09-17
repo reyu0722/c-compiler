@@ -219,15 +219,15 @@ void gen(Node *node)
   case ND_DEREF:
     gen(node->lhs);
     printf("  pop rax\n");
-    switch (node->type->ty)
+    switch (sizeof_type(node->type))
     {
-    case INT:
+    case 4:
       printf("  mov eax, [rax]\n");
       break;
-    case PTR:
+    case 8:
       printf("  mov rax, [rax]\n");
       break;
-    case CHAR:
+    case 1:
       printf("  movsx rax, BYTE PTR [rax]\n");
       break;
     default:
