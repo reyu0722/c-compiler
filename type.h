@@ -19,7 +19,7 @@ struct StructField
 	StructField *next;
 	String *name;
 	Type *type;
-	int index;
+	int offset;
 };
 
 typedef struct StructType StructType;
@@ -28,7 +28,6 @@ struct StructType
 	StructType *next;
 	String *name;
 	StructField *fields;
-	int count;
 	int alignment;
 	bool is_union;
 };

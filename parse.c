@@ -1020,7 +1020,7 @@ Node *postfix()
         error_at_here("no such field");
 
       node = new_node(ND_ADDR, node, NULL);
-      node = new_node(ND_ADD, node, new_node_num(field->index * node->type->ptr_to->struct_type->alignment));
+      node = new_node(ND_ADD, node, new_node_num(field->offset));
       node->type = new_type(PTR, field->type);
       node = new_node(ND_DEREF, node, NULL);
       continue;
@@ -1041,7 +1041,7 @@ Node *postfix()
       if (!field)
         error_at_here("no such field");
 
-      node = new_node(ND_ADD, node, new_node_num(field->index * node->type->ptr_to->struct_type->alignment));
+      node = new_node(ND_ADD, node, new_node_num(field->offset));
       node->type = new_type(PTR, field->type);
       node = new_node(ND_DEREF, node, NULL);
       continue;

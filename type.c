@@ -20,15 +20,23 @@ Type *new_struct_type(String *name, bool is_union)
 	return ty;
 }
 
+int align(int n, int al)
+{
+	return (n + al - 1) / al * al;
+}
+
 void add_field(StructType *type, Type *ty, String *name)
 {
 	StructField *field = calloc(1, sizeof(StructField));
 	field->type = ty;
 	field->name = name;
-	if (type->fields)
-		field->index = type->fields->index + 1;
-	else
-		field->index = 0;
+	if (!type->is_union)
+	{
+		if (type->fields)
+			field->offset = align(type->fields->offset + sizeof_type(type->fields->type), sizeof_type(ty));
+		else
+			field->offset = 0;
+	}
 	if (sizeof_type(ty) > type->alignment)
 		type->alignment = sizeof_type(ty);
 	field->next = type->fields;
@@ -51,7 +59,7 @@ int sizeof_type(Type *type)
 		if (type->struct_type->is_union)
 			return type->struct_type->alignment;
 		else
-			return type->struct_type->alignment * (type->struct_type->fields->index + 1);
+			return align(type->struct_type->fields->offset + sizeof_type(type->struct_type->fields->type), type->struct_type->alignment);
 	case BOOL:
 		return 1;
 	}

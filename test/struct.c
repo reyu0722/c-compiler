@@ -5,6 +5,7 @@ struct Test
   int a;
   int b;
   char c;
+  char d;
 };
 
 struct Test2
@@ -27,8 +28,8 @@ int main()
   assert(2, a.b);
 
   struct Test *b = &a;
-  assert(1, b->a);
-  assert(2, b->b);
+  assert(4, b->a + 3);
+  assert(7, b->b + 5);
 
   struct
   {
