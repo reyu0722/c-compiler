@@ -604,6 +604,8 @@ int literal_count;
 
 External *external()
 {
+  locals = NULL;
+
   External *external = calloc(1, sizeof(External));
   ext = external;
   int i = 0;
@@ -707,7 +709,7 @@ External *external()
     expect(";");
   }
   if (locals)
-    external->stack_size = locals->offset;
+    external->stack_size = (locals->offset / 8) * 8 + 8;
 
   return external;
 }

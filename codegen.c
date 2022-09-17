@@ -109,6 +109,7 @@ void gen(Node *node)
     printf("  je .Lend%d\n", l);
     gen(node->rhs);
     printf(".Lend%d:\n", l);
+    printf("  push 0\n");
     return;
   case ND_IFELSE:
     l = label_count++;
@@ -121,6 +122,7 @@ void gen(Node *node)
     printf(".Lelse%d:\n", l);
     gen(node->rhs->rhs);
     printf(".Lend%d:\n", l);
+    printf("  push 0\n");
     return;
   case ND_SWITCH:
     assert(node->rhs->kind == ND_BLOCK);
@@ -137,6 +139,7 @@ void gen(Node *node)
     int b = break_count;
     gen(node->rhs);
     printf(".Lbreak%d:\n", b);
+    printf("  push 0\n");
     break_count++;
     switch_count++;
     return;
@@ -158,6 +161,7 @@ void gen(Node *node)
     gen(node->rhs);
     printf("  jmp .Lbegin%d\n", l);
     printf(".Lend%d:\n", l);
+    printf("  push 0\n");
     return;
   case ND_FOR:
     l = label_count++;
@@ -171,6 +175,7 @@ void gen(Node *node)
     gen(node->rhs->lhs);
     printf("  jmp .Lbegin%d\n", l);
     printf(".Lend%d:\n", l);
+    printf("  push 0\n");
     return;
   case ND_BLOCK:
     for (n = node->rhs; n; n = n->rhs)
@@ -179,16 +184,6 @@ void gen(Node *node)
   case ND_CALL:
     n = node->rhs;
     i = 0;
-
-    printf("  mov rdi, 16\n");
-    printf("  mov rax, rsp\n");
-    printf("  mov rdx, 0\n");
-    printf("  idiv rdi\n");
-    printf("  mov rax, rsp\n");
-    printf("  sub rsp, rdx\n");
-
-    printf("  push rax\n");
-    printf("  push 0\n");
 
     while (n)
     {
@@ -203,6 +198,11 @@ void gen(Node *node)
 
     for (int j = i - 1; j >= 0; j--)
       printf("  pop %s\n", regs[j]);
+
+    printf("  mov r10, rsp\n");
+    printf("  and rsp, 0xfffffffffffffff0\n");
+    printf("  push r10\n");
+    printf("  push 0\n");
 
     printf("  call %.*s\n", node->lhs->name->len, node->lhs->name->ptr);
 

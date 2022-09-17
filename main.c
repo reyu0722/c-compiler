@@ -13,6 +13,7 @@
 char *user_input;
 char *filename;
 char *dir_name;
+char *regs1[6] = {"dil", "sil", "dl", "cl", "r8b", "r9b"};
 char *regs4[6] = {"edi", "esi", "edx", "ecx", "r8d", "r9d"};
 char *regs8[6] = {"rdi", "rsi", "rdx", "rcx", "r8", "r9"};
 
@@ -94,10 +95,14 @@ int main(int argc, char **argv)
         char *reg;
         if (i == 0)
         {
-          if (ext->offsets[i] >= 8)
+          if (ext->offsets[i] == 8)
             reg = regs8[i];
-          else
+          else if (ext->offsets[i] == 4)
             reg = regs4[i];
+          else if (ext->offsets[i] == 1)
+            reg = regs1[i];
+          else
+            error("not implemented: offset %d", ext->offsets[i]);
         }
         else
         {
@@ -105,6 +110,8 @@ int main(int argc, char **argv)
             reg = regs8[i];
           else if (ext->offsets[i] - ext->offsets[i - 1] == 4)
             reg = regs4[i];
+          else if (ext->offsets[i] - ext->offsets[i - 1] == 1)
+            reg = regs1[i];
           else
             error("not implemented: offset %d", ext->offsets[i] - ext->offsets[i - 1]);
         }
