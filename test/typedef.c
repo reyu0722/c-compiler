@@ -1,12 +1,11 @@
+typedef int num;
+typedef num *ptr;
+typedef struct Struct Struct;
 struct Struct
 {
 	int a;
 	int b;
 };
-
-typedef int num;
-typedef num *ptr;
-typedef struct Struct Struct;
 
 int main()
 {

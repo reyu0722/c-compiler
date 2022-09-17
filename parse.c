@@ -352,8 +352,7 @@ Type *consume_type_name()
         }
         else
         {
-          if (structs)
-            structs->next = type->struct_type;
+          type->struct_type->next = structs;
           structs = type->struct_type;
         }
       }
@@ -366,8 +365,13 @@ Type *consume_type_name()
         error_at_here("expected struct name");
       StructType *type = find_struct(id);
       Type *ty;
-      if (!type) // forward declaration
+      if (!type)
+      {
+        // forward declaration
         ty = new_struct_type(id->str, is_union);
+        ty->struct_type->next = structs;
+        structs = ty->struct_type;
+      }
       else
       {
         ty = new_type(STRUCT, NULL);
@@ -419,7 +423,7 @@ ConsumeTypeRes *expect_nested_type(Type *type)
     consume_ident();
     while (consume(","))
     {
-      assert (consume_noident_type() != NULL);
+      assert(consume_noident_type() != NULL);
       consume_ident();
     }
 
