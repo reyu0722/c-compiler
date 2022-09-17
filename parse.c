@@ -347,7 +347,7 @@ Type *consume_type_name()
           {
             s->fields = type->struct_type->fields;
             s->is_union = type->struct_type->is_union;
-            s->size = type->struct_type->size;
+            s->alignment = type->struct_type->alignment;
           }
         }
         else
@@ -1020,7 +1020,7 @@ Node *postfix()
         error_at_here("no such field");
 
       node = new_node(ND_ADDR, node, NULL);
-      node = new_node(ND_ADD, node, new_node_num(field->offset));
+      node = new_node(ND_ADD, node, new_node_num(field->index * node->type->ptr_to->struct_type->alignment));
       node->type = new_type(PTR, field->type);
       node = new_node(ND_DEREF, node, NULL);
       continue;
@@ -1041,7 +1041,7 @@ Node *postfix()
       if (!field)
         error_at_here("no such field");
 
-      node = new_node(ND_ADD, node, new_node_num(field->offset));
+      node = new_node(ND_ADD, node, new_node_num(field->index * node->type->ptr_to->struct_type->alignment));
       node->type = new_type(PTR, field->type);
       node = new_node(ND_DEREF, node, NULL);
       continue;
@@ -1106,7 +1106,7 @@ Node *primary()
 
         for (int i = 0; i < lvar->type->array_size; i++)
         {
-          Node *ptr = new_node(ND_ADD, new_node(ND_ADDR, node->lhs, NULL), new_node_num(i * sizeof_type(lvar->type->ptr_to)));
+          Node *ptr = new_typed_node(ND_ADD, new_node(ND_ADDR, node->lhs, NULL), new_node_num(i * sizeof_type(lvar->type->ptr_to)), new_type(PTR, lvar->type->ptr_to));
           Node *deref = new_node(ND_DEREF, ptr, NULL);
 
           last->rhs = new_node(ND_UNNAMED, new_node(ND_ASSIGN, deref, assign()), NULL);
