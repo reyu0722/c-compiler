@@ -1277,7 +1277,28 @@ Node *primary()
   tok = consume_kind(TK_CHAR_CONST);
   if (tok)
   {
-    Node *node = new_node_char(*(tok->str->ptr));
+    char c = *(tok->str->ptr);
+    if (c == '\\')
+    {
+      switch (*(tok->str->ptr + 1))
+      {
+      case '\\':
+        c = '\\';
+        break;
+      case '\'':
+        c = '\'';
+        break;
+      case 'n':
+        c = '\n';
+        break;
+      case '0':
+        c = '\0';
+        break;
+      default:
+        error_at_token(tok, "unknown escape sequence");
+      }
+    }
+    Node *node = new_node_char(c);
     return node;
   }
 
