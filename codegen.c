@@ -250,6 +250,7 @@ void gen(Node *node)
     printf("  and rsp, 0xfffffffffffffff0\n");
     printf("  push r10\n");
     printf("  push 0\n");
+    printf("  mov rax, 0\n");
 
     printf("  call %.*s\n", node->lhs->name->len, node->lhs->name->ptr);
 
@@ -259,6 +260,19 @@ void gen(Node *node)
     printf("  mov rsp, rdi\n");
     printf("  push rax\n");
 
+    return;
+  case ND_VA_START:
+    n = node->rhs->lhs;
+    assert(n->kind == ND_LVAR);
+
+    printf("  mov eax, %d\n", arg_count * 8);
+    printf("  mov [rbp - %d], eax\n", n->offset);
+    printf("  mov eax, 48\n");
+    printf("  mov [rbp - %d], eax\n", n->offset - 4);
+    printf("  lea rax, [rbp + 16]\n");
+    printf("  mov [rbp - %d], rax\n", n->offset - 8);
+    printf("  lea rax, [rbp - %d]\n", current_stack_size + 48);
+    printf("  mov [rbp - %d], rax\n", n->offset - 16);
     return;
   case ND_ADDR:
     gen_lval(node->lhs);

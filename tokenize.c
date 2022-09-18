@@ -272,6 +272,13 @@ Token *tokenize(char *p, _Bool eof)
 			continue;
 		}
 
+		if (strncmp(p, "__builtin_va_list", 17) == 0 && !is_alnum(p[17]))
+		{
+			cur = new_token(TK_BUILTIN_VA_LIST, cur, p, 17);
+			p += 17;
+			continue;
+		}
+
 		if (strncmp(p, "long", 4) == 0 && !is_alnum(p[4]))
 		{
 			cur = new_token(TK_LONG, cur, p, 4);

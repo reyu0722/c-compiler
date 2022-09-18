@@ -35,6 +35,7 @@ typedef enum
   ND_CALL,         // Function Call
   ND_NUM,          // Integer
   ND_STRING,       // String literals
+  ND_VA_START,     // va_start()
   ND_UNNAMED
 } NodeKind;
 
@@ -67,4 +68,6 @@ struct StringLiteral
 extern char *user_input;
 extern char *dir_name;
 extern char *filename;
+extern int current_stack_size;
+extern int arg_count;
 char *read_file(char *path);

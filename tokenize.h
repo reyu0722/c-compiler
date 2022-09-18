@@ -36,6 +36,7 @@ typedef enum
 	TK_SIGNED,
 	TK_SHORT,
 	TK_BOOL,
+	TK_BUILTIN_VA_LIST,
 } TokenKind;
 
 struct Token

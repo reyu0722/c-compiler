@@ -18,18 +18,20 @@ typedef int size_t;
 char *user_input;
 char *filename;
 char *dir_name;
+int current_stack_size;
+int arg_count;
 
 char *read_file(char *path)
 {
   FILE *fp = fopen(path, "r");
   if (!fp)
-    error("cannot open %s", path/*, strerror(errno) */);
+    error("cannot open %s", path /*, strerror(errno) */);
 
   if (fseek(fp, 0, /*SEEK_END*/ 2) == -1)
-    error("%s: fseek", path/*, strerror(errno) */);
+    error("%s: fseek", path /*, strerror(errno) */);
   size_t size = ftell(fp);
   if (fseek(fp, 0, /*SEEK_SET*/ 0) == -1)
-    error("%s: fseek", path/*, strerror(errno)*/);
+    error("%s: fseek", path /*, strerror(errno)*/);
 
   char *buf = calloc(1, size + 2);
   fread(buf, size, 1, fp);
@@ -100,8 +102,13 @@ int main(int argc, char **argv)
       printf("  mov rbp, rsp\n");
       printf("  sub rsp, %d\n", ext->stack_size);
 
+      if (ext->is_variadic)
+        for (int i = 5; i >= 0; i--)
+          printf("  push %s\n", regs8[i]);
+
       int regi = 0;
-      for (int i = 0; i < 6 && ext->offsets[i]; i++)
+      int i;
+      for (i = 0; i < 6 && ext->offsets[i]; i++)
       {
         char *reg;
         int size;
@@ -120,11 +127,13 @@ int main(int argc, char **argv)
             reg = regs8[regi];
             size -= 8;
           }
-          else if (size == 4) {
+          else if (size == 4)
+          {
             reg = regs4[regi];
             size -= 4;
           }
-          else if (size == 1) {
+          else if (size == 1)
+          {
             reg = regs1[regi];
             size -= 1;
           }
@@ -137,6 +146,9 @@ int main(int argc, char **argv)
             break;
         }
       }
+
+      arg_count = i;
+      current_stack_size = ext->stack_size;
 
       for (int i = 0; ext->code[i]; i++)
       {

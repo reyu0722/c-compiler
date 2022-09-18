@@ -10,6 +10,7 @@ typedef enum
 	VOID,
 	FUNC,
 	BOOL,
+	BUILTIN_VA_LIST
 } TypeKind;
 
 typedef struct Type Type;

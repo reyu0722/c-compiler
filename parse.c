@@ -243,6 +243,8 @@ Type *consume_type_name()
     return new_type(VOID, NULL);
   if (consume_kind(TK_BOOL))
     return new_type(BOOL, NULL);
+  if (consume_kind(TK_BUILTIN_VA_LIST))
+    return new_type(BUILTIN_VA_LIST, NULL);
   if (consume_kind(TK_LONG))
   {
     if (consume_kind(TK_INT))
@@ -676,7 +678,10 @@ External *external()
       for (;;)
       {
         if (consume("..."))
+        {
+          external->is_variadic = 1;
           break;
+        }
         ConsumeTypeRes *res = consume_type();
         if (!res)
           error_at_here("failed to parse argument");
@@ -810,7 +815,8 @@ Node *stmt()
   {
     if (consume(";"))
       node = new_node(ND_RETURN, NULL, NULL);
-    else {
+    else
+    {
       node = new_node(ND_RETURN, expr(), NULL);
       expect(";");
     }
@@ -1163,6 +1169,8 @@ Node *primary()
       func->name = tok->str;
 
       node = new_node(ND_CALL, func, NULL);
+      if (str_chr_equals(tok->str, "va_start"))
+        node->kind = ND_VA_START;
 
       Node *last = node;
       if (consume(")"))

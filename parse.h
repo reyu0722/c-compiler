@@ -20,6 +20,7 @@ struct External
 	int size;
 	StringLiteral *literals;
 	int stack_size;
+	_Bool is_variadic;
 };
 
 _Bool at_eof();

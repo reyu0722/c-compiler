@@ -64,6 +64,8 @@ int sizeof_type(Type *type)
 			return align(type->struct_type->fields->offset + sizeof_type(type->struct_type->fields->type), type->struct_type->alignment);
 	case BOOL:
 		return 1;
+	case BUILTIN_VA_LIST:
+		return 24;
 	}
 
 	error_at_here("sizeof_type: unknown type");
