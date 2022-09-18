@@ -258,7 +258,28 @@ void gen(Node *node)
     printf("  pop rdi\n");
 
     printf("  mov rsp, rdi\n");
-    printf("  push rax\n");
+
+    if (node->type->ty == VOID) {
+      printf("  push 0\n");
+      return;
+    }
+
+    switch (sizeof_type(node->type))
+    {
+    case 1:
+      printf("  movsx rax, al\n");
+      printf("  push rax\n");
+      break;
+    case 4:
+      printf("  movsx rax, eax\n");
+      printf("  push rax\n");
+      break;
+    case 8:
+      printf("  push rax\n");
+      break;
+    default:
+      error("not implemented: return value");
+    }
 
     return;
   case ND_VA_START:

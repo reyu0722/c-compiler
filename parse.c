@@ -17,6 +17,7 @@ typedef struct EnumVal EnumVal;
 typedef struct ConsumeTypeRes ConsumeTypeRes;
 typedef struct TypeDef TypeDef;
 typedef struct Enum Enum;
+typedef struct Func Func;
 
 struct LVar
 {
@@ -53,11 +54,19 @@ struct TypeDef
   Type *type;
 };
 
+struct Func
+{
+  Func *next;
+  String *name;
+  Type *type;
+};
+
 LVar *locals;
 GVar *globals;
 EnumVal *enumVals;
 StructType *structs;
 TypeDef *typedefs;
+Func *funcs;
 
 LVar *find_lvar(Token *tok)
 {
@@ -159,6 +168,26 @@ TypeDef *new_typedef(String *name, Type *type)
 
   typedefs = typedef_;
   return typedef_;
+}
+
+Func *find_func(Token *tok)
+{
+  for (Func *func = funcs; func; func = func->next)
+    if (str_equals(func->name, tok->str))
+      return func;
+
+  return NULL;
+}
+
+Func *new_func(String *name, Type *type)
+{
+  Func *func = calloc(1, sizeof(Func));
+  func->next = funcs;
+  func->name = name;
+  func->type = type;
+
+  funcs = func;
+  return func;
 }
 
 bool consume(char *op)
@@ -441,7 +470,7 @@ ConsumeTypeRes *expect_nested_type(Type *type)
 
     expect(")");
 
-    res->type = new_type(FUNC, NULL);
+    res->type = new_type(FUNC, type);
   }
   for (int i = 0; i < ptr; i++)
     res->type = new_type(PTR, res->type);
@@ -667,6 +696,10 @@ External *external()
   if (res->type->ty == FUNC)
   {
     external->kind = EXT_FUNC;
+
+    if (!find_func(res->tok))
+      new_func(res->tok->str, res->type->ptr_to);
+
     go_to(res->tok);
     next();
     expect("(");
@@ -1175,7 +1208,13 @@ Node *primary()
       Node *func = calloc(1, sizeof(Node));
       func->name = tok->str;
 
-      node = new_node(ND_CALL, func, NULL);
+      Type *type;
+      if (find_func(tok))
+        type = find_func(tok)->type;
+      else
+        type = new_type(INT, NULL);
+
+      node = new_typed_node(ND_CALL, func, NULL, type);
       if (str_chr_equals(tok->str, "va_start"))
         node->kind = ND_VA_START;
 

@@ -3,6 +3,8 @@
 #include <stdio.h>
 #else
 typedef __builtin_va_list va_list;
+int vsnprintf();
+void *calloc();
 #endif
 
 void my_snprintf(char *buf, int len, char *fmt, ...)

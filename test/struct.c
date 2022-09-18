@@ -1,3 +1,9 @@
+#ifdef __STDC__
+#include <stdlib.h>
+#else
+void *calloc();
+#endif
+
 struct Test;
 
 struct Test
