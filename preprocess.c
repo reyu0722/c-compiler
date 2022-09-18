@@ -58,13 +58,11 @@ Token *preprocess(Token *tok)
 					else
 						start = t;
 
-					while (t->kind == TK_PREPROCESSOR && !startswith(t->str->ptr, "#endif"))
+					while (!startswith(t->str->ptr, "#endif"))
 					{
 						before = t;
 						t = t->next;
 					}
-
-					t = t->next;
 				}
 				else
 				{
