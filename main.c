@@ -1,8 +1,13 @@
+#ifdef __STDC__
 #include <errno.h>
 #include <stdbool.h>
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
+#else
+typedef void FILE;
+typedef int size_t;
+#endif
 #include "codegen.h"
 #include "error.h"
 #include "header.h"
@@ -13,21 +18,18 @@
 char *user_input;
 char *filename;
 char *dir_name;
-char *regs1[6] = {"dil", "sil", "dl", "cl", "r8b", "r9b"};
-char *regs4[6] = {"edi", "esi", "edx", "ecx", "r8d", "r9d"};
-char *regs8[6] = {"rdi", "rsi", "rdx", "rcx", "r8", "r9"};
 
 char *read_file(char *path)
 {
   FILE *fp = fopen(path, "r");
   if (!fp)
-    error("cannot open %s: %s", path, strerror(errno));
+    error("cannot open %s", path/*, strerror(errno) */);
 
-  if (fseek(fp, 0, SEEK_END) == -1)
-    error("%s: fseek: %s", path, strerror(errno));
+  if (fseek(fp, 0, /*SEEK_END*/ 2) == -1)
+    error("%s: fseek", path/*, strerror(errno) */);
   size_t size = ftell(fp);
-  if (fseek(fp, 0, SEEK_SET) == -1)
-    error("%s: fseek: %s", path, strerror(errno));
+  if (fseek(fp, 0, /*SEEK_SET*/ 0) == -1)
+    error("%s: fseek", path/*, strerror(errno)*/);
 
   char *buf = calloc(1, size + 2);
   fread(buf, size, 1, fp);
@@ -41,9 +43,13 @@ char *read_file(char *path)
 
 int main(int argc, char **argv)
 {
+  char *regs1[6] = {"dil", "sil", "dl", "cl", "r8b", "r9b"};
+  char *regs4[6] = {"edi", "esi", "edx", "ecx", "r8d", "r9d"};
+  char *regs8[6] = {"rdi", "rsi", "rdx", "rcx", "r8", "r9"};
+
   if (argc != 2)
   {
-    fprintf(stderr, "invalid argument");
+    error("invalid argument");
     return 1;
   }
 
@@ -63,7 +69,7 @@ int main(int argc, char **argv)
     dir_name[0] = '.';
 
   user_input = read_file(filename);
-  token = tokenize(user_input, true);
+  token = tokenize(user_input, 1);
 
   token = preprocess(token);
 

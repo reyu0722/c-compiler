@@ -22,5 +22,5 @@ struct External
 	int stack_size;
 };
 
-bool at_eof();
+_Bool at_eof();
 External *external();
