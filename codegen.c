@@ -139,11 +139,15 @@ void gen(Node *node)
     printf("  pop rax\n");
 
     for (n = node->rhs; n; n = n->rhs)
+    {
       if (n->lhs && n->lhs->kind == ND_CASE)
       {
         printf("  cmp rax, %d\n", n->lhs->lhs->val);
         printf("  je .Lcase%d_%d\n", switch_count, n->lhs->lhs->val);
       }
+      if (n->lhs && n->lhs->kind == ND_DEFAULT)
+        printf("  jmp .Ldefault%d\n", switch_count);
+    }
 
     int b = break_count;
     gen(node->rhs);
@@ -156,6 +160,9 @@ void gen(Node *node)
     assert(node->lhs->kind == ND_NUM);
     printf(".Lcase%d_%d:\n", switch_count, node->lhs->val);
     gen(node->rhs);
+    return;
+  case ND_DEFAULT:
+    printf(".Ldefault%d:\n", switch_count);
     return;
   case ND_BREAK:
     printf("  jmp .Lbreak%d\n", break_count);

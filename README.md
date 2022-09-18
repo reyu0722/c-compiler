@@ -16,6 +16,7 @@ external   = declaration "(" ("int" ident ("," "int" ident)*)? | "void" ")" (";"
            | preprocessor
 label_stmt = label? stmt
 label      = "case" expr ":"
+           | "default" ":"
 stmt       = expr ";"
            | "if" "(" expr ")" stmt ("else" stmt)?
            | "switch" "(" expr ")" stmt

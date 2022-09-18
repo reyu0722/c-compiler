@@ -244,6 +244,12 @@ Token *tokenize(char *p, _Bool eof)
 			p += 4;
 			continue;
 		}
+		if (strncmp(p, "default", 7) == 0 && !is_alnum(p[7]))
+		{
+			cur = new_token(TK_DEFAULT, cur, p, 7);
+			p += 7;
+			continue;
+		}
 
 		if (strncmp(p, "break", 5) == 0 && !is_alnum(p[5]))
 		{

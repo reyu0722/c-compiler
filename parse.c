@@ -733,6 +733,11 @@ Node *stmt()
     expect(":");
     node = new_node(ND_CASE, e, stmt());
   }
+  else if (consume_kind(TK_DEFAULT))
+  {
+    expect(":");
+    node = new_node(ND_DEFAULT, NULL, NULL);
+  }
   else if (consume_kind(TK_IF))
   {
     expect("(");
