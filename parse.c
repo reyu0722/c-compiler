@@ -243,8 +243,11 @@ Type *consume_type_name()
     return new_type(VOID, NULL);
   if (consume_kind(TK_BOOL))
     return new_type(BOOL, NULL);
-  if (consume_kind(TK_BUILTIN_VA_LIST))
-    return new_type(BUILTIN_VA_LIST, NULL);
+  if (consume_kind(TK_BUILTIN_VA_LIST)) {
+    Type *type = new_type(ARRAY, new_type(VA_LIST_TAG, NULL));
+    type->array_size = 1;
+    return type;
+  }
   if (consume_kind(TK_LONG))
   {
     if (consume_kind(TK_INT))

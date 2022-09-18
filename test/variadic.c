@@ -9,7 +9,7 @@ void my_snprintf(char *buf, int len, char *fmt, ...)
 {
 	va_list ap;
 	va_start(ap, fmt);
-	vsnprintf(buf, len, fmt, &ap);
+	vsnprintf(buf, len, fmt, &(ap[0]));
 }
 
 int main()
