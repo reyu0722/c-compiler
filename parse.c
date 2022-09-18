@@ -632,6 +632,7 @@ Node *new_node_char(char val)
 Node *stmt();
 Node *expr();
 Node *assign();
+Node *logical();
 Node *equality();
 Node *relational();
 Node *add();
@@ -887,7 +888,7 @@ Node *expr()
 
 Node *assign()
 {
-  Node *node = equality();
+  Node *node = logical();
   if (consume("="))
     node = new_node(ND_ASSIGN, node, assign());
   else if (consume("+="))
@@ -902,17 +903,28 @@ Node *assign()
   return node;
 }
 
+Node *logical()
+{
+  Node *node = equality();
+
+  for (;;)
+  {
+    if (consume("&&"))
+      node = new_node(ND_AND, node, logical());
+    else if (consume("||"))
+      node = new_node(ND_OR, node, logical());
+    else
+      return node;
+  }
+}
+
 Node *equality()
 {
   Node *node = relational();
 
   for (;;)
   {
-    if (consume("||"))
-      node = new_node(ND_OR, node, relational());
-    else if (consume("&&"))
-      node = new_node(ND_AND, node, relational());
-    else if (consume("=="))
+    if (consume("=="))
       node = new_node(ND_EQ, node, relational());
     else if (consume("!="))
       node = new_node(ND_NE, node, relational());
