@@ -46,6 +46,19 @@ void no_return()
 	return;
 }
 
+struct S
+{
+	int a;
+	int b;
+	int c;
+	int d;
+};
+
+int struct_args(struct S s)
+{
+	return s.a + s.b - s.c + s.d;
+}
+
 int main()
 {
 	assert(10, foo());
@@ -60,6 +73,12 @@ int main()
 	assert(12, void_ptr(p));
 	no_return();
 	assert(10, a);
+	struct S s;
+	s.a = 11;
+	s.b = -3;
+	s.c = 6;
+	s.d = 2;
+	assert(4, struct_args(s));
 }
 
 int after()

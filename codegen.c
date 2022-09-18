@@ -49,21 +49,34 @@ void gen(Node *node)
   case ND_GVAR:
     gen_lval(node);
     printf("  pop rax\n");
-    switch (sizeof_type(node->type))
+    int size = sizeof_type(node->type);
+    for (;;)
     {
-    case 4:
-      printf("  mov eax, [rax]\n");
-      break;
-    case 8:
-      printf("  mov rax, [rax]\n");
-      break;
-    case 1:
-      printf("  movsx rax, BYTE PTR [rax]\n");
-      break;
-    default:
-      break;
+      if (size >= 8)
+      {
+        printf("  mov r10, [rax + %d]\n", sizeof_type(node->type) - size);
+        printf("  push r10\n");
+        size -= 8;
+      }
+      else if (size == 4)
+      {
+        printf("  mov eax, [rax]\n");
+        printf("  push rax\n");
+        size -= 4;
+      }
+      else if (size == 1)
+      {
+        printf("  movsx rax, BYTE PTR [rax]\n");
+        printf("  push rax\n");
+        size -= 1;
+      }
+      else
+        error("not implemented: size %d", size);
+
+      if (size == 0)
+        break;
     }
-    printf("  push rax\n");
+
     return;
   case ND_STRING:
     gen_lval(node);
@@ -220,8 +233,10 @@ void gen(Node *node)
     while (n)
     {
       gen(n->lhs);
+      if (sizeof_type(n->lhs->type) > 32)
+        error("not implemented: too big object");
+      i += (sizeof_type(n->lhs->type) + 7) / 8;
       n = n->rhs;
-      i++;
     }
     if (i > 6)
       error_at(node->lhs->name->ptr, "too many arguments");

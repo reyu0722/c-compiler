@@ -100,32 +100,42 @@ int main(int argc, char **argv)
       printf("  mov rbp, rsp\n");
       printf("  sub rsp, %d\n", ext->stack_size);
 
+      int regi = 0;
       for (int i = 0; i < 6 && ext->offsets[i]; i++)
       {
         char *reg;
+        int size;
         if (i == 0)
-        {
-          if (ext->offsets[i] == 8)
-            reg = regs8[i];
-          else if (ext->offsets[i] == 4)
-            reg = regs4[i];
-          else if (ext->offsets[i] == 1)
-            reg = regs1[i];
-          else
-            error("not implemented: offset %d", ext->offsets[i]);
-        }
+          size = ext->offsets[i];
         else
+          size = ext->offsets[i] - ext->offsets[i - 1];
+
+        int base = size;
+        for (;;)
         {
-          if (ext->offsets[i] - ext->offsets[i - 1] == 8)
-            reg = regs8[i];
-          else if (ext->offsets[i] - ext->offsets[i - 1] == 4)
-            reg = regs4[i];
-          else if (ext->offsets[i] - ext->offsets[i - 1] == 1)
-            reg = regs1[i];
+          int s = size;
+
+          if (size >= 8)
+          {
+            reg = regs8[regi];
+            size -= 8;
+          }
+          else if (size == 4) {
+            reg = regs4[regi];
+            size -= 4;
+          }
+          else if (size == 1) {
+            reg = regs1[regi];
+            size -= 1;
+          }
           else
-            error("not implemented: offset %d", ext->offsets[i] - ext->offsets[i - 1]);
+            error("not implemented: size %d", size);
+
+          printf("  mov [rbp - %d], %s\n", ext->offsets[i] + (s - base), reg);
+          regi++;
+          if (size == 0)
+            break;
         }
-        printf("  mov [rbp - %d], %s\n", ext->offsets[i], reg);
       }
 
       for (int i = 0; ext->code[i]; i++)
