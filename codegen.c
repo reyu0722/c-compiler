@@ -196,10 +196,10 @@ void gen(Node *node)
     printf("  pop rax\n");
     printf("  cmp rax, 0\n");
     printf("  je .Lend%d\n", l);
-    if (node->rhs->rhs)
-      gen(node->rhs->rhs);
+    gen(node->rhs->rhs);
     printf(".Lcontinue%d:\n", continue_count);
-    gen(node->rhs->lhs);
+    if (node->rhs->lhs)
+      gen(node->rhs->lhs);
     printf("  jmp .Lbegin%d\n", l);
     printf(".Lend%d:\n", l);
     printf("  pop rax\n");
