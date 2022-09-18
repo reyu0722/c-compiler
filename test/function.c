@@ -39,6 +39,13 @@ int void_ptr(void *ptr)
 	return 12;
 }
 
+int a;
+void no_return()
+{
+	a = 10;
+	return;
+}
+
 int main()
 {
 	assert(10, foo());
@@ -51,6 +58,8 @@ int main()
 
 	int *p = 12;
 	assert(12, void_ptr(p));
+	no_return();
+	assert(10, a);
 }
 
 int after()

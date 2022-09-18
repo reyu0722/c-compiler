@@ -799,8 +799,12 @@ Node *stmt()
   }
   else if (consume_kind(TK_RETURN))
   {
-    node = new_node(ND_RETURN, expr(), NULL);
-    expect(";");
+    if (consume(";"))
+      node = new_node(ND_RETURN, NULL, NULL);
+    else {
+      node = new_node(ND_RETURN, expr(), NULL);
+      expect(";");
+    }
   }
   else if (consume_kind(TK_BREAK))
   {

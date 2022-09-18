@@ -98,7 +98,10 @@ void gen(Node *node)
     printf("  push 0\n");
     return;
   case ND_RETURN:
-    gen(node->lhs);
+    if (node->lhs)
+      gen(node->lhs);
+    else
+      printf("  push 0\n");
     printf("  pop rax\n");
     printf("  mov rsp, rbp\n");
     printf("  pop rbp\n");

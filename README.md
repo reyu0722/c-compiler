@@ -22,7 +22,7 @@ stmt       = expr ";"
            | "while "(" expr ")" stmt
            | "for" "(" expr? ";" expr? ";" expr? ")" stmt
            | "{" stmt* "}"
-           | "return" expr ";"
+           | "return" expr? ";"
            | "break" ";"
            | "contunie" ";"
 expr       = assign
