@@ -1,12 +1,14 @@
+#ifdef __STDC__
 #include <stdio.h>
+#endif
 #include "codegen.h"
 #include "error.h"
 #include "header.h"
 
-int label_count = 0;
-int switch_count = 0;
-int break_count = 0;
-int continue_count = 0;
+int label_count;
+int switch_count;
+int break_count;
+int continue_count;
 
 void gen_lval(Node *node)
 {
@@ -34,7 +36,8 @@ void gen_lval(Node *node)
 
 void gen(Node *node)
 {
-  int l, i;
+  int l;
+  int i;
   Node *n;
 
   switch (node->kind)
@@ -185,7 +188,7 @@ void gen(Node *node)
     return;
   case ND_FOR:
     l = label_count++;
-    if(node->lhs->lhs)
+    if (node->lhs->lhs)
       gen(node->lhs->lhs);
     printf(".Lbegin%d:\n", l);
     if (node->lhs->rhs)

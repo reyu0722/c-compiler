@@ -19,6 +19,7 @@ main2: main
 	./main type.c > stage2/type.s
 	./main preprocess.c > stage2/preprocess.s
 	./main tokenize.c > stage2/tokenize.s
+	./main codegen.c > stage2/codegen.s
 	$(CC) -c stage2/string.s -o stage2/string.o
 	$(CC) -c stage2/type.s -o stage2/type.o
 	$(CC) -o main2 $(addprefix stage2/, $(OBJS)) $(LDFLAGS)
@@ -29,6 +30,7 @@ main3: main main2
 	./main2 type.c > stage3/type.s
 	./main2 preprocess.c > stage3/preprocess.s
 	./main2 tokenize.c > stage3/tokenize.s
+	./main2 codegen.c > stage3/codegen.s
 	$(CC) -c stage3/string.s -o stage3/string.o
 	$(CC) -c stage3/type.s -o stage3/type.o
 	$(CC) -o main3 $(addprefix stage3/, $(OBJS)) $(LDFLAGS)
@@ -69,6 +71,8 @@ diff-test: main2 main3
 	diff stage2/preprocess.s stage3/preprocess.s
 	@if [ $$? -ne 0 ]; then exit 1; fi
 	diff stage2/tokenize.s stage3/tokenize.s
+	@if [ $$? -ne 0 ]; then exit 1; fi
+	diff stage2/codegen.s stage3/codegen.s
 	@if [ $$? -ne 0 ]; then exit 1; fi
 	@echo OK
 
