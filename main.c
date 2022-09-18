@@ -161,9 +161,12 @@ int main(int argc, char **argv)
       printf("  ret\n");
       break;
     case EXT_GVAR:
-      printf(".data\n");
-      printf("%.*s:\n", ext->name->len, ext->name->ptr);
-      printf("  .zero %d\n", ext->size);
+      if (!ext->is_extern)
+      {
+        printf(".data\n");
+        printf("%.*s:\n", ext->name->len, ext->name->ptr);
+        printf("  .zero %d\n", ext->size);
+      }
       break;
     case EXT_ENUM:
     case EXT_STRUCT:

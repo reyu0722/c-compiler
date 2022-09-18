@@ -243,7 +243,8 @@ Type *consume_type_name()
     return new_type(VOID, NULL);
   if (consume_kind(TK_BOOL))
     return new_type(BOOL, NULL);
-  if (consume_kind(TK_BUILTIN_VA_LIST)) {
+  if (consume_kind(TK_BUILTIN_VA_LIST))
+  {
     Type *type = new_type(ARRAY, new_type(VA_LIST_TAG, NULL));
     type->array_size = 1;
     return type;
@@ -622,6 +623,9 @@ External *external()
   External *external = calloc(1, sizeof(External));
   ext = external;
   int i = 0;
+
+  if (consume_kind(TK_EXTERN))
+    ext->is_extern = 1;
 
   if (check_kind(TK_ENUM))
   {

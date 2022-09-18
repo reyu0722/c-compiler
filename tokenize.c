@@ -324,6 +324,7 @@ Token *tokenize(char *p, _Bool eof)
 
 		if (strncmp(p, "extern", 6) == 0 && !is_alnum(p[6]))
 		{
+			cur = new_token(TK_EXTERN, cur, p, 6);
 			p += 6;
 			continue;
 		}
