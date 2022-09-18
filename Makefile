@@ -17,6 +17,7 @@ main2: main
 	cp $(OBJS) stage2/
 	./main codegen.c > stage2/codegen.s
 	./main main.c > stage2/main.s
+	./main parse.c > stage2/parse.s
 	./main preprocess.c > stage2/preprocess.s
 	./main string.c > stage2/string.s
 	./main tokenize.c > stage2/tokenize.s
@@ -30,6 +31,7 @@ main3: main main2
 	cp $(OBJS) stage3/
 	./main2 codegen.c > stage3/codegen.s
 	./main2 main.c > stage3/main.s
+	./main2 parse.c > stage3/parse.s
 	./main2 preprocess.c > stage3/preprocess.s
 	./main2 string.c > stage3/string.s
 	./main2 tokenize.c > stage3/tokenize.s
@@ -70,6 +72,8 @@ diff-test: main2 main3
 	diff stage2/codegen.s stage3/codegen.s
 	@if [ $$? -ne 0 ]; then exit 1; fi
 	diff stage2/main.s stage3/main.s
+	@if [ $$? -ne 0 ]; then exit 1; fi
+	diff stage2/parse.s stage3/parse.s
 	@if [ $$? -ne 0 ]; then exit 1; fi
 	diff stage2/preprocess.s stage3/preprocess.s
 	@if [ $$? -ne 0 ]; then exit 1; fi

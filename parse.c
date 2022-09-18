@@ -1,6 +1,10 @@
+#ifdef __STDC__
 #include <stdbool.h>
 #include <stdlib.h>
 #include <string.h>
+#else
+typedef _Bool bool;
+#endif
 #include "error.h"
 #include "header.h"
 #include "parse.h"
@@ -160,10 +164,10 @@ TypeDef *new_typedef(String *name, Type *type)
 bool consume(char *op)
 {
   if (token->kind != TK_RESERVED || !str_chr_equals(token->str, op))
-    return false;
+    return 0;
 
   token = token->next;
-  return true;
+  return 1;
 }
 
 Token *consume_kind(TokenKind kind)
@@ -311,9 +315,9 @@ Type *consume_type_name()
 
   if (check_kind(TK_STRUCT) || check_kind(TK_UNION))
   {
-    bool is_union = false;
+    bool is_union = 0;
     if (consume_kind(TK_UNION))
-      is_union = true;
+      is_union = 1;
     else
       consume_kind(TK_STRUCT);
 
@@ -384,9 +388,9 @@ Type *consume_type_name()
   Token *tok = consume_kind(TK_IDENT);
   if (tok)
   {
-    TypeDef *type = find_typedef(tok);
-    if (type)
-      return type->type;
+    TypeDef *tdef = find_typedef(tok);
+    if (tdef)
+      return tdef->type;
     go_to(tok);
   }
 
@@ -659,11 +663,11 @@ External *external()
     expect("(");
 
     Token *cur = token;
-    bool no_args = false;
+    bool no_args = 0;
     if (consume_kind(TK_VOID))
     {
       if (consume(")"))
-        no_args = true;
+        no_args = 1;
       else
         go_to(cur);
     }
@@ -1005,7 +1009,8 @@ Node *unary()
       go_to(cur);
     }
 
-    return new_node_num(sizeof_type(unary()->type));
+    Node *n = unary();
+    return new_node_num(sizeof_type(n->type));
   }
   else if (consume("!"))
     return new_node(ND_EQ, postfix(), new_node_num(0));
@@ -1206,7 +1211,7 @@ Node *primary()
   tok = consume_kind(TK_CHAR_CONST);
   if (tok)
   {
-    Node *node = new_node_char(*tok->str->ptr);
+    Node *node = new_node_char(*(tok->str->ptr));
     return node;
   }
 
