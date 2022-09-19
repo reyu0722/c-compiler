@@ -1,7 +1,13 @@
+#ifdef __STDC__
 #include <stdarg.h>
 #include <stdbool.h>
 #include <stdio.h>
 #include <stdlib.h>
+#else
+typedef _Bool bool;
+typedef __builtin_va_list va_list;
+void *stderr;
+#endif
 #include "header.h"
 #include "tokenize.h"
 
@@ -31,7 +37,7 @@ void _error_at(char *loc, char *fmt, va_list ap)
 			line_num++;
 
 	int indent = fprintf(stderr, "%s:%d: ", filename, line_num);
-	fprintf(stderr, "%.*s\n", (int)(end - line), line);
+	fprintf(stderr, "%.*s\n", end - line, line);
 
 	int pos = loc - line + indent;
 	fprintf(stderr, "%*s", pos, "");

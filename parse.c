@@ -4,6 +4,7 @@
 #include <string.h>
 #else
 typedef _Bool bool;
+void *calloc();
 #endif
 #include "error.h"
 #include "header.h"
@@ -561,7 +562,7 @@ Node *new_node(NodeKind kind, Node *lhs, Node *rhs)
   case ND_MUL:
   case ND_DIV:
   case ND_ASSIGN:
-    assert(lhs->type);
+    assert(lhs->type != NULL);
     node->type = lhs->type;
     break;
   case ND_EQ:
@@ -578,7 +579,7 @@ Node *new_node(NodeKind kind, Node *lhs, Node *rhs)
     break;
   case ND_DEREF:
     assert(lhs->type->ty == PTR);
-    assert(!rhs);
+    assert(rhs == NULL);
     node->type = lhs->type->ptr_to;
     break;
   case ND_STRING:
@@ -1162,7 +1163,8 @@ Node *primary()
     s->next = ext->literals;
     ext->literals = s;
     Node *node = new_node(ND_STRING, NULL, NULL);
-    node->offset = literal_count++;
+    node->offset = literal_count;
+    literal_count++;
     s->offset = node->offset;
     return node;
   }

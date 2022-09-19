@@ -129,6 +129,11 @@ void gen_stmt(Node *node)
     max_continue_count++;
     continue_count = max_continue_count;
 
+    j = break_count;
+    max_break_count++;
+    break_count = max_break_count;
+    b = break_count;
+
     printf(".Lbegin%d:\n", l);
     printf(".Lcontinue%d:\n", continue_count);
     gen(node->lhs);
@@ -138,7 +143,9 @@ void gen_stmt(Node *node)
     gen_stmt(node->rhs);
     printf("  jmp .Lbegin%d\n", l);
     printf(".Lend%d:\n", l);
+    printf(".Lbreak%d:\n", b);
     continue_count = i;
+    break_count = j;
     return;
   case ND_FOR:
     l = label_count;
