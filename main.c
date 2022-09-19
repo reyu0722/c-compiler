@@ -1,15 +1,12 @@
 #ifdef __STDC__
-#include <errno.h>
-#include <stdbool.h>
 #include <stdio.h>
 #include <stdlib.h>
-#include <string.h>
 #else
-typedef void FILE;
-typedef int size_t;
+void *calloc();
 #endif
 #include "codegen.h"
 #include "error.h"
+#include "file.h"
 #include "header.h"
 #include "parse.h"
 #include "preprocess.h"
@@ -20,28 +17,6 @@ char *filename;
 char *dir_name;
 int current_stack_size;
 int arg_count;
-
-char *read_file(char *path)
-{
-  FILE *fp = fopen(path, "r");
-  if (!fp)
-    error("cannot open %s", path /*, strerror(errno) */);
-
-  if (fseek(fp, 0, /*SEEK_END*/ 2) == -1)
-    error("%s: fseek", path /*, strerror(errno) */);
-  size_t size = ftell(fp);
-  if (fseek(fp, 0, /*SEEK_SET*/ 0) == -1)
-    error("%s: fseek", path /*, strerror(errno)*/);
-
-  char *buf = calloc(1, size + 2);
-  fread(buf, size, 1, fp);
-
-  if (size == 0 || buf[size - 1] != '\n')
-    buf[size++] = '\n';
-  buf[size] = '\0';
-  fclose(fp);
-  return buf;
-}
 
 int main(int argc, char **argv)
 {
@@ -56,19 +31,7 @@ int main(int argc, char **argv)
   }
 
   filename = argv[1];
-
-  int dir;
-  for (dir = strlen(filename) - 1; dir >= 0; dir--)
-  {
-    if (filename[dir] == '/')
-      break;
-  }
-
-  dir_name = calloc(1, dir + 1);
-  if (dir != -1)
-    strncpy(dir_name, filename, dir);
-  else
-    dir_name[0] = '.';
+  dir_name = get_dir(filename);
 
   user_input = read_file(filename);
   token = tokenize(user_input, 1);

@@ -9,6 +9,7 @@ char *strncpy();
 int snprintf();
 #endif
 #include "error.h"
+#include "file.h"
 #include "header.h"
 
 char *once_file[100];
