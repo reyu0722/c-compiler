@@ -748,13 +748,9 @@ External *external()
       return external;
     }
 
-    expect("{");
-
-    i = 0;
-
-    while (!consume("}"))
-      external->code[i++] = stmt();
-    external->code[i] = NULL;
+    external->code = stmt();
+    if (external->code->kind != ND_BLOCK)
+      error_at_here("expected block");
   }
   else
   {

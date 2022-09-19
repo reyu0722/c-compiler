@@ -72,11 +72,9 @@ int main(int argc, char **argv)
 
   user_input = read_file(filename);
   token = tokenize(user_input, 1);
-
   token = preprocess(token);
 
   printf(".intel_syntax noprefix\n");
-
   printf(".data\n");
   printf("NULL:\n");
   printf("  .zero 8\n");
@@ -88,14 +86,9 @@ int main(int argc, char **argv)
     switch (ext->kind)
     {
     case EXT_FUNC:
-      for (StringLiteral *l = ext->literals; l; l = l->next)
-      {
-        printf(".data\n");
-        printf(".LC%d:\n", l->offset);
-        printf("  .string \"%.*s\"\n", l->str->len, l->str->ptr);
-      }
-      printf(".globl %.*s\n", ext->name->len, ext->name->ptr);
+      gen_string_literal(ext->literals);
 
+      printf(".globl %.*s\n", ext->name->len, ext->name->ptr);
       printf(".text\n");
       printf("%.*s:\n", ext->name->len, ext->name->ptr);
       printf("  push rbp\n");
@@ -150,8 +143,7 @@ int main(int argc, char **argv)
       arg_count = i;
       current_stack_size = ext->stack_size;
 
-      for (int i = 0; ext->code[i]; i++)
-        gen_stmt(ext->code[i]);
+      gen_stmt(ext->code);
 
       printf("  mov rsp, rbp\n");
       printf("  pop rbp\n");

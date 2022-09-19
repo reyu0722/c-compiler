@@ -15,7 +15,7 @@ struct External
 {
 	ExternalKind kind;
 	String *name;
-	Node *code[100];
+	Node *code;
 	int offsets[6];
 	int size;
 	StringLiteral *literals;

@@ -17,6 +17,16 @@ int stack;
 
 void gen(Node *node);
 
+void gen_string_literal(StringLiteral *literals)
+{
+  for (StringLiteral *l = literals; l; l = l->next)
+  {
+    printf(".data\n");
+    printf(".LC%d:\n", l->offset);
+    printf("  .string \"%.*s\"\n", l->str->len, l->str->ptr);
+  }
+}
+
 void gen_lval(Node *node)
 {
   if (node->kind == ND_DEREF)
@@ -262,9 +272,9 @@ void gen(Node *node)
     printf("  push rdi\n");
     return;
   case ND_ASSIGN_ARRAY:
-    for (node = node->rhs; node; node = node->rhs)
+    for (n = node->rhs; n; n = n->rhs)
     {
-      gen(node->lhs);
+      gen(n->lhs);
       printf("  pop rax\n");
     }
     printf("  push 0\n");
