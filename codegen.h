@@ -2,4 +2,4 @@
 
 #include "header.h"
 
-void gen(Node *node);
+void gen_stmt(Node *node);

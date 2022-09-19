@@ -151,10 +151,7 @@ int main(int argc, char **argv)
       current_stack_size = ext->stack_size;
 
       for (int i = 0; ext->code[i]; i++)
-      {
-        gen(ext->code[i]);
-        printf("  pop rax\n");
-      }
+        gen_stmt(ext->code[i]);
 
       printf("  mov rsp, rbp\n");
       printf("  pop rbp\n");
