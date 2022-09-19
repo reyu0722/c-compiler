@@ -22,5 +22,8 @@ int main()
 
 	my_snprintf(buf, 100, "%s %s %s", "foo", "bar", "baz");
 	assert(0, strcmp(buf, "foo bar baz"));
+
+	my_snprintf(buf, 100, "%d %d %d", 12, 42, 100);
+	assert(0, strcmp(buf, "12 42 100"));
 	return 0;
 }

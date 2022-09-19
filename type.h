@@ -31,6 +31,7 @@ struct StructType
 	String *name;
 	StructField *fields;
 	int alignment;
+	int size;
 	_Bool is_union;
 };
 

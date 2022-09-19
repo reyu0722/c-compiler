@@ -2,6 +2,8 @@
 #include <stdbool.h>
 #include <stdlib.h>
 #include <string.h>
+#else
+void *calloc();
 #endif
 #include "string.h"
 

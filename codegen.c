@@ -7,7 +7,9 @@
 
 int label_count;
 int switch_count;
+int max_switch_count;
 int break_count;
+int max_break_count;
 int continue_count;
 int max_continue_count;
 
@@ -63,7 +65,7 @@ void gen(Node *node)
       }
       else if (size == 4)
       {
-        printf("  mov eax, [rax]\n");
+        printf("  movsxd rax, [rax]\n");
         printf("  push rax\n");
         size -= 4;
       }
@@ -94,10 +96,10 @@ void gen(Node *node)
     switch (sizeof_type(node->lhs->type))
     {
     case 4:
-      printf("  mov [rax], edi\n");
+      printf("  mov DWORD PTR [rax], edi\n");
       break;
     case 1:
-      printf("  mov [rax], dil\n");
+      printf("  mov BYTE PTR [rax], dil\n");
       break;
     case 8:
       printf("  mov [rax], rdi\n");
@@ -127,7 +129,8 @@ void gen(Node *node)
     printf("  ret\n");
     return;
   case ND_IF:
-    l = label_count++;
+    l = label_count;
+    label_count++;
     gen(node->lhs);
     printf("  pop rax\n");
     printf("  cmp rax, 0\n");
@@ -138,7 +141,8 @@ void gen(Node *node)
     printf("  push 0\n");
     return;
   case ND_IFELSE:
-    l = label_count++;
+    l = label_count;
+    label_count++;
     gen(node->lhs);
     printf("  pop rax\n");
     printf("  cmp rax, 0\n");
@@ -157,6 +161,15 @@ void gen(Node *node)
     gen(node->lhs);
     printf("  pop rax\n");
 
+    int i = break_count;
+    max_break_count++;
+    break_count = max_break_count;
+    int b = break_count;
+
+    int j = switch_count;
+    max_switch_count++;
+    switch_count = max_switch_count;
+
     for (n = node->rhs; n; n = n->rhs)
     {
       if (n->lhs && n->lhs->kind == ND_CASE)
@@ -168,20 +181,19 @@ void gen(Node *node)
         printf("  jmp .Ldefault%d\n", switch_count);
     }
 
-    int b = break_count;
     gen(node->rhs);
     printf(".Lbreak%d:\n", b);
-    printf("  push 0\n");
-    break_count++;
-    switch_count++;
+    break_count = i;
+    switch_count = j;
     return;
   case ND_CASE:
     assert(node->lhs->kind == ND_NUM);
     printf(".Lcase%d_%d:\n", switch_count, node->lhs->val);
-    gen(node->rhs);
+    printf("  push 0\n");
     return;
   case ND_DEFAULT:
     printf(".Ldefault%d:\n", switch_count);
+    printf("  push 0\n");
     return;
   case ND_BREAK:
     printf("  jmp .Lbreak%d\n", break_count);
@@ -190,7 +202,8 @@ void gen(Node *node)
     printf("  jmp .Lcontinue%d\n", continue_count);
     return;
   case ND_WHILE:
-    l = label_count++;
+    l = label_count;
+    label_count++;
 
     i = continue_count;
     max_continue_count++;
@@ -203,33 +216,53 @@ void gen(Node *node)
     printf("  cmp rax, 0\n");
     printf("  je .Lend%d\n", l);
     gen(node->rhs);
+    printf("  pop rax\n");
     printf("  jmp .Lbegin%d\n", l);
     printf(".Lend%d:\n", l);
+    printf("  push 0\n");
     continue_count = i;
     return;
   case ND_FOR:
-    l = label_count++;
+    l = label_count;
+    label_count++;
 
     i = continue_count;
     max_continue_count++;
     continue_count = max_continue_count;
     j = max_continue_count;
+
+    k = break_count;
+    max_break_count++;
+    break_count = max_break_count;
+    b = max_break_count;
+
     if (node->lhs->lhs)
+    {
       gen(node->lhs->lhs);
+      printf("  pop rax\n");
+    }
     printf(".Lbegin%d:\n", l);
     if (node->lhs->rhs)
+    {
       gen(node->lhs->rhs);
-    printf("  pop rax\n");
-    printf("  cmp rax, 0\n");
-    printf("  je .Lend%d\n", l);
+      printf("  pop rax\n");
+      printf("  cmp rax, 0\n");
+      printf("  je .Lend%d\n", l);
+    }
     gen(node->rhs->rhs);
+    printf("  pop rax\n");
     printf(".Lcontinue%d:\n", j);
     if (node->rhs->lhs)
+    {
       gen(node->rhs->lhs);
+      printf("  pop rax\n");
+    }
     printf("  jmp .Lbegin%d\n", l);
     printf(".Lend%d:\n", l);
-    printf("  pop rax\n");
+    printf(".Lbreak%d:\n", b);
+    printf("  push 0\n");
     continue_count = i;
+    break_count = k;
     return;
   case ND_BLOCK:
     for (n = node->rhs; n; n = n->rhs)
@@ -272,7 +305,8 @@ void gen(Node *node)
 
     printf("  mov rsp, rdi\n");
 
-    if (node->type->ty == VOID) {
+    if (node->type->ty == VOID)
+    {
       printf("  push 0\n");
       return;
     }
@@ -307,6 +341,8 @@ void gen(Node *node)
     printf("  mov [rbp - %d], rax\n", n->offset - 8);
     printf("  lea rax, [rbp - %d]\n", current_stack_size + 48);
     printf("  mov [rbp - %d], rax\n", n->offset - 16);
+
+    printf("  push 0\n");
     return;
   case ND_ADDR:
     gen_lval(node->lhs);
@@ -332,7 +368,8 @@ void gen(Node *node)
     printf("  push rax\n");
     return;
   case ND_AND:
-    l = label_count++;
+    l = label_count;
+    label_count++;
     gen(node->lhs);
     printf("  pop rax\n");
     printf("  cmp rax, 0\n");
@@ -348,7 +385,8 @@ void gen(Node *node)
     printf(".Lend%d:\n", l);
     return;
   case ND_OR:
-    l = label_count++;
+    l = label_count;
+    label_count++;
     gen(node->lhs);
     printf("  pop rax\n");
     printf("  cmp rax, 1\n");

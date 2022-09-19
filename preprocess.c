@@ -1,7 +1,12 @@
 #ifdef __STDC__
 #include <stdbool.h>
 #include <stdio.h>
+#include <stdlib.h>
 #include <string.h>
+#else
+void *calloc();
+char *strncpy();
+int snprintf();
 #endif
 #include "error.h"
 #include "header.h"
@@ -11,7 +16,7 @@ char *once_file[100];
 Token *preprocess(Token *tok)
 {
 	Token *before = NULL;
-	Token *start;
+	Token *start = NULL;
 	for (Token *t = tok; t; t = t->next)
 	{
 		if (t->kind == TK_PREPROCESSOR)

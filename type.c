@@ -1,5 +1,7 @@
 #ifdef __STDC__
 #include <stdlib.h>
+#else
+void *calloc();
 #endif
 #include "error.h"
 #include "type.h"
@@ -32,15 +34,35 @@ void add_field(StructType *type, Type *ty, String *name)
 	StructField *field = calloc(1, sizeof(StructField));
 	field->type = ty;
 	field->name = name;
-	if (!type->is_union)
+
+	int al;
+	if (ty->ty == ARRAY)
+		al = sizeof_type(ty->ptr_to);
+	else
+		al = sizeof_type(ty);
+
+	if (al > type->alignment)
+		type->alignment = al;
+
+	if (type->is_union)
+	{
+		if (sizeof_type(ty) > type->size)
+			type->size = sizeof_type(ty);
+	}
+	else
 	{
 		if (type->fields)
-			field->offset = align(type->fields->offset + sizeof_type(type->fields->type), sizeof_type(ty));
+		{
+			field->offset = align(type->fields->offset + sizeof_type(type->fields->type), al);
+			type->size = align(field->offset + sizeof_type(field->type), type->alignment);
+		}
 		else
+		{
 			field->offset = 0;
+			type->size = align(sizeof_type(field->type), type->alignment);
+		}
 	}
-	if (sizeof_type(ty) > type->alignment)
-		type->alignment = sizeof_type(ty);
+
 	field->next = type->fields;
 	type->fields = field;
 }
@@ -58,10 +80,7 @@ int sizeof_type(Type *type)
 	case CHAR:
 		return 1;
 	case STRUCT:
-		if (type->struct_type->is_union)
-			return type->struct_type->alignment;
-		else
-			return align(type->struct_type->fields->offset + sizeof_type(type->struct_type->fields->type), type->struct_type->alignment);
+		return type->struct_type->size;
 	case BOOL:
 		return 1;
 	case VA_LIST_TAG:

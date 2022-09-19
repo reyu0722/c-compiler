@@ -387,6 +387,7 @@ Type *consume_type_name()
             s->fields = type->struct_type->fields;
             s->is_union = type->struct_type->is_union;
             s->alignment = type->struct_type->alignment;
+            s->size = type->struct_type->size;
           }
         }
         else
@@ -663,7 +664,7 @@ External *external()
 
     consume_type_name();
     expect(";");
-    return ext;
+    return external;
   }
 
   if (check_kind(TK_STRUCT) || check_kind(TK_UNION))
@@ -673,7 +674,7 @@ External *external()
     if (!ty)
       error_at_here("expected struct or union");
     expect(";");
-    return ext;
+    return external;
   }
 
   if (consume_kind(TK_TYPEDEF))
@@ -686,7 +687,7 @@ External *external()
 
     new_typedef(res->tok->str, res->type);
     expect(";");
-    return ext;
+    return external;
   }
 
   ConsumeTypeRes *res = consume_type();
@@ -781,7 +782,7 @@ Node *stmt()
       error_at_here("expected constant expression");
 
     expect(":");
-    node = new_node(ND_CASE, e, stmt());
+    node = new_node(ND_CASE, e, NULL);
   }
   else if (consume_kind(TK_DEFAULT))
   {

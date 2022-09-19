@@ -22,8 +22,10 @@ main2: main
 	./main string.c > stage2/string.s
 	./main tokenize.c > stage2/tokenize.s
 	./main type.c > stage2/type.s
-	
+	$(CC) -c stage2/codegen.s -o stage2/codegen.o
+	$(CC) -c stage2/preprocess.s -o stage2/preprocess.o
 	$(CC) -c stage2/string.s -o stage2/string.o
+	$(CC) -c stage2/tokenize.s -o stage2/tokenize.o
 	$(CC) -c stage2/type.s -o stage2/type.o
 	$(CC) -o main2 $(addprefix stage2/, $(OBJS)) $(LDFLAGS)
 
@@ -36,7 +38,10 @@ main3: main main2
 	./main2 string.c > stage3/string.s
 	./main2 tokenize.c > stage3/tokenize.s
 	./main2 type.c > stage3/type.s
+	$(CC) -c stage3/codegen.s -o stage3/codegen.o
+	$(CC) -c stage3/preprocess.s -o stage3/preprocess.o
 	$(CC) -c stage3/string.s -o stage3/string.o
+	$(CC) -c stage3/tokenize.s -o stage3/tokenize.o
 	$(CC) -c stage3/type.s -o stage3/type.o
 	$(CC) -o main3 $(addprefix stage3/, $(OBJS)) $(LDFLAGS)
 
@@ -91,4 +96,4 @@ test-all: test test2 test3 diff-test
 
 .PHONY: clean
 clean:
-	rm -f main **/*.o *~ tmp* **/*.s test/*.out
+	rm -f main main2 main3 *.o **/*.o *~ tmp* **/*.s test/*.out peda*

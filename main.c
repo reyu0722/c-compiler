@@ -163,6 +163,7 @@ int main(int argc, char **argv)
     case EXT_GVAR:
       if (!ext->is_extern)
       {
+        printf(".globl %.*s\n", ext->name->len, ext->name->ptr);
         printf(".data\n");
         printf("%.*s:\n", ext->name->len, ext->name->ptr);
         printf("  .zero %d\n", ext->size);

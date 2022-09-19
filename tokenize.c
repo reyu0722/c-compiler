@@ -3,6 +3,11 @@
 #include <stdbool.h>
 #include <stdlib.h>
 #include <string.h>
+#else
+void *calloc();
+int memcmp();
+char *strstr();
+char *strchr();
 #endif
 #include "error.h"
 #include "header.h"
@@ -112,7 +117,8 @@ Token *tokenize(char *p, _Bool eof)
 
 		if (strchr("+-*/()<>:;={},&[].!", *p))
 		{
-			cur = new_token(TK_RESERVED, cur, p++, 1);
+			cur = new_token(TK_RESERVED, cur, p, 1);
+			p++;
 			continue;
 		}
 
@@ -120,7 +126,7 @@ Token *tokenize(char *p, _Bool eof)
 		{
 			p++;
 			cur = new_token(TK_STRING, cur, p, 0);
-			for (; *(p - 1) == '\\' || *p != '"'; p++)
+			for (; *(p - 1) == '\\' || (*p != '"'); p++)
 				cur->str->len++;
 			p++;
 			continue;

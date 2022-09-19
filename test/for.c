@@ -12,4 +12,10 @@ int main() {
 		b += i;
 	}
 	assert(40, b);
+
+	int a = 0;
+	for (int i = 10; i >= 0; i--)
+		a += i;
+	
+	assert(55, a);
 }
