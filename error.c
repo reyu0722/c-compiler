@@ -6,7 +6,7 @@
 #else
 typedef _Bool bool;
 typedef __builtin_va_list va_list;
-void *stderr;
+extern void *stderr;
 #endif
 #include "header.h"
 #include "tokenize.h"
@@ -42,7 +42,7 @@ void _error_at(char *loc, char *fmt, va_list ap)
 	int pos = loc - line + indent;
 	fprintf(stderr, "%*s", pos, "");
 	fprintf(stderr, "^ ");
-	vfprintf(stderr, fmt, ap);
+	vfprintf(stderr, fmt, &(ap[0]));
 	fprintf(stderr, "\n");
 	exit(1);
 }
