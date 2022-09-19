@@ -285,46 +285,10 @@ Token *tokenize(char *p, _Bool eof)
 			continue;
 		}
 
-		if (strncmp(p, "long", 4) == 0 && !is_alnum(p[4]))
-		{
-			cur = new_token(TK_LONG, cur, p, 4);
-			p += 4;
-			continue;
-		}
-
-		if (strncmp(p, "unsigned", 8) == 0 && !is_alnum(p[8]))
-		{
-			cur = new_token(TK_UNSIGNED, cur, p, 8);
-			p += 8;
-			continue;
-		}
-
-		if (strncmp(p, "signed", 6) == 0 && !is_alnum(p[6]))
-		{
-			cur = new_token(TK_SIGNED, cur, p, 6);
-			p += 6;
-			continue;
-		}
-
-		if (strncmp(p, "short", 5) == 0 && !is_alnum(p[5]))
-		{
-			cur = new_token(TK_SHORT, cur, p, 5);
-			p += 5;
-			continue;
-		}
-
 		if (strncmp(p, "_Bool", 5) == 0 && !is_alnum(p[5]))
 		{
 			cur = new_token(TK_BOOL, cur, p, 5);
 			p += 5;
-			continue;
-		}
-
-		if (strncmp(p, "__attribute__", 13) == 0 && !is_alnum(p[13]))
-		{
-			while (strncmp(p, "))", 2))
-				p++;
-			p += 2;
 			continue;
 		}
 

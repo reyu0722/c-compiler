@@ -279,55 +279,6 @@ Type *consume_type_name()
     type->array_size = 1;
     return type;
   }
-  if (consume_kind(TK_LONG))
-  {
-    if (consume_kind(TK_INT))
-      return new_type(INT, NULL); // long int
-    if (consume_kind(TK_UNSIGNED))
-    {
-      if (consume_kind(TK_INT))
-        return new_type(INT, NULL); // unsigned long int
-      return NULL;
-    }
-
-    return new_type(INT, NULL); // long int
-  }
-  if (consume_kind(TK_UNSIGNED))
-  {
-    if (consume_kind(TK_INT))
-      return new_type(INT, NULL); // unsigned int
-    if (consume_kind(TK_CHAR))
-      return new_type(CHAR, NULL); // unsigned char
-    if (consume_kind(TK_SHORT))
-    {
-      consume_kind(TK_INT);
-      return new_type(INT, NULL); // unsigned short
-    }
-    if (consume_kind(TK_LONG))
-    {
-      consume_kind(TK_INT);
-      return new_type(INT, NULL); // unsigned long int
-    }
-    return NULL;
-  }
-  if (consume_kind(TK_SIGNED))
-  {
-    if (consume_kind(TK_INT))
-      return new_type(INT, NULL); // int
-    if (consume_kind(TK_CHAR))
-      return new_type(CHAR, NULL); // char
-    if (consume_kind(TK_SHORT))
-    {
-      consume_kind(TK_INT);
-      return new_type(INT, NULL); // short
-    }
-    if (consume_kind(TK_LONG))
-    {
-      consume_kind(TK_INT);
-      return new_type(INT, NULL); // long int
-    }
-    return NULL;
-  }
   if (consume_kind(TK_ENUM))
   {
     consume_kind(TK_IDENT);
