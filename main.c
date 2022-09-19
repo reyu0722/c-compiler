@@ -49,68 +49,7 @@ int main(int argc, char **argv)
     switch (ext->kind)
     {
     case EXT_FUNC:
-      gen_string_literal(ext->literals);
-
-      printf(".globl %.*s\n", ext->name->len, ext->name->ptr);
-      printf(".text\n");
-      printf("%.*s:\n", ext->name->len, ext->name->ptr);
-      printf("  push rbp\n");
-      printf("  mov rbp, rsp\n");
-      printf("  sub rsp, %d\n", ext->stack_size);
-
-      if (ext->is_variadic)
-        for (int i = 5; i >= 0; i--)
-          printf("  push %s\n", regs8[i]);
-
-      int regi = 0;
-      int i;
-      for (i = 0; i < 6 && ext->offsets[i]; i++)
-      {
-        char *reg;
-        int size;
-        if (i == 0)
-          size = ext->offsets[i];
-        else
-          size = ext->offsets[i] - ext->offsets[i - 1];
-
-        int base = size;
-        for (;;)
-        {
-          int s = size;
-
-          if (size >= 8)
-          {
-            reg = regs8[regi];
-            size -= 8;
-          }
-          else if (size == 4)
-          {
-            reg = regs4[regi];
-            size -= 4;
-          }
-          else if (size == 1)
-          {
-            reg = regs1[regi];
-            size -= 1;
-          }
-          else
-            error("not implemented: size %d", size);
-
-          printf("  mov [rbp - %d], %s\n", ext->offsets[i] + (s - base), reg);
-          regi++;
-          if (size == 0)
-            break;
-        }
-      }
-
-      arg_count = i;
-      current_stack_size = ext->stack_size;
-
-      gen_stmt(ext->code);
-
-      printf("  mov rsp, rbp\n");
-      printf("  pop rbp\n");
-      printf("  ret\n");
+      gen_function(ext);
       break;
     case EXT_GVAR:
       if (!ext->is_extern)

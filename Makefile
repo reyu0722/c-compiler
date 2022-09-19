@@ -25,6 +25,7 @@ main2: main
 	./main type.c > stage2/type.s
 	$(CC) -c stage2/codegen.s -o stage2/codegen.o
 	$(CC) -c stage2/file.s -o stage2/file.o
+	$(CC) -c stage2/main.s -o stage2/main.o
 	$(CC) -c stage2/preprocess.s -o stage2/preprocess.o
 	$(CC) -c stage2/string.s -o stage2/string.o
 	$(CC) -c stage2/tokenize.s -o stage2/tokenize.o
@@ -43,6 +44,7 @@ main3: main main2
 	./main2 type.c > stage3/type.s
 	$(CC) -c stage3/codegen.s -o stage3/codegen.o
 	$(CC) -c stage3/file.s -o stage3/file.o
+	$(CC) -c stage3/main.s -o stage3/main.o
 	$(CC) -c stage3/preprocess.s -o stage3/preprocess.o
 	$(CC) -c stage3/string.s -o stage3/string.o
 	$(CC) -c stage3/tokenize.s -o stage3/tokenize.o

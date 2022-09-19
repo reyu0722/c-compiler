@@ -198,6 +198,69 @@ void gen_stmt(Node *node)
   }
 }
 
+void gen_function(External *ext)
+{
+  char *regs1[6] = {"dil", "sil", "dl", "cl", "r8b", "r9b"};
+  char *regs4[6] = {"edi", "esi", "edx", "ecx", "r8d", "r9d"};
+  char *regs8[6] = {"rdi", "rsi", "rdx", "rcx", "r8", "r9"};
+
+  gen_string_literal(ext->literals);
+
+  printf(".globl %.*s\n", ext->name->len, ext->name->ptr);
+  printf(".text\n");
+  printf("%.*s:\n", ext->name->len, ext->name->ptr);
+
+  printf("  push rbp\n");
+  printf("  mov rbp, rsp\n");
+  printf("  sub rsp, %d\n", ext->stack_size);
+
+  if (ext->is_variadic)
+    for (int i = 5; i >= 0; i--)
+      printf("  push %s\n", regs8[i]);
+
+  int i = 0;
+  int ri = 0;
+  for (; i < 6 && ext->offsets[i]; i++)
+  {
+    int size = 0;
+    int offset = 0;
+    if (i == 0)
+      size = ext->offsets[i];
+    else
+      size = ext->offsets[i] - ext->offsets[i - 1];
+
+    for (; size != offset; ri++)
+    {
+      if (size - offset >= 8)
+      {
+        printf("  mov [rbp - %d], %s\n", ext->offsets[i] - offset, regs8[ri]);
+        offset += 8;
+      }
+      else if (size - offset == 4)
+      {
+        printf("  mov [rbp - %d], %s\n", ext->offsets[i] - offset, regs4[ri]);
+        offset += 4;
+      }
+      else if (size - offset == 1)
+      {
+        printf("  mov [rbp - %d], %s\n", ext->offsets[i] - offset, regs1[ri]);
+        offset += 1;
+      }
+      else
+        error("invalid size");
+    }
+  }
+
+  arg_count = i;
+  current_stack_size = ext->stack_size;
+
+  gen_stmt(ext->code);
+
+  printf("  mov rsp, rbp\n");
+  printf("  pop rbp\n");
+  printf("  ret\n");
+}
+
 void gen(Node *node)
 {
   int l;
