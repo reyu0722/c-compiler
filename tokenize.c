@@ -123,8 +123,7 @@ Token *tokenize(char *p, _Bool eof)
 
 		if (*p == '"')
 		{
-			p++;
-			cur = new_token(TK_STRING, cur, p, 0);
+			cur = new_token(TK_STRING, cur, ++p, 0);
 			for (; *(p - 1) == '\\' || (*p != '"'); p++)
 				cur->str->len++;
 			p++;
@@ -133,8 +132,7 @@ Token *tokenize(char *p, _Bool eof)
 
 		if (*p == '\'')
 		{
-			p++;
-			cur = new_token(TK_CHAR_CONST, cur, p, 0);
+			cur = new_token(TK_CHAR_CONST, cur, ++p, 0);
 			for (; (*(p - 2) != '\\' && *(p - 1) == '\\') || *p != '\''; p++)
 				cur->str->len++;
 			p++;

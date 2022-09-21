@@ -88,13 +88,10 @@ void gen_stmt(Node *node)
     printf("  pop rax\n");
 
     int i = break_count;
-    max_break_count++;
-    break_count = max_break_count;
-    int b = break_count;
+    int b = break_count = ++max_break_count;
 
     int j = switch_count;
-    max_switch_count++;
-    switch_count = max_switch_count;
+    switch_count = ++max_switch_count;
 
     for (n = node->rhs; n; n = n->rhs)
     {
@@ -123,13 +120,10 @@ void gen_stmt(Node *node)
     l = label_count++;
 
     i = continue_count;
-    max_continue_count++;
-    continue_count = max_continue_count;
+    continue_count = ++max_continue_count;
 
     j = break_count;
-    max_break_count++;
-    break_count = max_break_count;
-    b = break_count;
+    b = break_count = ++max_break_count;
 
     printf(".Lbegin%d:\n", l);
     printf(".Lcontinue%d:\n", continue_count);
@@ -148,14 +142,10 @@ void gen_stmt(Node *node)
     l = label_count++;
 
     i = continue_count;
-    max_continue_count++;
-    continue_count = max_continue_count;
-    j = max_continue_count;
+    j = continue_count = ++max_continue_count;
 
     int k = break_count;
-    max_break_count++;
-    break_count = max_break_count;
-    b = max_break_count;
+    b = break_count = ++max_break_count;
 
     if (node->lhs->lhs)
       gen_stmt(node->lhs->lhs);
