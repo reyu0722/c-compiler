@@ -40,6 +40,10 @@ int main()
 	assert(2, a);
 	a--;
 	assert(1, a);
+	assert(1, a++);
+	assert(2, a);
+	assert(2, a--);
+	assert(1, a);
 	a += 2;
 	assert(3, a);
 	a -= 4;

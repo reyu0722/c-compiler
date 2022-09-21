@@ -539,6 +539,12 @@ Node *new_node(NodeKind kind, Node *lhs, Node *rhs)
   case ND_CALL:
     node->type = new_type(INT, NULL);
     break;
+  case ND_POST_INCR:
+  case ND_POST_DECR:
+    assert(lhs->type != NULL);
+    assert(rhs->kind == ND_NUM);
+    node->type = lhs->type;
+    break;
   case ND_LVAR:
   case ND_GVAR:
     error_at_here("internal error");
@@ -1083,12 +1089,13 @@ Node *postfix()
     }
     if (consume("++"))
     {
-      node = new_node(ND_ASSIGN, node, new_node(ND_ADD, node, new_node_num(1)));
+      // TODO: pointer
+      node = new_node(ND_POST_INCR, node, new_node_num(1));
       continue;
     }
     if (consume("--"))
     {
-      node = new_node(ND_ASSIGN, node, new_node(ND_SUB, node, new_node_num(1)));
+      node = new_node(ND_POST_DECR, node, new_node_num(1));
       continue;
     }
 

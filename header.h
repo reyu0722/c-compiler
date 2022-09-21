@@ -19,6 +19,8 @@ typedef enum
   ND_OR,           // ||
   ND_ADDR,         // *
   ND_DEREF,        // &
+  ND_POST_INCR,    // a++
+  ND_POST_DECR,    // a--
   ND_RETURN,       // return
   ND_IF,           // if
   ND_IFELSE,       // if ... else ...

@@ -349,6 +349,59 @@ void gen(Node *node)
     }
     printf("  push 0\n");
     return;
+  case ND_POST_INCR:
+    gen_lval(node->lhs);
+    printf(" pop rax\n");
+
+    switch (sizeof_type(node->lhs->type))
+    {
+    case 8:
+      printf("  mov rdi, [rax]\n");
+      printf("  push rdi\n");
+      printf("  add rdi, 1\n");
+      printf("  mov [rax], rdi\n");
+      break;
+    case 4:
+      printf("  mov edi, [rax]\n");
+      printf("  push rdi\n");
+      printf("  add edi, 1\n");
+      printf("  mov [rax], edi\n");
+      break;
+    case 1:
+      printf("  mov dil, [rax]\n");
+      printf("  push rdi\n");
+      printf("  add dil, 1\n");
+      printf("  mov [rax], dil\n");
+      break;
+    }
+    return;
+  case ND_POST_DECR:
+    gen_lval(node->lhs);
+    printf(" pop rax\n");
+
+    switch (sizeof_type(node->lhs->type))
+    {
+    case 8:
+      printf("  mov rdi, [rax]\n");
+      printf("  push rdi\n");
+      printf("  sub rdi, 1\n");
+      printf("  mov [rax], rdi\n");
+      break;
+    case 4:
+      printf("  mov edi, [rax]\n");
+      printf("  push rdi\n");
+      printf("  sub edi, 1\n");
+      printf("  mov [rax], edi\n");
+      break;
+    case 1:
+      printf("  mov dil, [rax]\n");
+      printf("  push rdi\n");
+      printf("  sub dil, 1\n");
+      printf("  mov [rax], dil\n");
+      break;
+    }
+    return;
+
   case ND_CALL:
     n = node->rhs;
     i = 0;
