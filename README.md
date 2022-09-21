@@ -32,7 +32,7 @@ equality   = relational (("&&" | "||" | "==" | "!=") relational)*
 relational = add ("<" add | "<=" add | ">" add | ">=" add)*
 add        = mul ("+" mul | "-" mul)*
 mul        = unary ("*" unary | "/" unary)*
-unary      = ("+" | "-" | "&" | "*" | "sizeof")? postfix
+unary      = ("+" | "-" | "&" | "*" | "sizeof" | "++" | "--")? postfix
 postfix    = primary ("[" expr "]")*
            | primary ("." | "->") ident
            | primary ("++" | "--")

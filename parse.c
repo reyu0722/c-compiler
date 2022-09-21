@@ -1025,6 +1025,16 @@ Node *unary()
   }
   else if (consume("!"))
     return new_node(ND_EQ, postfix(), new_node_num(0));
+  else if (consume("++"))
+  {
+    Node *n = postfix();
+    return new_node(ND_ASSIGN, n, new_node(ND_ADD, n, new_node_num(1)));
+  }
+  else if (consume("--"))
+  {
+    Node *n = postfix();
+    return new_node(ND_ASSIGN, n, new_node(ND_SUB, n, new_node_num(1)));
+  }
 
   return postfix();
 }
