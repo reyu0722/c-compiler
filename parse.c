@@ -291,10 +291,9 @@ Type *consume_type_name()
         if (!name)
           error_at_here("expected enum name");
 
-        new_enum_val(name->str, i);
+        new_enum_val(name->str, i++);
 
         consume(",");
-        i++;
       }
     }
     return new_type(INT, NULL);
@@ -690,8 +689,7 @@ External *external()
         if (!lvar)
           lvar = new_lvar(res->tok->str, res->type);
 
-        external->offsets[i] = lvar->offset;
-        i++;
+        external->offsets[i++] = lvar->offset;
 
         if (!consume(","))
           break;
@@ -1121,8 +1119,7 @@ Node *primary()
     s->next = ext->literals;
     ext->literals = s;
     Node *node = new_node(ND_STRING, NULL, NULL);
-    node->offset = literal_count;
-    literal_count++;
+    node->offset = literal_count++;
     s->offset = node->offset;
     return node;
   }

@@ -62,8 +62,7 @@ void gen_stmt(Node *node)
       gen_stmt(n->lhs);
     return;
   case ND_IF:
-    l = label_count;
-    label_count++;
+    l = label_count++;
     gen(node->lhs);
     printf("  pop rax\n");
     printf("  cmp rax, 0\n");
@@ -72,8 +71,7 @@ void gen_stmt(Node *node)
     printf(".Lend%d:\n", l);
     return;
   case ND_IFELSE:
-    l = label_count;
-    label_count++;
+    l = label_count++;
     gen(node->lhs);
     printf("  pop rax\n");
     printf("  cmp rax, 0\n");
@@ -122,8 +120,7 @@ void gen_stmt(Node *node)
     printf(".Ldefault%d:\n", switch_count);
     return;
   case ND_WHILE:
-    l = label_count;
-    label_count++;
+    l = label_count++;
 
     i = continue_count;
     max_continue_count++;
@@ -148,8 +145,7 @@ void gen_stmt(Node *node)
     break_count = j;
     return;
   case ND_FOR:
-    l = label_count;
-    label_count++;
+    l = label_count++;
 
     i = continue_count;
     max_continue_count++;
@@ -498,8 +494,7 @@ void gen(Node *node)
     printf("  push rax\n");
     return;
   case ND_AND:
-    l = label_count;
-    label_count++;
+    l = label_count++;
     gen(node->lhs);
     printf("  pop rax\n");
     printf("  cmp rax, 0\n");
@@ -515,8 +510,7 @@ void gen(Node *node)
     printf(".Lend%d:\n", l);
     return;
   case ND_OR:
-    l = label_count;
-    label_count++;
+    l = label_count++;
     gen(node->lhs);
     printf("  pop rax\n");
     printf("  cmp rax, 1\n");
