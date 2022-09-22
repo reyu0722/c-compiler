@@ -51,7 +51,9 @@ Token *tokenize(char *p, _Bool eof)
 
 		if (startswith(p, "#"))
 		{
-			char *q = strstr(p, "\n");
+			char *q = p;
+			while (!isspace(*q))
+				q++;
 			cur = new_token(TK_PREPROCESSOR, cur, p, q - p);
 			p = q;
 			continue;

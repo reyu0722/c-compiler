@@ -27,7 +27,11 @@ Token *preprocess(Token *tok)
 				char *curfile = filename;
 				filename = calloc(1, 100);
 				char *path = calloc(1, 200);
-				strncpy(filename, t->str->ptr + 10, t->str->len - 11);
+
+				t = t->next;
+				assert(t->kind == TK_STRING);
+
+				strncpy(filename, t->str->ptr, t->str->len);
 
 				snprintf(path, 200, "%s/%s", dir_name, filename);
 
@@ -76,16 +80,20 @@ Token *preprocess(Token *tok)
 				}
 			}
 
-			if (startswith(t->str->ptr, "#pragma once"))
+			if (startswith(t->str->ptr, "#pragma"))
 			{
-				int i = 0;
-				while (once_file[i])
+				t = t->next;
+				if (str_chr_equals(t->str, "once"))
 				{
-					if (strcmp(once_file[i], filename) == 0)
-						return NULL;
-					i++;
+					int i = 0;
+					while (once_file[i])
+					{
+						if (strcmp(once_file[i], filename) == 0)
+							return NULL;
+						i++;
+					}
+					once_file[i] = filename;
 				}
-				once_file[i] = filename;
 			}
 		}
 		else
