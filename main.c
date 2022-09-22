@@ -20,10 +20,6 @@ int arg_count;
 
 int main(int argc, char **argv)
 {
-  char *regs1[6] = {"dil", "sil", "dl", "cl", "r8b", "r9b"};
-  char *regs4[6] = {"edi", "esi", "edx", "ecx", "r8d", "r9d"};
-  char *regs8[6] = {"rdi", "rsi", "rdx", "rcx", "r8", "r9"};
-
   if (argc != 2)
   {
     error("invalid argument");
@@ -60,10 +56,7 @@ int main(int argc, char **argv)
         printf("  .zero %d\n", ext->size);
       }
       break;
-    case EXT_ENUM:
-    case EXT_STRUCT:
-    case EXT_FUNCDECL:
-    case EXT_TYPEDEF:
+    default:
       break;
     }
   }

@@ -13,8 +13,6 @@ int max_break_count;
 int continue_count;
 int max_continue_count;
 
-int stack;
-
 void gen(Node *node);
 
 void gen_string_literal(StringLiteral *literals)
@@ -258,8 +256,6 @@ void gen(Node *node)
 {
   int l;
   int i;
-  int j;
-  int k;
   Node *n;
 
   switch (node->kind)
