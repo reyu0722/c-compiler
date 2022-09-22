@@ -3,7 +3,6 @@
 #include <stdlib.h>
 #include <string.h>
 #else
-typedef _Bool bool;
 void *calloc();
 #endif
 #include "error.h"
@@ -194,10 +193,10 @@ Func *new_func(String *name, Type *type)
 bool consume(char *op)
 {
   if (token->kind != TK_RESERVED || !str_chr_equals(token->str, op))
-    return 0;
+    return false;
 
   token = token->next;
-  return 1;
+  return true;
 }
 
 Token *consume_kind(TokenKind kind)
@@ -301,9 +300,9 @@ Type *consume_type_name()
 
   if (check_kind(TK_STRUCT) || check_kind(TK_UNION))
   {
-    bool is_union = 0;
+    bool is_union = false;
     if (consume_kind(TK_UNION))
-      is_union = 1;
+      is_union = true;
     else
       consume_kind(TK_STRUCT);
 
@@ -613,7 +612,7 @@ External *external()
   int i = 0;
 
   if (consume_kind(TK_EXTERN))
-    ext->is_extern = 1;
+    ext->is_extern = true;
 
   if (check_kind(TK_ENUM))
   {
@@ -664,11 +663,11 @@ External *external()
     expect("(");
 
     Token *cur = token;
-    bool no_args = 0;
+    bool no_args = false;
     if (consume_kind(TK_VOID))
     {
       if (consume(")"))
-        no_args = 1;
+        no_args = true;
       else
         go_to(cur);
     }
@@ -678,7 +677,7 @@ External *external()
       {
         if (consume("..."))
         {
-          external->is_variadic = 1;
+          external->is_variadic = true;
           break;
         }
         ConsumeTypeRes *res = consume_type();

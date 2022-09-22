@@ -34,7 +34,7 @@ int main(int argc, char **argv)
   dir_name = get_dir(filename);
 
   user_input = read_file(filename);
-  token = tokenize(user_input, 1);
+  token = tokenize(user_input, true);
   token = preprocess(token);
 
   printf(".intel_syntax noprefix\n");

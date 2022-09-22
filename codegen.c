@@ -1,9 +1,9 @@
 #ifdef __STDC__
 #include <stdio.h>
 #endif
+#include "header.h"
 #include "codegen.h"
 #include "error.h"
-#include "header.h"
 
 int label_count;
 int switch_count;

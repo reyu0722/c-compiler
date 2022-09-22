@@ -4,7 +4,6 @@
 #include <stdio.h>
 #include <stdlib.h>
 #else
-typedef _Bool bool;
 typedef __builtin_va_list va_list;
 extern void *stderr;
 #endif

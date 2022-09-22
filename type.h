@@ -32,7 +32,7 @@ struct StructType
 	StructField *fields;
 	int alignment;
 	int size;
-	_Bool is_union;
+	bool is_union;
 };
 
 struct Type
@@ -44,6 +44,6 @@ struct Type
 };
 
 Type *new_type(TypeKind ty, Type *ptr_to);
-Type *new_struct_type(String *name, _Bool is_union);
+Type *new_struct_type(String *name, bool is_union);
 void add_field(StructType *type, Type *ty, String *name);
 int sizeof_type(Type *type);

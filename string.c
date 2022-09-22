@@ -15,12 +15,12 @@ String *new_string(char *ptr, int len)
 	return substr;
 }
 
-_Bool str_equals(String *s1, String *s2)
+bool str_equals(String *s1, String *s2)
 {
 	return s1->len == s2->len && !memcmp(s1->ptr, s2->ptr, s1->len);
 }
 
-_Bool str_chr_equals(String *s1, char *s2)
+bool str_chr_equals(String *s1, char *s2)
 {
 	return s1->len == strlen(s2) && !memcmp(s1->ptr, s2, s1->len);
 }

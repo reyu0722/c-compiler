@@ -15,7 +15,7 @@ Type *new_type(TypeKind ty, Type *ptr_to)
 	return type;
 }
 
-Type *new_struct_type(String *name, _Bool is_union)
+Type *new_struct_type(String *name, bool is_union)
 {
 	Type *ty = new_type(STRUCT, NULL);
 	ty->struct_type = calloc(1, sizeof(StructType));

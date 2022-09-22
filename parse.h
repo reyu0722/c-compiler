@@ -20,9 +20,9 @@ struct External
 	int size;
 	StringLiteral *literals;
 	int stack_size;
-	_Bool is_variadic;
-	_Bool is_extern;
+	bool is_variadic;
+	bool is_extern;
 };
 
-_Bool at_eof();
+bool at_eof();
 External *external();
