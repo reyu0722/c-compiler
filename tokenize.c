@@ -43,6 +43,10 @@ Token *tokenize(char *p, _Bool eof)
 
 	while (*p)
 	{
+		if (*p == '\n') {
+			cur = new_token(TK_NEWLINE, cur, p++, 1);
+			continue;
+		}
 		if (isspace(*p))
 		{
 			p++;

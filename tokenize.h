@@ -7,6 +7,7 @@ typedef struct Token Token;
 typedef enum
 {
 	TK_RESERVED,
+	TK_NEWLINE,
 	TK_IDENT,
 	TK_NUM,
 	TK_RETURN,

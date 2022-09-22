@@ -11,8 +11,37 @@ int snprintf();
 #include "error.h"
 #include "file.h"
 #include "header.h"
+#include "preprocess.h"
 
 char *once_file[100];
+Macro *macros[100];
+int mi;
+
+Macro *find_macro(String *str)
+{
+	for (int i = 0; i < mi; i++)
+		if (str_equals(str, macros[i]->ident))
+			return macros[i];
+	return NULL;
+}
+
+Token *remove_newline(Token *tok)
+{
+	Token *before = NULL;
+	for (Token *t = tok; t; t = t->next)
+	{
+		if (t->kind == TK_NEWLINE)
+		{
+			if (before)
+				before->next = t->next;
+			else
+				tok = t->next;
+		}
+		else
+			before = t;
+	}
+	return tok;
+}
 
 Token *preprocess(Token *tok)
 {
@@ -95,9 +124,60 @@ Token *preprocess(Token *tok)
 					once_file[i] = filename;
 				}
 			}
+
+			if (startswith(t->str->ptr, "#define"))
+			{
+				t = t->next;
+				assert(t->kind == TK_IDENT);
+
+				Macro *m = calloc(1, sizeof(Macro));
+				m->ident = t->str;
+
+				t = t->next;
+				m->replace = t;
+
+				while (t->next->kind != TK_NEWLINE)
+					t = t->next;
+
+				Token *last = t;
+				t = t->next;
+				last->next = NULL;
+
+				macros[mi++] = m;
+			}
 		}
 		else
 		{
+			if (t->kind == TK_IDENT)
+			{
+				Macro *m = find_macro(t->str);
+				if (!m)
+				{
+					if (before)
+						before->next = t;
+					else
+						start = t;
+					before = t;
+					continue;
+				}
+
+				Token *replace = m->replace;
+				while (replace)
+				{
+					Token *newt = calloc(1, sizeof(Token));
+					newt->kind = replace->kind;
+					newt->val = replace->val;
+					newt->str = t->str;
+					if (before)
+						before->next = newt;
+					else
+						start = t;
+					before = newt;
+					replace = replace->next;
+				}
+				continue;
+			}
+
 			if (before)
 				before->next = t;
 			else
@@ -105,6 +185,8 @@ Token *preprocess(Token *tok)
 			before = t;
 		}
 	}
+
+	start = remove_newline(start);
 
 	return start;
 }
